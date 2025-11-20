@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { DateTime } from 'luxon';
 import ToolCard from './ToolCard';
 import xmlFormatter from 'xml-formatter';
 import { format as formatSql } from 'sql-formatter';
 import { ToolInfo } from '../lib/tools';
+import { CronExpressionParser } from 'cron-parser';
 import {
   ArrowPathRoundedSquareIcon,
   ClipboardDocumentCheckIcon,
@@ -67,6 +68,12 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [bitwiseOp, setBitwiseOp] = useState('AND');
   const [bitwiseResult, setBitwiseResult] = useState('');
   const [bitwiseError, setBitwiseError] = useState('');
+
+  const [cronExpression, setCronExpression] = useState('*/5 * * * *');
+  const [cronZone, setCronZone] = useState('UTC');
+  const [cronRuns, setCronRuns] = useState<DateTime[]>([]);
+  const [cronError, setCronError] = useState('');
+  const [cronWarnings, setCronWarnings] = useState<string[]>([]);
 
   const copyToClipboard = async (value: string) => {
     try {
@@ -181,6 +188,58 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     setBitwiseError('');
     setBitwiseResult(`${result} (binary ${result.toString(2)})`);
   };
+
+  const computeCronWarnings = (expression: string, runs: DateTime[]) => {
+    const warnings = new Set<string>();
+
+    const fields = expression
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (fields.length >= 1 && (fields[0] === '*' || fields[0] === '*/1')) {
+      warnings.add('Minute field is unrestricted (every minute). Make sure the workload is light or rate-limited.');
+    }
+
+    if (runs.length >= 2) {
+      const diffSeconds = runs[1].diff(runs[0], 'seconds').seconds;
+      if (diffSeconds <= 60) {
+        warnings.add('Runs every minute or faster — verify downstream systems can handle the volume.');
+      } else if (diffSeconds <= 300) {
+        warnings.add('Runs very frequently (under 5 minutes). Consider widening the interval for heavy tasks.');
+      }
+    }
+
+    return Array.from(warnings);
+  };
+
+  const handleCronPreview = () => {
+    try {
+      const interval = CronExpressionParser.parse(cronExpression, {
+        currentDate: DateTime.now().setZone(cronZone).toISO(),
+        tz: cronZone,
+      });
+
+      const nextRuns: DateTime[] = [];
+      for (let i = 0; i < 10; i += 1) {
+        const next = interval.next().toDate();
+        nextRuns.push(DateTime.fromJSDate(next).setZone(cronZone));
+      }
+
+      setCronRuns(nextRuns);
+      setCronError('');
+      setCronWarnings(computeCronWarnings(cronExpression, nextRuns));
+    } catch (error) {
+      setCronError('Invalid cron expression. Use 5-field syntax like “*/5 * * * *”.');
+      setCronRuns([]);
+      setCronWarnings([]);
+    }
+  };
+
+  useEffect(() => {
+    handleCronPreview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-10 space-y-8">
@@ -399,6 +458,111 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
             {bitwiseError && <p className="text-sm text-rose-400">{bitwiseError}</p>}
           </div>
           {bitwiseResult && <pre className="code-output" aria-label="Bitwise output">{bitwiseResult}</pre>}
+        </ToolCard>
+      )}
+
+      {tool.id === 'cron' && (
+        <ToolCard title="Cron Expression Validator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_auto] gap-3 items-end">
+              <div className="space-y-1">
+                <label className="text-sm text-slate-300">Cron expression</label>
+                <input
+                  type="text"
+                  value={cronExpression}
+                  onChange={(e) => setCronExpression(e.target.value)}
+                  placeholder="*/5 * * * *"
+                  className="w-full px-3 py-2"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm text-slate-300">Timezone</label>
+                <select value={cronZone} onChange={(e) => setCronZone(e.target.value)} className="w-full px-3 py-2">
+                  {timeZones.map((zone) => (
+                    <option key={zone}>{zone}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={handleCronPreview}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand"
+              >
+                <CursorArrowRaysIcon className="h-4 w-4" />
+                Validate & preview
+              </button>
+            </div>
+
+            {cronError && <p className="text-sm text-rose-400">{cronError}</p>}
+
+            {!cronError && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-slate-300">
+                    <span className="badge">Next 10 runs</span>
+                    <span className="text-xs text-slate-400">Based on {cronZone}</span>
+                  </div>
+                  <div className="code-output space-y-2">
+                    {cronRuns.length === 0 && <p className="text-sm text-slate-400">Enter a cron expression to see the schedule.</p>}
+                    {cronRuns.map((run, index) => (
+                      <div key={run.toMillis()} className="flex items-center gap-3 text-sm text-slate-50">
+                        <span className="badge">#{index + 1}</span>
+                        <div className="flex-1">
+                          <p className="font-semibold">{run.toFormat('ccc, MMM d yyyy • HH:mm:ss ZZZZ')}</p>
+                          <p className="text-xs text-slate-400">{run.toRelative({ base: DateTime.now().setZone(cronZone) })}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-slate-300">
+                    <span className="badge">Visual timeline</span>
+                    <span className="text-xs text-slate-400">Spacing reflects time between runs</span>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
+                    <div className="relative h-20 rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-brand/10 via-brand/5 to-indigo-500/10">
+                      {cronRuns.length > 0 && (
+                        <div className="absolute inset-0">
+                          {(() => {
+                            const start = cronRuns[0];
+                            const end = cronRuns[cronRuns.length - 1];
+                            const span = Math.max(end.diff(start).as('milliseconds'), 1);
+
+                            return cronRuns.map((run, index) => {
+                              const offset = Math.min(Math.max(((run.toMillis() - start.toMillis()) / span) * 100, 0), 100);
+                              return (
+                                <div key={run.toMillis()} className="absolute top-0 h-full" style={{ left: `${offset}%` }}>
+                                  <div className="mx-auto h-full w-[2px] bg-brand/70" />
+                                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[10px] text-white/90">
+                                    {run.toFormat('HH:mm')}
+                                  </span>
+                                  <span className="absolute top-1 left-1/2 -translate-x-1/2 text-[10px] text-white/70">#{index + 1}</span>
+                                </div>
+                              );
+                            });
+                          })()}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-400">Timeline scaled between first and tenth run in {cronZone}.</p>
+
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-white">Warnings</p>
+                      {cronWarnings.length === 0 && <p className="text-sm text-emerald-300">No risky cadence detected.</p>}
+                      {cronWarnings.length > 0 && (
+                        <ul className="list-disc list-inside space-y-1 text-sm text-amber-200">
+                          {cronWarnings.map((warning) => (
+                            <li key={warning}>{warning}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </ToolCard>
       )}
     </main>
