@@ -1,6 +1,6 @@
 # Dev Tools
 
-A sleek developer-first utility belt inspired by smallapp.dev. This single-page Next.js app ships JSON/XML/SQL formatters, encoders/decoders, a timezone converter, and a bitwise calculator with a Tailwind CSS-driven UI that feels at home in dark mode.
+A sleek developer-first utility belt inspired by smallapp.dev. This Next.js App Router experience ships JSON/XML/SQL formatters, encoders/decoders, a timezone converter, and a bitwise calculator with a Tailwind CSS-driven UI that feels at home in dark mode. Each tool now has an SEO-friendly URL so you can bookmark or share deep links.
 
 ## Tech stack
 - Next.js 14 (App Router)
@@ -31,9 +31,11 @@ A sleek developer-first utility belt inspired by smallapp.dev. This single-page 
 2. Publish the `.next` output through your Static Web Apps workflow. Use `npm run build` as the build command and `.` as the app location so Next.js can prerender the SPA shell.
 
 ## Features
+- SEO-ready landing page with descriptive copy for indexing
 - JSON, XML, and SQL formatters with copy-friendly outputs
 - URL/Base64 encoders & decoders
 - Timezone conversion powered by Luxon
 - Bitwise operations with binary previews
+- Dedicated tool routes for sharing and documentation
 
 Contributions and additional tools are welcome!
