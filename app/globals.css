@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-slate-950 text-slate-50 min-h-screen antialiased;
+  background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.18), transparent 25%),
+    radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.15), transparent 20%),
+    linear-gradient(120deg, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.95));
+}
+
+a {
+  @apply text-brand font-semibold;
+}
+
+input, textarea, select {
+  @apply bg-slate-900/70 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/60 text-slate-100 placeholder:text-slate-500;
+}
+
+textarea {
+  @apply min-h-[140px] resize-vertical;
+}
+
+.section-card {
+  @apply bg-white/5 border border-white/10 rounded-2xl p-6 shadow-brand backdrop-blur;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 24px;
+  padding: 1px;
+  background: linear-gradient(120deg, rgba(99, 102, 241, 0.8), rgba(236, 72, 153, 0.65));
+  -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+  -webkit-mask-composite: destination-out;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.code-output {
+  @apply font-mono whitespace-pre-wrap bg-slate-900/60 rounded-xl p-4 border border-slate-800 overflow-x-auto;
+}
+
+.badge {
+  @apply px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/10;
+}
