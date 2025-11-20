@@ -22,7 +22,7 @@ input, textarea, select {
 }
 
 textarea {
-  @apply min-h-[140px] resize-vertical;
+  @apply min-h-[140px] resize-y;
 }
 
 .section-card {
