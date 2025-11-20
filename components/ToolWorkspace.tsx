@@ -7,7 +7,7 @@ import ToolCard from './ToolCard';
 import xmlFormatter from 'xml-formatter';
 import { format as formatSql } from 'sql-formatter';
 import { ToolInfo } from '../lib/tools';
-import cronParser from 'cron-parser';
+import { CronExpressionParser } from 'cron-parser';
 import {
   ArrowPathRoundedSquareIcon,
   ClipboardDocumentCheckIcon,
@@ -215,8 +215,8 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
   const handleCronPreview = () => {
     try {
-      const interval = cronParser.parseExpression(cronExpression, {
-        currentDate: DateTime.now().setZone(cronZone).toJSDate(),
+      const interval = CronExpressionParser.parse(cronExpression, {
+        currentDate: DateTime.now().setZone(cronZone).toISO(),
         tz: cronZone,
       });
 
