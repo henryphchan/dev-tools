@@ -9,6 +9,8 @@ import { format as formatSql } from 'sql-formatter';
 import { ToolInfo } from '../lib/tools';
 import { CronExpressionParser } from 'cron-parser';
 import { diffLines } from 'diff';
+import Papa from 'papaparse';
+import yaml from 'js-yaml';
 import {
   ArrowPathRoundedSquareIcon,
   ClipboardDocumentCheckIcon,
@@ -52,6 +54,32 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [decodeOutput, setDecodeOutput] = useState('');
   const [decodeError, setDecodeError] = useState('');
   const [encodeError, setEncodeError] = useState('');
+
+  const [csvInput, setCsvInput] = useState('');
+  const [jsonFromCsv, setJsonFromCsv] = useState('');
+  const [csvError, setCsvError] = useState('');
+  const [jsonForCsv, setJsonForCsv] = useState('');
+  const [csvFromJson, setCsvFromJson] = useState('');
+  const [jsonToCsvError, setJsonToCsvError] = useState('');
+
+  const [yamlInput, setYamlInput] = useState('');
+  const [jsonFromYaml, setJsonFromYaml] = useState('');
+  const [yamlError, setYamlError] = useState('');
+  const [jsonForYaml, setJsonForYaml] = useState('');
+  const [yamlFromJson, setYamlFromJson] = useState('');
+  const [jsonToYamlError, setJsonToYamlError] = useState('');
+
+  const [timestampInput, setTimestampInput] = useState('');
+  const [timestampUnit, setTimestampUnit] = useState<'seconds' | 'milliseconds'>('seconds');
+  const [timestampResult, setTimestampResult] = useState('');
+  const [timestampError, setTimestampError] = useState('');
+
+  const [jwtInput, setJwtInput] = useState('');
+  const [jwtHeader, setJwtHeader] = useState('');
+  const [jwtPayload, setJwtPayload] = useState('');
+  const [jwtError, setJwtError] = useState('');
+
+  const [uuidValue, setUuidValue] = useState('');
 
   const [diffLeftText, setDiffLeftText] = useState('');
   const [diffRightText, setDiffRightText] = useState('');
@@ -142,6 +170,115 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       setDecodeError('Decoding failed. Ensure the string is valid URL or Base64.');
       setDecodeOutput('');
     }
+  };
+
+  const handleCsvToJson = () => {
+    try {
+      const parsed = Papa.parse(csvInput, { header: true, skipEmptyLines: true });
+
+      if (parsed.errors.length) {
+        throw new Error(parsed.errors[0].message);
+      }
+
+      setJsonFromCsv(JSON.stringify(parsed.data, null, 2));
+      setCsvError('');
+    } catch (error) {
+      setCsvError('Unable to parse CSV. Check your delimiters and headers.');
+      setJsonFromCsv('');
+    }
+  };
+
+  const handleJsonToCsv = () => {
+    try {
+      const parsed = JSON.parse(jsonForCsv || '');
+      const csv = Papa.unparse(parsed);
+      setCsvFromJson(csv);
+      setJsonToCsvError('');
+    } catch (error) {
+      setJsonToCsvError('Invalid JSON. Provide an array or object to convert.');
+      setCsvFromJson('');
+    }
+  };
+
+  const handleYamlToJson = () => {
+    try {
+      const parsed = yaml.load(yamlInput);
+      setJsonFromYaml(JSON.stringify(parsed, null, 2));
+      setYamlError('');
+    } catch (error) {
+      setYamlError('Invalid YAML. Make sure indentation and syntax are correct.');
+      setJsonFromYaml('');
+    }
+  };
+
+  const handleJsonToYaml = () => {
+    try {
+      const parsed = JSON.parse(jsonForYaml || '');
+      setYamlFromJson(yaml.dump(parsed, { lineWidth: 100 }));
+      setJsonToYamlError('');
+    } catch (error) {
+      setJsonToYamlError('Invalid JSON for conversion. Please check the structure.');
+      setYamlFromJson('');
+    }
+  };
+
+  const handleTimestampConvert = () => {
+    const value = Number(timestampInput);
+
+    if (!Number.isFinite(value)) {
+      setTimestampError('Enter a numeric timestamp in seconds or milliseconds.');
+      setTimestampResult('');
+      return;
+    }
+
+    const millis = timestampUnit === 'seconds' ? value * 1000 : value;
+    const dt = DateTime.fromMillis(millis);
+
+    if (!dt.isValid) {
+      setTimestampError('Invalid timestamp. Please verify the units match the value.');
+      setTimestampResult('');
+      return;
+    }
+
+    const local = dt.toFormat('DDD • HH:mm:ss ZZZZ');
+    const iso = dt.toISO();
+
+    setTimestampResult(`${local}\nISO: ${iso}`);
+    setTimestampError('');
+  };
+
+  const decodeBase64Url = (value: string) => {
+    const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    return atob(padded);
+  };
+
+  const handleJwtDecode = () => {
+    try {
+      const parts = jwtInput.split('.');
+
+      if (parts.length < 2) {
+        throw new Error('JWT must have at least header and payload parts.');
+      }
+
+      const [headerPart, payloadPart] = parts;
+
+      const decodedHeader = JSON.parse(decodeBase64Url(headerPart));
+      const decodedPayload = JSON.parse(decodeBase64Url(payloadPart));
+
+      setJwtHeader(JSON.stringify(decodedHeader, null, 2));
+      setJwtPayload(JSON.stringify(decodedPayload, null, 2));
+      setJwtError('');
+    } catch (error) {
+      setJwtError('Unable to decode JWT. Ensure it is a valid Base64URL token.');
+      setJwtHeader('');
+      setJwtPayload('');
+    }
+  };
+
+  const generateUuid = () => {
+    const next = crypto.randomUUID();
+    setUuidValue(next);
   };
 
   type DiffLine = {
@@ -326,6 +463,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    generateUuid();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <main className="max-w-5xl mx-auto px-4 py-10 space-y-8">
       <nav className="flex items-center gap-2 text-sm text-slate-300" aria-label="Breadcrumb">
@@ -349,6 +491,238 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
           <span className="badge">Copy-ready outputs</span>
         </div>
       </header>
+
+      {tool.id === 'csv-json' && (
+        <ToolCard title="CSV ↔ JSON Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <label className="text-sm text-slate-300">CSV input (expects headers)</label>
+              <textarea
+                value={csvInput}
+                onChange={(e) => setCsvInput(e.target.value)}
+                placeholder={`name,role\nAda,Engineer`}
+                className="w-full"
+              />
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleCsvToJson}
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand"
+                >
+                  <CursorArrowRaysIcon className="h-4 w-4" />
+                  Convert to JSON
+                </button>
+                {jsonFromCsv && (
+                  <button
+                    onClick={() => copyToClipboard(jsonFromCsv)}
+                    className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+                  >
+                    <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy JSON
+                  </button>
+                )}
+              </div>
+              {csvError && <p className="text-sm text-rose-400">{csvError}</p>}
+              {jsonFromCsv && <pre className="code-output" aria-label="JSON from CSV">{jsonFromCsv}</pre>}
+            </div>
+
+            <div className="space-y-3 border-t border-white/10 pt-4 lg:border-t-0 lg:pt-0 lg:border-l lg:pl-4">
+              <label className="text-sm text-slate-300">JSON input</label>
+              <textarea
+                value={jsonForCsv}
+                onChange={(e) => setJsonForCsv(e.target.value)}
+                placeholder='[{"name":"Ada","role":"Engineer"}]'
+                className="w-full"
+              />
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleJsonToCsv}
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-slate-100 border border-white/10"
+                >
+                  <ArrowPathRoundedSquareIcon className="h-4 w-4" />
+                  Convert to CSV
+                </button>
+                {csvFromJson && (
+                  <button
+                    onClick={() => copyToClipboard(csvFromJson)}
+                    className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+                  >
+                    <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy CSV
+                  </button>
+                )}
+              </div>
+              {jsonToCsvError && <p className="text-sm text-rose-400">{jsonToCsvError}</p>}
+              {csvFromJson && <pre className="code-output" aria-label="CSV from JSON">{csvFromJson}</pre>}
+            </div>
+          </div>
+        </ToolCard>
+      )}
+
+      {tool.id === 'yaml-json' && (
+        <ToolCard title="YAML ↔ JSON Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <label className="text-sm text-slate-300">YAML input</label>
+              <textarea
+                value={yamlInput}
+                onChange={(e) => setYamlInput(e.target.value)}
+                placeholder={`app:\n  env: prod`}
+                className="w-full"
+              />
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleYamlToJson}
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand"
+                >
+                  <CursorArrowRaysIcon className="h-4 w-4" />
+                  Convert to JSON
+                </button>
+                {jsonFromYaml && (
+                  <button
+                    onClick={() => copyToClipboard(jsonFromYaml)}
+                    className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+                  >
+                    <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy JSON
+                  </button>
+                )}
+              </div>
+              {yamlError && <p className="text-sm text-rose-400">{yamlError}</p>}
+              {jsonFromYaml && <pre className="code-output" aria-label="JSON from YAML">{jsonFromYaml}</pre>}
+            </div>
+
+            <div className="space-y-3 border-t border-white/10 pt-4 lg:border-t-0 lg:pt-0 lg:border-l lg:pl-4">
+              <label className="text-sm text-slate-300">JSON input</label>
+              <textarea
+                value={jsonForYaml}
+                onChange={(e) => setJsonForYaml(e.target.value)}
+                placeholder='{"app":{"env":"prod"}}'
+                className="w-full"
+              />
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleJsonToYaml}
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-slate-100 border border-white/10"
+                >
+                  <ArrowPathRoundedSquareIcon className="h-4 w-4" />
+                  Convert to YAML
+                </button>
+                {yamlFromJson && (
+                  <button
+                    onClick={() => copyToClipboard(yamlFromJson)}
+                    className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+                  >
+                    <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy YAML
+                  </button>
+                )}
+              </div>
+              {jsonToYamlError && <p className="text-sm text-rose-400">{jsonToYamlError}</p>}
+              {yamlFromJson && <pre className="code-output" aria-label="YAML from JSON">{yamlFromJson}</pre>}
+            </div>
+          </div>
+        </ToolCard>
+      )}
+
+      {tool.id === 'timestamp' && (
+        <ToolCard title="Timestamp to Date Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_auto] gap-3 items-end">
+            <div className="space-y-1">
+              <label className="text-sm text-slate-300">Timestamp</label>
+              <input
+                type="text"
+                value={timestampInput}
+                onChange={(e) => setTimestampInput(e.target.value)}
+                placeholder="1700000000"
+                className="w-full px-3 py-2"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm text-slate-300">Units</label>
+              <select
+                value={timestampUnit}
+                onChange={(e) => setTimestampUnit(e.target.value as 'seconds' | 'milliseconds')}
+                className="w-full px-3 py-2"
+              >
+                <option value="seconds">Seconds</option>
+                <option value="milliseconds">Milliseconds</option>
+              </select>
+            </div>
+            <button
+              onClick={handleTimestampConvert}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand"
+            >
+              <CursorArrowRaysIcon className="h-4 w-4" /> Convert
+            </button>
+          </div>
+          {timestampError && <p className="text-sm text-rose-400">{timestampError}</p>}
+          {timestampResult && <pre className="code-output" aria-label="Timestamp output">{timestampResult}</pre>}
+          <p className="text-xs text-slate-400">Outputs include your local timezone and ISO-8601 format.</p>
+        </ToolCard>
+      )}
+
+      {tool.id === 'jwt' && (
+        <ToolCard title="JWT Decoder" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="space-y-2">
+            <label className="text-sm text-slate-300">JWT</label>
+            <textarea
+              value={jwtInput}
+              onChange={(e) => setJwtInput(e.target.value)}
+              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZGV2In0.signature"
+              className="w-full"
+            />
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={handleJwtDecode}
+                className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand"
+              >
+                <CursorArrowRaysIcon className="h-4 w-4" />
+                Decode JWT
+              </button>
+              {(jwtHeader || jwtPayload) && (
+                <button
+                  onClick={() => copyToClipboard(`${jwtHeader}\n${jwtPayload}`)}
+                  className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+                >
+                  <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy decoded parts
+                </button>
+              )}
+            </div>
+            {jwtError && <p className="text-sm text-rose-400">{jwtError}</p>}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-white">Header</p>
+              {jwtHeader ? <pre className="code-output" aria-label="JWT header">{jwtHeader}</pre> : <p className="text-sm text-slate-400">Decoded header will appear here.</p>}
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-white">Payload</p>
+              {jwtPayload ? <pre className="code-output" aria-label="JWT payload">{jwtPayload}</pre> : <p className="text-sm text-slate-400">Decoded payload will appear here.</p>}
+            </div>
+          </div>
+        </ToolCard>
+      )}
+
+      {tool.id === 'uuid' && (
+        <ToolCard title="UUID Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={generateUuid}
+              className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand"
+            >
+              <CursorArrowRaysIcon className="h-4 w-4" />
+              Generate UUID
+            </button>
+            {uuidValue && (
+              <button
+                onClick={() => copyToClipboard(uuidValue)}
+                className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+              >
+                <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy
+              </button>
+            )}
+          </div>
+          {uuidValue && <pre className="code-output" aria-label="UUID output">{uuidValue}</pre>}
+          <p className="text-xs text-slate-400">Uses the browser&apos;s crypto API to generate RFC 4122 v4 identifiers.</p>
+        </ToolCard>
+      )}
 
       {tool.id === 'diff' && (
         <ToolCard title="Compare 2 text files" description={tool.description} badge={tool.badge} accent={tool.accent}>

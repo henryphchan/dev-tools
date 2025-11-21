@@ -1,4 +1,17 @@
-export type ToolId = 'json' | 'xml' | 'sql' | 'encode' | 'timezone' | 'bitwise' | 'cron' | 'diff';
+export type ToolId =
+  | 'json'
+  | 'xml'
+  | 'sql'
+  | 'encode'
+  | 'timezone'
+  | 'bitwise'
+  | 'cron'
+  | 'diff'
+  | 'csv-json'
+  | 'yaml-json'
+  | 'timestamp'
+  | 'jwt'
+  | 'uuid';
 
 export interface ToolInfo {
   id: ToolId;
@@ -36,6 +49,66 @@ export const tools: ToolInfo[] = [
     badge: 'Scheduler',
     accent: 'Automation',
     keywords: ['cron', 'scheduler', 'cron validator', 'crontab', 'scheduled jobs', 'devops'],
+  },
+  {
+    id: 'csv-json',
+    slug: 'csv-json-converter',
+    title: 'CSV ↔ JSON Converter',
+    seoTitle: 'CSV to JSON & JSON to CSV Online Converter | Dev Tools',
+    description: 'Convert CSV rows to JSON arrays and back with header-aware parsing.',
+    longDescription:
+      'Quickly translate CSV rows into JSON arrays or convert JSON back into shareable CSV. Great for API payload prep, data munging, or debugging exports.',
+    badge: 'Converter',
+    accent: 'Data',
+    keywords: ['csv', 'json', 'converter', 'csv to json', 'json to csv', 'data tools'],
+  },
+  {
+    id: 'yaml-json',
+    slug: 'yaml-json-converter',
+    title: 'YAML ↔ JSON Converter',
+    seoTitle: 'YAML to JSON & JSON to YAML Converter | Dev Tools',
+    description: 'Translate YAML configs into JSON and back with a single click.',
+    longDescription:
+      'Convert between YAML and JSON for config files, CI pipelines, or Kubernetes manifests. Validate structure quickly before committing changes.',
+    badge: 'Converter',
+    accent: 'Config',
+    keywords: ['yaml', 'json', 'converter', 'yaml to json', 'json to yaml', 'kubernetes', 'config'],
+  },
+  {
+    id: 'timestamp',
+    slug: 'timestamp-to-date',
+    title: 'Timestamp to Date Converter',
+    seoTitle: 'Timestamp (ms or s) to Human-Readable Date Converter | Dev Tools',
+    description: 'Turn Unix timestamps into readable dates in seconds or milliseconds.',
+    longDescription:
+      'Paste a Unix timestamp in seconds or milliseconds to see a human-friendly date with ISO and local timezone details. Perfect for log debugging or API payloads.',
+    badge: 'Converter',
+    accent: 'Time',
+    keywords: ['timestamp', 'unix time', 'milliseconds', 'seconds', 'date converter', 'epoch'],
+  },
+  {
+    id: 'jwt',
+    slug: 'jwt-decoder',
+    title: 'JWT Decoder',
+    seoTitle: 'Decode JWT Header & Payload Safely | Dev Tools',
+    description: 'Inspect JWT headers and payloads without validating signatures.',
+    longDescription:
+      'Paste a JSON Web Token to view the decoded header and payload instantly. Great for debugging auth flows or validating claims locally.',
+    badge: 'Decoder',
+    accent: 'Security',
+    keywords: ['jwt', 'json web token', 'decode jwt', 'auth debugging', 'token'],
+  },
+  {
+    id: 'uuid',
+    slug: 'uuid-generator',
+    title: 'UUID Generator',
+    seoTitle: 'Generate RFC 4122 UUIDs Online | Dev Tools',
+    description: 'Create random UUIDs for testing, database keys, or identifiers.',
+    longDescription:
+      'Generate random UUIDs (v4) in the browser. Copy fresh identifiers for migrations, API clients, or test fixtures in one click.',
+    badge: 'Generator',
+    accent: 'Identity',
+    keywords: ['uuid', 'generator', 'random uuid', 'identifier', 'guid'],
   },
   {
     id: 'json',
