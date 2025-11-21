@@ -92,6 +92,8 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [qrSize, setQrSize] = useState(320);
   const [qrDarkColor, setQrDarkColor] = useState('#0ea5e9');
   const [qrLightColor, setQrLightColor] = useState('#0b1224');
+  const [qrDarkColorText, setQrDarkColorText] = useState('#0ea5e9');
+  const [qrLightColorText, setQrLightColorText] = useState('#0b1224');
   const [qrErrorCorrection, setQrErrorCorrection] = useState<'L' | 'M' | 'H'>('M');
   const [wifiSsid, setWifiSsid] = useState('');
   const [wifiPassword, setWifiPassword] = useState('');
@@ -99,6 +101,43 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [wifiHidden, setWifiHidden] = useState(false);
 
   const clampedQrSize = useMemo(() => Math.min(1024, Math.max(120, qrSize)), [qrSize]);
+
+  const normalizeHexColor = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+
+    const withHash = trimmed.startsWith('#') ? trimmed : `#${trimmed}`;
+    const hex = withHash.slice(1).replace(/[^0-9a-fA-F]/g, '');
+
+    if (hex.length === 3) {
+      return `#${hex
+        .split('')
+        .map((char) => char.repeat(2))
+        .join('')}`.toLowerCase();
+    }
+
+    if (hex.length === 6) {
+      return `#${hex.toLowerCase()}`;
+    }
+
+    return null;
+  };
+
+  const commitColorInput = (
+    value: string,
+    setColor: (color: string) => void,
+    setText: (colorText: string) => void,
+    fallback: string
+  ) => {
+    const normalized = normalizeHexColor(value);
+
+    if (normalized) {
+      setColor(normalized);
+      setText(normalized);
+    } else {
+      setText(fallback);
+    }
+  };
 
   const [wordCloudText, setWordCloudText] = useState('');
   const [wordCloudBg, setWordCloudBg] = useState('#0b1224');
@@ -827,13 +866,22 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                       <input
                         type="color"
                         value={qrDarkColor}
-                        onChange={(e) => setQrDarkColor(e.target.value)}
+                        onChange={(e) => {
+                          setQrDarkColor(e.target.value);
+                          setQrDarkColorText(e.target.value);
+                        }}
                         className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
                       />
                       <input
                         type="text"
-                        value={qrDarkColor}
-                        onChange={(e) => setQrDarkColor(e.target.value)}
+                        value={qrDarkColorText}
+                        onChange={(e) => setQrDarkColorText(e.target.value)}
+                        onBlur={() => commitColorInput(qrDarkColorText, setQrDarkColor, setQrDarkColorText, qrDarkColor)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            commitColorInput(qrDarkColorText, setQrDarkColor, setQrDarkColorText, qrDarkColor);
+                          }
+                        }}
                         className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
                         placeholder="#0ea5e9"
                       />
@@ -845,13 +893,22 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                       <input
                         type="color"
                         value={qrLightColor}
-                        onChange={(e) => setQrLightColor(e.target.value)}
+                        onChange={(e) => {
+                          setQrLightColor(e.target.value);
+                          setQrLightColorText(e.target.value);
+                        }}
                         className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
                       />
                       <input
                         type="text"
-                        value={qrLightColor}
-                        onChange={(e) => setQrLightColor(e.target.value)}
+                        value={qrLightColorText}
+                        onChange={(e) => setQrLightColorText(e.target.value)}
+                        onBlur={() => commitColorInput(qrLightColorText, setQrLightColor, setQrLightColorText, qrLightColor)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            commitColorInput(qrLightColorText, setQrLightColor, setQrLightColorText, qrLightColor);
+                          }
+                        }}
                         className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
                         placeholder="#0b1224"
                       />
