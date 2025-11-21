@@ -20,7 +20,7 @@ export default function Home() {
   }, [searchTerm]);
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-12 space-y-12">
+    <main className="max-w-7xl mx-auto px-4 py-12 space-y-12">
       <header className="space-y-6 text-center">
         <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
           <SparklesIcon className="w-4 h-4 text-brand" />
@@ -62,7 +62,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredTools.map((tool) => (
             <Link
               key={tool.id}
@@ -84,7 +84,7 @@ export default function Home() {
             </Link>
           ))}
           {filteredTools.length === 0 && (
-            <p className="text-sm text-slate-300 sm:col-span-2">No tools match that search—try another keyword like “JSON”, “SQL”, or “timezone”.</p>
+            <p className="text-sm text-slate-300 sm:col-span-2 lg:col-span-3">No tools match that search—try another keyword like “JSON”, “SQL”, or “timezone”.</p>
           )}
         </div>
       </section>
