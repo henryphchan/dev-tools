@@ -870,7 +870,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                           setQrDarkColor(e.target.value);
                           setQrDarkColorText(e.target.value);
                         }}
-                        className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
+                        className="h-10 w-12 shrink-0 rounded-lg border border-white/10 bg-white/5 p-0"
                       />
                       <input
                         type="text"
@@ -897,7 +897,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                           setQrLightColor(e.target.value);
                           setQrLightColorText(e.target.value);
                         }}
-                        className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
+                        className="h-10 w-12 shrink-0 rounded-lg border border-white/10 bg-white/5 p-0"
                       />
                       <input
                         type="text"
