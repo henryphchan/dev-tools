@@ -795,7 +795,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                   <p className="text-xs text-slate-400">Choose error correction, sizing, and colors.</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-sm text-slate-300">Error correction</label>
                     <select
@@ -821,42 +821,40 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                     />
                     <p className="text-xs text-slate-400">Clamped between 120px and 1024px.</p>
                   </div>
-                  <div className="space-y-2 grid grid-cols-2 gap-2 sm:col-span-2 xl:col-span-1">
-                    <div className="space-y-1">
-                      <label className="text-sm text-slate-300">Foreground</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={qrDarkColor}
-                          onChange={(e) => setQrDarkColor(e.target.value)}
-                          className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
-                        />
-                        <input
-                          type="text"
-                          value={qrDarkColor}
-                          onChange={(e) => setQrDarkColor(e.target.value)}
-                          className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
-                          placeholder="#0ea5e9"
-                        />
-                      </div>
+                  <div className="space-y-1">
+                    <label className="text-sm text-slate-300">Foreground</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={qrDarkColor}
+                        onChange={(e) => setQrDarkColor(e.target.value)}
+                        className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
+                      />
+                      <input
+                        type="text"
+                        value={qrDarkColor}
+                        onChange={(e) => setQrDarkColor(e.target.value)}
+                        className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                        placeholder="#0ea5e9"
+                      />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-sm text-slate-300">Background</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={qrLightColor}
-                          onChange={(e) => setQrLightColor(e.target.value)}
-                          className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
-                        />
-                        <input
-                          type="text"
-                          value={qrLightColor}
-                          onChange={(e) => setQrLightColor(e.target.value)}
-                          className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
-                          placeholder="#0b1224"
-                        />
-                      </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm text-slate-300">Background</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={qrLightColor}
+                        onChange={(e) => setQrLightColor(e.target.value)}
+                        className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
+                      />
+                      <input
+                        type="text"
+                        value={qrLightColor}
+                        onChange={(e) => setQrLightColor(e.target.value)}
+                        className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                        placeholder="#0b1224"
+                      />
                     </div>
                   </div>
                 </div>
