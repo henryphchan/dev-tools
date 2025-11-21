@@ -860,9 +860,9 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                     />
                     <p className="text-xs text-slate-400">Clamped between 120px and 1024px.</p>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 min-w-0">
                     <label className="text-sm text-slate-300">Foreground</label>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <input
                         type="color"
                         value={qrDarkColor}
@@ -882,14 +882,14 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                             commitColorInput(qrDarkColorText, setQrDarkColor, setQrDarkColorText, qrDarkColor);
                           }
                         }}
-                        className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                        className="flex-1 min-w-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
                         placeholder="#0ea5e9"
                       />
                     </div>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 min-w-0">
                     <label className="text-sm text-slate-300">Background</label>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <input
                         type="color"
                         value={qrLightColor}
@@ -909,7 +909,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                             commitColorInput(qrLightColorText, setQrLightColor, setQrLightColorText, qrLightColor);
                           }
                         }}
-                        className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                        className="flex-1 min-w-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
                         placeholder="#0b1224"
                       />
                     </div>
