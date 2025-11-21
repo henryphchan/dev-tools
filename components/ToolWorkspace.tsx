@@ -704,150 +704,159 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
       {tool.id === 'qr-generator' && (
         <ToolCard title="QR Code Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
-          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-5">
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] gap-6 items-start">
             <div className="space-y-4">
-              <div className="flex flex-wrap gap-3">
-                <label className="inline-flex items-center gap-2 text-sm text-slate-300">
-                  <input
-                    type="radio"
-                    name="qr-type"
-                    value="text"
-                    checked={qrType === 'text'}
-                    onChange={() => setQrType('text')}
-                  />
-                  Text or URL
-                </label>
-                <label className="inline-flex items-center gap-2 text-sm text-slate-300">
-                  <input
-                    type="radio"
-                    name="qr-type"
-                    value="wifi"
-                    checked={qrType === 'wifi'}
-                    onChange={() => setQrType('wifi')}
-                  />
-                  WiFi credentials
-                </label>
-              </div>
-
-              {qrType === 'text' && (
-                <div className="space-y-2">
-                  <label className="text-sm text-slate-300">Text or URL</label>
-                  <textarea
-                    value={qrContent}
-                    onChange={(e) => setQrContent(e.target.value)}
-                    placeholder="https://example.com or any text..."
-                    className="w-full"
-                  />
-                </div>
-              )}
-
-              {qrType === 'wifi' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <label className="text-sm text-slate-300">Network name (SSID)</label>
-                    <input
-                      type="text"
-                      value={wifiSsid}
-                      onChange={(e) => setWifiSsid(e.target.value)}
-                      className="w-full px-3 py-2"
-                      placeholder="MyWiFi"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm text-slate-300">Security</label>
-                    <select
-                      value={wifiSecurity}
-                      onChange={(e) => setWifiSecurity(e.target.value as typeof wifiSecurity)}
-                      className="w-full px-3 py-2"
-                    >
-                      <option value="WPA">WPA/WPA2</option>
-                      <option value="WEP">WEP</option>
-                      <option value="nopass">Open network</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm text-slate-300">Password (optional for open networks)</label>
-                    <input
-                      type="text"
-                      value={wifiPassword}
-                      onChange={(e) => setWifiPassword(e.target.value)}
-                      className="w-full px-3 py-2"
-                      placeholder="••••••••"
-                      disabled={wifiSecurity === 'nopass'}
-                    />
-                  </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-4">
+                <div className="flex flex-wrap gap-3">
                   <label className="inline-flex items-center gap-2 text-sm text-slate-300">
                     <input
-                      type="checkbox"
-                      checked={wifiHidden}
-                      onChange={(e) => setWifiHidden(e.target.checked)}
+                      type="radio"
+                      name="qr-type"
+                      value="text"
+                      checked={qrType === 'text'}
+                      onChange={() => setQrType('text')}
                     />
-                    Hidden network
+                    Text or URL
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-sm text-slate-300">
+                    <input
+                      type="radio"
+                      name="qr-type"
+                      value="wifi"
+                      checked={qrType === 'wifi'}
+                      onChange={() => setQrType('wifi')}
+                    />
+                    WiFi credentials
                   </label>
                 </div>
-              )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                <div className="space-y-1">
-                  <label className="text-sm text-slate-300">Error correction</label>
-                  <select
-                    value={qrErrorCorrection}
-                    onChange={(e) => setQrErrorCorrection(e.target.value as typeof qrErrorCorrection)}
-                    className="w-full px-3 py-2"
-                  >
-                    <option value="H">High (30%)</option>
-                    <option value="M">Medium (15%)</option>
-                    <option value="L">Low (7%)</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm text-slate-300">Size (px)</label>
-                  <input
-                    type="number"
-                    min={120}
-                    max={1024}
-                    value={qrSize}
-                    onChange={(e) => setQrSize(Number(e.target.value))}
-                    className="w-full px-3 py-2"
-                    placeholder="320"
-                  />
-                  <p className="text-xs text-slate-400">Clamped between 120px and 1024px.</p>
-                </div>
-                <div className="space-y-2 grid grid-cols-2 gap-2 md:col-span-2 lg:col-span-1">
-                  <div className="space-y-1">
-                    <label className="text-sm text-slate-300">Foreground</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={qrDarkColor}
-                        onChange={(e) => setQrDarkColor(e.target.value)}
-                        className="h-9 w-12 rounded-lg border border-white/10 bg-white/5"
-                      />
+                {qrType === 'text' && (
+                  <div className="space-y-2">
+                    <label className="text-sm text-slate-300">Text or URL</label>
+                    <textarea
+                      value={qrContent}
+                      onChange={(e) => setQrContent(e.target.value)}
+                      placeholder="https://example.com or any text..."
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 min-h-[120px]"
+                    />
+                  </div>
+                )}
+
+                {qrType === 'wifi' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-sm text-slate-300">Network name (SSID)</label>
                       <input
                         type="text"
-                        value={qrDarkColor}
-                        onChange={(e) => setQrDarkColor(e.target.value)}
-                        className="flex-1 px-3 py-2"
-                        placeholder="#0ea5e9"
+                        value={wifiSsid}
+                        onChange={(e) => setWifiSsid(e.target.value)}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                        placeholder="MyWiFi"
                       />
                     </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm text-slate-300">Background</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={qrLightColor}
-                        onChange={(e) => setQrLightColor(e.target.value)}
-                        className="h-9 w-12 rounded-lg border border-white/10 bg-white/5"
-                      />
+                    <div className="space-y-2">
+                      <label className="text-sm text-slate-300">Security</label>
+                      <select
+                        value={wifiSecurity}
+                        onChange={(e) => setWifiSecurity(e.target.value as typeof wifiSecurity)}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                      >
+                        <option value="WPA">WPA/WPA2</option>
+                        <option value="WEP">WEP</option>
+                        <option value="nopass">Open network</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm text-slate-300">Password (optional for open networks)</label>
                       <input
                         type="text"
-                        value={qrLightColor}
-                        onChange={(e) => setQrLightColor(e.target.value)}
-                        className="flex-1 px-3 py-2"
-                        placeholder="#0b1224"
+                        value={wifiPassword}
+                        onChange={(e) => setWifiPassword(e.target.value)}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                        placeholder="••••••••"
+                        disabled={wifiSecurity === 'nopass'}
                       />
+                    </div>
+                    <label className="inline-flex items-center gap-2 text-sm text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={wifiHidden}
+                        onChange={(e) => setWifiHidden(e.target.checked)}
+                      />
+                      Hidden network
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-4">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <p className="text-sm font-semibold text-slate-200">Customization</p>
+                  <p className="text-xs text-slate-400">Choose error correction, sizing, and colors.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-sm text-slate-300">Error correction</label>
+                    <select
+                      value={qrErrorCorrection}
+                      onChange={(e) => setQrErrorCorrection(e.target.value as typeof qrErrorCorrection)}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                    >
+                      <option value="H">High (30%)</option>
+                      <option value="M">Medium (15%)</option>
+                      <option value="L">Low (7%)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm text-slate-300">Size (px)</label>
+                    <input
+                      type="number"
+                      min={120}
+                      max={1024}
+                      value={qrSize}
+                      onChange={(e) => setQrSize(Number(e.target.value))}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                      placeholder="320"
+                    />
+                    <p className="text-xs text-slate-400">Clamped between 120px and 1024px.</p>
+                  </div>
+                  <div className="space-y-2 grid grid-cols-2 gap-2 sm:col-span-2 xl:col-span-1">
+                    <div className="space-y-1">
+                      <label className="text-sm text-slate-300">Foreground</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={qrDarkColor}
+                          onChange={(e) => setQrDarkColor(e.target.value)}
+                          className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
+                        />
+                        <input
+                          type="text"
+                          value={qrDarkColor}
+                          onChange={(e) => setQrDarkColor(e.target.value)}
+                          className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                          placeholder="#0ea5e9"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-sm text-slate-300">Background</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={qrLightColor}
+                          onChange={(e) => setQrLightColor(e.target.value)}
+                          className="h-10 w-12 rounded-lg border border-white/10 bg-white/5"
+                        />
+                        <input
+                          type="text"
+                          value={qrLightColor}
+                          onChange={(e) => setQrLightColor(e.target.value)}
+                          className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                          placeholder="#0b1224"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -874,20 +883,22 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
             </div>
 
             <div className="space-y-3">
-              <p className="text-sm text-slate-300">Preview</p>
-              <div className="flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-6 min-h-[280px]">
-                {qrDataUrl ? (
-                  <Image
-                    src={qrDataUrl}
-                    alt="Generated QR code"
-                    width={clampedQrSize}
-                    height={clampedQrSize}
-                    className="object-contain"
-                    style={{ width: clampedQrSize, height: clampedQrSize, maxWidth: '100%', maxHeight: '100%' }}
-                  />
-                ) : (
-                  <p className="text-sm text-slate-400">Enter details and generate to see the QR code.</p>
-                )}
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="text-sm text-slate-300 mb-2">Preview</p>
+                <div className="flex items-center justify-center rounded-xl border border-white/5 bg-slate-950/40 p-6 min-h-[280px]">
+                  {qrDataUrl ? (
+                    <Image
+                      src={qrDataUrl}
+                      alt="Generated QR code"
+                      width={clampedQrSize}
+                      height={clampedQrSize}
+                      className="object-contain"
+                      style={{ width: clampedQrSize, height: clampedQrSize, maxWidth: '100%', maxHeight: '100%' }}
+                    />
+                  ) : (
+                    <p className="text-sm text-slate-400 text-center">Enter details and generate to see the QR code.</p>
+                  )}
+                </div>
               </div>
               {qrDataUrl && (
                 <a
