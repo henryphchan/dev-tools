@@ -89,10 +89,16 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [qrType, setQrType] = useState<'text' | 'wifi'>('text');
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [qrError, setQrError] = useState('');
+  const [qrSize, setQrSize] = useState(320);
+  const [qrDarkColor, setQrDarkColor] = useState('#0ea5e9');
+  const [qrLightColor, setQrLightColor] = useState('#0b1224');
+  const [qrErrorCorrection, setQrErrorCorrection] = useState<'L' | 'M' | 'H'>('M');
   const [wifiSsid, setWifiSsid] = useState('');
   const [wifiPassword, setWifiPassword] = useState('');
   const [wifiSecurity, setWifiSecurity] = useState<'WPA' | 'WEP' | 'nopass'>('WPA');
   const [wifiHidden, setWifiHidden] = useState(false);
+
+  const clampedQrSize = useMemo(() => Math.min(1024, Math.max(120, qrSize)), [qrSize]);
 
   const [wordCloudText, setWordCloudText] = useState('');
   const [wordCloudBg, setWordCloudBg] = useState('#0b1224');
@@ -331,9 +337,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       }
 
       const dataUrl = await QRCode.toDataURL(payload, {
-        width: 320,
+        width: clampedQrSize,
         margin: 2,
-        color: { dark: '#0ea5e9', light: '#0b1224' },
+        color: { dark: qrDarkColor, light: qrLightColor },
+        errorCorrectionLevel: qrErrorCorrection,
       });
 
       setQrDataUrl(dataUrl);
@@ -780,6 +787,72 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                 </div>
               )}
 
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="text-sm text-slate-300">Error correction</label>
+                  <select
+                    value={qrErrorCorrection}
+                    onChange={(e) => setQrErrorCorrection(e.target.value as typeof qrErrorCorrection)}
+                    className="w-full px-3 py-2"
+                  >
+                    <option value="H">High (30%)</option>
+                    <option value="M">Medium (15%)</option>
+                    <option value="L">Low (7%)</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm text-slate-300">Size (px)</label>
+                  <input
+                    type="number"
+                    min={120}
+                    max={1024}
+                    value={qrSize}
+                    onChange={(e) => setQrSize(Number(e.target.value))}
+                    className="w-full px-3 py-2"
+                    placeholder="320"
+                  />
+                  <p className="text-xs text-slate-400">Clamped between 120px and 1024px.</p>
+                </div>
+                <div className="space-y-2 grid grid-cols-2 gap-2 md:col-span-2 lg:col-span-1">
+                  <div className="space-y-1">
+                    <label className="text-sm text-slate-300">Foreground</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={qrDarkColor}
+                        onChange={(e) => setQrDarkColor(e.target.value)}
+                        className="h-9 w-12 rounded-lg border border-white/10 bg-white/5"
+                      />
+                      <input
+                        type="text"
+                        value={qrDarkColor}
+                        onChange={(e) => setQrDarkColor(e.target.value)}
+                        className="flex-1 px-3 py-2"
+                        placeholder="#0ea5e9"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm text-slate-300">Background</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={qrLightColor}
+                        onChange={(e) => setQrLightColor(e.target.value)}
+                        className="h-9 w-12 rounded-lg border border-white/10 bg-white/5"
+                      />
+                      <input
+                        type="text"
+                        value={qrLightColor}
+                        onChange={(e) => setQrLightColor(e.target.value)}
+                        className="flex-1 px-3 py-2"
+                        placeholder="#0b1224"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={handleGenerateQr}
@@ -804,7 +877,14 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
               <p className="text-sm text-slate-300">Preview</p>
               <div className="flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-6 min-h-[280px]">
                 {qrDataUrl ? (
-                  <Image src={qrDataUrl} alt="Generated QR code" className="h-64 w-64 object-contain" width={256} height={256} />
+                  <Image
+                    src={qrDataUrl}
+                    alt="Generated QR code"
+                    width={clampedQrSize}
+                    height={clampedQrSize}
+                    className="object-contain"
+                    style={{ width: clampedQrSize, height: clampedQrSize, maxWidth: '100%', maxHeight: '100%' }}
+                  />
                 ) : (
                   <p className="text-sm text-slate-400">Enter details and generate to see the QR code.</p>
                 )}
