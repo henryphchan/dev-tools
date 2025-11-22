@@ -7,17 +7,43 @@ import { CursorArrowRaysIcon, SparklesIcon } from '../components/icons';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  const categories = useMemo(() => {
+    const labels = tools.flatMap((tool) => [tool.badge, tool.accent]);
+    return Array.from(new Set(labels)).sort((a, b) => a.localeCompare(b));
+  }, []);
 
   const filteredTools = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return tools;
-    return tools.filter(
-      (tool) =>
+    const hasActiveCategories = selectedCategories.length > 0;
+
+    return tools.filter((tool) => {
+      const matchesSearch =
+        !term ||
         tool.title.toLowerCase().includes(term) ||
         tool.description.toLowerCase().includes(term) ||
-        tool.keywords.some((keyword) => keyword.toLowerCase().includes(term))
+        tool.keywords.some((keyword) => keyword.toLowerCase().includes(term));
+
+      if (!matchesSearch) return false;
+
+      if (!hasActiveCategories) return true;
+
+      const toolCategories = [tool.badge, tool.accent];
+      return selectedCategories.some((category) => toolCategories.includes(category));
+    });
+  }, [searchTerm, selectedCategories]);
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category) ? prev.filter((item) => item !== category) : [...prev, category]
     );
-  }, [searchTerm]);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedCategories([]);
+  };
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-12 space-y-12">
@@ -60,6 +86,34 @@ export default function Home() {
             placeholder="Search JSON, SQL, timezone, Base64..."
             className="w-full px-3 py-2"
           />
+          <div className="flex flex-wrap items-center gap-2">
+            {categories.map((category) => {
+              const isActive = selectedCategories.includes(category);
+              return (
+                <button
+                  type="button"
+                  key={category}
+                  onClick={() => toggleCategory(category)}
+                  className={`badge border ${
+                    isActive
+                      ? 'bg-brand/20 border-brand/40 text-brand'
+                      : 'bg-white/5 border-white/10 text-slate-200 hover:border-brand/30 hover:bg-brand/5'
+                  }`}
+                >
+                  {category}
+                </button>
+              );
+            })}
+            {(searchTerm || selectedCategories.length > 0) && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="text-sm font-semibold text-slate-300 underline-offset-4 hover:text-white"
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
