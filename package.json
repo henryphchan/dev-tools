@@ -25,6 +25,7 @@
     "xml-formatter": "3.6.1"
   },
   "devDependencies": {
+    "@types/luxon": "^3.7.1",
     "@types/node": "20.14.10",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
