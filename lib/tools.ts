@@ -39,7 +39,7 @@ export const tools: ToolInfo[] = [
     description: 'Upload or paste two texts to see a side-by-side diff with line numbers.',
     longDescription:
       'Spot changes quickly by uploading files or pasting text to a shared workspace. View line numbers, copy either side, and read highlighted additions and removals at a glance.',
-    badge: 'Diff',
+    badge: 'Text & Analysis',
     accent: 'Review',
     keywords: ['diff', 'compare files', 'text difference', 'file diff', 'highlight changes'],
   },
@@ -51,7 +51,7 @@ export const tools: ToolInfo[] = [
     description: 'Validate cron syntax, preview the next 10 fire times, and spot risky schedules.',
     longDescription:
       'Check cron expressions quickly with a visual timeline, upcoming execution preview, and warnings for overly aggressive cadences. Great for CI jobs, maintenance windows, or scheduled alerts.',
-    badge: 'Scheduler',
+    badge: 'Development',
     accent: 'Automation',
     keywords: ['cron', 'scheduler', 'cron validator', 'crontab', 'scheduled jobs', 'devops'],
   },
@@ -63,7 +63,7 @@ export const tools: ToolInfo[] = [
     description: 'Inspect CSV headers, nulls, unique values, and patterns with exportable results.',
     longDescription:
       'Validate CSV structure quickly by pasting or uploading a file. Review unique counts, nulls, dominant data patterns, and sample values per column, then export the profiling summary as CSV.',
-    badge: 'Analyzer',
+    badge: 'Text & Analysis',
     accent: 'Data Quality',
     keywords: ['csv profiling', 'data quality', 'unique count', 'null count', 'pattern analysis', 'data profiler'],
   },
@@ -75,7 +75,7 @@ export const tools: ToolInfo[] = [
     description: 'Convert CSV rows to JSON arrays and back with header-aware parsing.',
     longDescription:
       'Quickly translate CSV rows into JSON arrays or convert JSON back into shareable CSV. Great for API payload prep, data munging, or debugging exports.',
-    badge: 'Converter',
+    badge: 'Converters',
     accent: 'Data',
     keywords: ['csv', 'json', 'converter', 'csv to json', 'json to csv', 'data tools'],
   },
@@ -87,7 +87,7 @@ export const tools: ToolInfo[] = [
     description: 'Translate YAML configs into JSON and back with a single click.',
     longDescription:
       'Convert between YAML and JSON for config files, CI pipelines, or Kubernetes manifests. Validate structure quickly before committing changes.',
-    badge: 'Converter',
+    badge: 'Converters',
     accent: 'Config',
     keywords: ['yaml', 'json', 'converter', 'yaml to json', 'json to yaml', 'kubernetes', 'config'],
   },
@@ -99,7 +99,7 @@ export const tools: ToolInfo[] = [
     description: 'Turn Unix timestamps into readable dates in seconds or milliseconds.',
     longDescription:
       'Paste a Unix timestamp in seconds or milliseconds to see a human-friendly date with ISO and local timezone details. Perfect for log debugging or API payloads.',
-    badge: 'Converter',
+    badge: 'Converters',
     accent: 'Time',
     keywords: ['timestamp', 'unix time', 'milliseconds', 'seconds', 'date converter', 'epoch'],
   },
@@ -111,7 +111,7 @@ export const tools: ToolInfo[] = [
     description: 'Inspect JWT headers and payloads without validating signatures.',
     longDescription:
       'Paste a JSON Web Token to view the decoded header and payload instantly. Great for debugging auth flows or validating claims locally.',
-    badge: 'Decoder',
+    badge: 'Security',
     accent: 'Security',
     keywords: ['jwt', 'json web token', 'decode jwt', 'auth debugging', 'token'],
   },
@@ -123,7 +123,7 @@ export const tools: ToolInfo[] = [
     description: 'Create random UUIDs for testing, database keys, or identifiers.',
     longDescription:
       'Generate random UUIDs (v4) in the browser. Copy fresh identifiers for migrations, API clients, or test fixtures in one click.',
-    badge: 'Generator',
+    badge: 'Generators',
     accent: 'Identity',
     keywords: ['uuid', 'generator', 'random uuid', 'identifier', 'guid'],
   },
@@ -135,7 +135,7 @@ export const tools: ToolInfo[] = [
     description: 'Create shareable QR codes for URLs, text, or WiFi credentials in seconds.',
     longDescription:
       'Produce high-quality QR codes without leaving your browser. Generate standard QR images for text or links, or create WiFi QR codes that let devices join your network instantly.',
-    badge: 'Generator',
+    badge: 'Generators',
     accent: 'Sharing',
     keywords: ['qr code', 'wifi qr', 'qr generator', 'share links', 'network onboarding'],
   },
@@ -147,7 +147,7 @@ export const tools: ToolInfo[] = [
     description: 'Visualize text frequency with adjustable colors, stopwords, and dimensions.',
     longDescription:
       'Paste any text to see the most frequent words rendered as an eye-catching cloud. Tweak colors, background, stopwords, and canvas size to match your presentation or report.',
-    badge: 'Visualizer',
+    badge: 'Text & Analysis',
     accent: 'Content',
     keywords: ['word cloud', 'text visualization', 'frequency', 'stopwords', 'presentation'],
   },
@@ -159,7 +159,7 @@ export const tools: ToolInfo[] = [
     description: 'Validate regex patterns, flags, and see live matches against sample text.',
     longDescription:
       'Experiment with regular expressions quickly. Try patterns with flags, view matched substrings with positions, and debug capture groups for your text processing tasks.',
-    badge: 'Validator',
+    badge: 'Development',
     accent: 'Regex',
     keywords: ['regex tester', 'regular expression', 'pattern matching', 'regex flags', 'regex groups'],
   },
@@ -183,7 +183,7 @@ export const tools: ToolInfo[] = [
     description: 'Instantly pretty-print and validate JSON for APIs, configs, or log payloads.',
     longDescription:
       'Format, validate, and share JSON snippets in seconds. Use it to prepare clean API payloads, tidy configuration files, or debug malformed responses without leaving your browser.',
-    badge: 'Formatter',
+    badge: 'Formatters',
     accent: 'Structured data',
     keywords: ['json', 'formatter', 'validator', 'api payload', 'prettify JSON'],
   },
@@ -195,7 +195,7 @@ export const tools: ToolInfo[] = [
     description: 'Beautify XML with consistent indentation and readable markup.',
     longDescription:
       'Make XML easy to scan with reliable indentation. Great for SOAP payloads, sitemap debugging, configuration files, or any XML you need to share with teammates.',
-    badge: 'Formatter',
+    badge: 'Formatters',
     accent: 'Markup',
     keywords: ['xml', 'formatter', 'beautifier', 'indent XML', 'xml editor'],
   },
@@ -207,7 +207,7 @@ export const tools: ToolInfo[] = [
     description: 'Clean up ad-hoc queries for MySQL, Postgres, SQL Server, and more.',
     longDescription:
       'Reformat SQL for faster reviews and fewer mistakes. Ideal for formatting ad-hoc queries, code review snippets, or saved scripts across major databases.',
-    badge: 'Formatter',
+    badge: 'Formatters',
     accent: 'Database',
     keywords: ['sql formatter', 'query beautifier', 'postgres sql format', 'mysql', 'database tools'],
   },
@@ -219,7 +219,7 @@ export const tools: ToolInfo[] = [
     description: 'Encode and decode URLs and Base64 strings for tokens, cookies, and payloads.',
     longDescription:
       'Safely transform strings between URL encoding and Base64. Decode JWT fragments, sanitize query parameters, and copy clean outputs without extra dependencies.',
-    badge: 'Converter',
+    badge: 'Converters',
     accent: 'Transport',
     keywords: ['url encode', 'url decode', 'base64', 'converter', 'jwt'],
   },
@@ -231,7 +231,7 @@ export const tools: ToolInfo[] = [
     description: 'Translate meeting times across regions with clear offsets and readable formats.',
     longDescription:
       'Plan meetings and releases with confidence. Convert between popular time zones, see readable offsets, and copy the converted values for invites or documentation.',
-    badge: 'Converter',
+    badge: 'Converters',
     accent: 'Schedule',
     keywords: ['timezone converter', 'utc offset', 'meeting planner', 'time zones', 'scheduler'],
   },
@@ -243,7 +243,7 @@ export const tools: ToolInfo[] = [
     description: 'Evaluate AND/OR/XOR/shift operations and view binary representations.',
     longDescription:
       'Test bitwise logic quickly. Inspect how integers respond to AND, OR, XOR, NOT, and shift operators with decimal and binary outputs for debugging low-level code.',
-    badge: 'Calculator',
+    badge: 'Development',
     accent: 'Binary',
     keywords: ['bitwise calculator', 'binary', 'and or xor', 'bit shifts', 'debugging'],
   },
