@@ -1880,7 +1880,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         <ToolCard title="Regex Tester" description={tool.description} badge={tool.badge} accent={tool.accent}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
             <div className="lg:col-span-2 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-[1.3fr_0.7fr] gap-3 items-end md:items-start lg:items-end">
+              <div className="grid grid-cols-1 md:grid-cols-[1.3fr_0.7fr] gap-3 items-start">
                 <div className="space-y-1">
                   <label className="text-sm text-slate-300">Regex pattern</label>
                   <input
