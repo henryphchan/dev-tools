@@ -769,7 +769,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     }
 
     const converted = parsed.setZone(targetZone);
-    setConvertedTime(converted.toISO());
+    setConvertedTime(converted.toISO() ?? '');
     setTimeError('');
   };
 
@@ -839,7 +839,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const handleCronPreview = () => {
     try {
       const interval = CronExpressionParser.parse(cronExpression, {
-        currentDate: DateTime.now().setZone(cronZone).toISO(),
+        currentDate: DateTime.now().setZone(cronZone).toJSDate(),
         tz: cronZone,
       });
 
