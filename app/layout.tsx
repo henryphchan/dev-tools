@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Inter, Fira_Code } from 'next/font/google';
-import { Sidebar } from '../components/Sidebar';
+import { AppLayout } from '../components/AppLayout';
 
 const inter = Inter({ subsets: ['latin'] });
 const fira = Fira_Code({ subsets: ['latin'], variable: '--font-fira' });
@@ -40,14 +40,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} ${fira.variable} bg-[#0b1224] text-slate-200`}>
-        <Sidebar />
-        <div className="pl-72 min-h-screen flex flex-col">
-          <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-brand/10 via-brand/5 to-transparent blur-3xl pointer-events-none" aria-hidden />
-          <main className="flex-1 relative z-10 p-8">
-            {children}
-          </main>
-        </div>
+      <body className={`${inter.className} ${fira.variable}`}>
+        <AppLayout>{children}</AppLayout>
       </body>
     </html>
   );

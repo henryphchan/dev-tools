@@ -4,9 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { tools } from '../lib/tools';
-import { SparklesIcon, MagnifyingGlassIcon } from './icons'; // Assuming MagnifyingGlassIcon exists or I'll add it
+import { SparklesIcon, XMarkIcon } from './icons';
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [filter, setFilter] = useState('');
 
@@ -35,15 +40,20 @@ export function Sidebar() {
     return groups;
   }, [categories, filteredTools]);
 
-  return (
-    <aside className="fixed inset-y-0 left-0 z-50 w-72 border-r border-white/10 bg-[#0b1224] flex flex-col">
-      <div className="p-6 border-b border-white/10">
-        <Link href="/" className="flex items-center gap-2 text-slate-100 font-bold text-xl">
+  const SidebarContent = (
+    <div className="flex flex-col h-full bg-[#0b1224] border-r border-white/10">
+      <div className="p-6 border-b border-white/10 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 text-slate-100 font-bold text-xl" onClick={onClose}>
           <div className="p-1.5 bg-brand/20 rounded-lg text-brand">
             <SparklesIcon className="w-5 h-5" />
           </div>
           Dev Tools
         </Link>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-white">
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        )}
       </div>
 
       <div className="p-4">
@@ -71,11 +81,11 @@ export function Sidebar() {
                   <li key={tool.id}>
                     <Link
                       href={`/tools/${tool.slug}`}
-                      className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
-                        isActive
-                          ? 'bg-brand/10 text-brand font-medium'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                      }`}
+                      onClick={onClose}
+                      className={`block px-3 py-2 rounded-lg text-sm transition-colors ${isActive
+                        ? 'bg-brand/10 text-brand font-medium'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                        }`}
                     >
                       {tool.title}
                     </Link>
@@ -85,19 +95,45 @@ export function Sidebar() {
             </ul>
           </div>
         ))}
-        
+
         {filteredTools.length === 0 && (
-            <div className="px-2 text-sm text-slate-500">
-                No tools found.
-            </div>
+          <div className="px-2 text-sm text-slate-500">
+            No tools found.
+          </div>
         )}
       </nav>
-      
+
       <div className="p-4 border-t border-white/10">
-          <p className="text-xs text-slate-600 text-center">
-              &copy; {new Date().getFullYear()} Dev Tools
-          </p>
+        <p className="text-xs text-slate-600 text-center">
+          &copy; {new Date().getFullYear()} Dev Tools
+        </p>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+        {SidebarContent}
+      </aside>
+
+      {/* Mobile Sidebar (Drawer) */}
+      <div className={`relative z-50 lg:hidden ${isOpen ? 'block' : 'hidden'}`} role="dialog" aria-modal="true">
+        <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm transition-opacity" onClick={onClose} />
+
+        <div className="fixed inset-0 flex">
+          <div className="relative mr-16 flex w-full max-w-xs flex-1">
+            <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
+              <button type="button" className="-m-2.5 p-2.5" onClick={onClose}>
+                <span className="sr-only">Close sidebar</span>
+                <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true" />
+              </button>
+            </div>
+            {SidebarContent}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
