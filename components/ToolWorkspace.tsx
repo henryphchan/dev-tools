@@ -375,12 +375,16 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         throw new Error('Enter text, a URL, or WiFi details to generate a QR code.');
       }
 
-      const dataUrl = await QRCode.toDataURL(payload, {
+      const canvas = document.createElement('canvas');
+
+      await QRCode.toCanvas(canvas, payload, {
         width: clampedQrSize,
         margin: 2,
         color: { dark: qrDarkColor, light: qrLightColor },
         errorCorrectionLevel: qrErrorCorrection,
       });
+
+      const dataUrl = canvas.toDataURL('image/png');
 
       setQrDataUrl(dataUrl);
       setQrError('');
@@ -798,7 +802,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                       <select
                         value={wifiSecurity}
                         onChange={(e) => setWifiSecurity(e.target.value as typeof wifiSecurity)}
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                        className="w-full rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-slate-100"
                       >
                         <option value="WPA">WPA/WPA2</option>
                         <option value="WEP">WEP</option>
@@ -840,7 +844,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                     <select
                       value={qrErrorCorrection}
                       onChange={(e) => setQrErrorCorrection(e.target.value as typeof qrErrorCorrection)}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                      className="w-full rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-slate-100"
                     >
                       <option value="H">High (30%)</option>
                       <option value="M">Medium (15%)</option>
