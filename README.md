@@ -23,7 +23,7 @@ A sleek developer-first utility belt inspired by smallapp.dev. This Next.js App 
    npm run lint
    ```
 
-## Deploying to Azure Static Web Apps
+## Deploying to Static Web Apps
 1. Build the production bundle:
    ```bash
    npm run build
