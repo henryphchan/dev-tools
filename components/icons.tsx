@@ -45,3 +45,15 @@ export function ArrowPathRoundedSquareIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function StarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 4.5 14.1 9l4.9.7-3.5 3.6.8 5.1L12 16.8 7.7 18.4l.8-5.1-3.5-3.6L9.9 9z"
+      />
+    </svg>
+  );
+}
