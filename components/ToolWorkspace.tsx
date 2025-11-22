@@ -1878,9 +1878,9 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
       {tool.id === 'regex-tester' && (
         <ToolCard title="Regex Tester" description={tool.description} badge={tool.badge} accent={tool.accent}>
-          <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-4 items-start">
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-[2fr_auto] gap-3 items-end">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+            <div className="lg:col-span-2 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-[1.3fr_0.7fr] gap-3 items-end md:items-start lg:items-end">
                 <div className="space-y-1">
                   <label className="text-sm text-slate-300">Regex pattern</label>
                   <input
@@ -1923,12 +1923,12 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 lg:h-full">
               <div className="flex items-center gap-2 text-sm text-slate-300">
                 <span className="badge">Matches</span>
                 <span className="text-xs text-slate-400">Shows matched text, index, and named groups</span>
               </div>
-              <div className="code-output space-y-3">
+              <div className="code-output space-y-3 lg:min-h-[220px]">
                 {regexMatches.length === 0 ? (
                   <p className="text-sm text-slate-400">Run the tester to see matches for your pattern.</p>
                 ) : (
