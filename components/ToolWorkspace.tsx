@@ -920,7 +920,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   }, []);
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-10 space-y-8">
+    <main className="w-full mx-auto px-4 py-6 space-y-6">
       <nav className="flex items-center gap-2 text-sm text-slate-300" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-white">Home</Link>
         <span aria-hidden>/</span>

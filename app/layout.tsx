@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Inter, Fira_Code } from 'next/font/google';
+import { AppLayout } from '../components/AppLayout';
 
 const inter = Inter({ subsets: ['latin'] });
 const fira = Fira_Code({ subsets: ['latin'], variable: '--font-fira' });
@@ -40,8 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} ${fira.variable}`}>
-        <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-brand/20 via-brand/10 to-transparent blur-3xl" aria-hidden />
-        <div className="relative">{children}</div>
+        <AppLayout>{children}</AppLayout>
       </body>
     </html>
   );
