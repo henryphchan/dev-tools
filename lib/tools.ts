@@ -11,7 +11,10 @@ export type ToolId =
   | 'yaml-json'
   | 'timestamp'
   | 'jwt'
-  | 'uuid';
+  | 'uuid'
+  | 'qr-generator'
+  | 'word-cloud'
+  | 'digest';
 
 export interface ToolInfo {
   id: ToolId;
@@ -109,6 +112,42 @@ export const tools: ToolInfo[] = [
     badge: 'Generator',
     accent: 'Identity',
     keywords: ['uuid', 'generator', 'random uuid', 'identifier', 'guid'],
+  },
+  {
+    id: 'qr-generator',
+    slug: 'qr-code-generator',
+    title: 'QR Code Generator',
+    seoTitle: 'Generate QR codes for text, links, or WiFi networks | Dev Tools',
+    description: 'Create shareable QR codes for URLs, text, or WiFi credentials in seconds.',
+    longDescription:
+      'Produce high-quality QR codes without leaving your browser. Generate standard QR images for text or links, or create WiFi QR codes that let devices join your network instantly.',
+    badge: 'Generator',
+    accent: 'Sharing',
+    keywords: ['qr code', 'wifi qr', 'qr generator', 'share links', 'network onboarding'],
+  },
+  {
+    id: 'word-cloud',
+    slug: 'word-cloud-generator',
+    title: 'Word Cloud Generator',
+    seoTitle: 'Create customizable word clouds from text | Dev Tools',
+    description: 'Visualize text frequency with adjustable colors, stopwords, and dimensions.',
+    longDescription:
+      'Paste any text to see the most frequent words rendered as an eye-catching cloud. Tweak colors, background, stopwords, and canvas size to match your presentation or report.',
+    badge: 'Visualizer',
+    accent: 'Content',
+    keywords: ['word cloud', 'text visualization', 'frequency', 'stopwords', 'presentation'],
+  },
+  {
+    id: 'digest',
+    slug: 'message-digester',
+    title: 'Message Digester',
+    seoTitle: 'Hash text or files with MD5, SHA, or BLAKE2 | Dev Tools',
+    description: 'Generate cryptographic hashes from text or uploaded files with multiple algorithms.',
+    longDescription:
+      'Compute MD5, SHA-1, SHA-256, SHA3-256, or BLAKE2b hashes directly in the browser. Paste text or upload a file to verify integrity, fingerprints, or cache keys.',
+    badge: 'Security',
+    accent: 'Integrity',
+    keywords: ['hash', 'checksum', 'md5', 'sha256', 'blake2'],
   },
   {
     id: 'json',
