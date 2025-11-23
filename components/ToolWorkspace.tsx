@@ -284,43 +284,63 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   };
 
   const stringCaseResults = useMemo(() => {
-    if (!stringCaseInput.trim()) {
-      return { error: 'Enter text to convert into different casing styles.', values: null };
-    }
+    const lines = stringCaseInput
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
 
-    const words = splitIntoWords(stringCaseInput);
-
-    if (!words.length) {
-      return { error: 'Add letters or digits to build casing variants.', values: null };
+    if (!lines.length) {
+      return { error: 'Enter text to convert into different casing styles.', rows: null };
     }
 
     const capitalize = (word: string) => (word ? word[0].toUpperCase() + word.slice(1) : '');
 
-    const camelCase = words.map((word, index) => (index === 0 ? word : capitalize(word))).join('');
-    const pascalCase = words.map(capitalize).join('');
-    const snakeCase = words.join('_');
-    const kebabCase = words.join('-');
-    const titleCase = words.map(capitalize).join(' ');
-    const screamingSnake = words.join('_').toUpperCase();
-    const sentenceCase = words.length
-      ? `${capitalize(words[0])}${words
-          .slice(1)
-          .map((word) => (word ? ` ${word}` : ''))
-          .join('')}`
-      : '';
+    const rows = lines.map((line, index) => {
+      const words = splitIntoWords(line);
 
-    return {
-      error: '',
-      values: [
-        { label: 'camelCase', value: camelCase },
-        { label: 'PascalCase', value: pascalCase },
-        { label: 'snake_case', value: snakeCase },
-        { label: 'kebab-case', value: kebabCase },
-        { label: 'Title Case', value: titleCase },
-        { label: 'SCREAMING_SNAKE_CASE', value: screamingSnake },
-        { label: 'Sentence case', value: sentenceCase },
-      ],
-    };
+      if (!words.length) {
+        return {
+          index,
+          source: line,
+          variants: null,
+          error: `Line ${index + 1} has no letters or digits to convert.`,
+        } as const;
+      }
+
+      const camelCase = words.map((word, idx) => (idx === 0 ? word : capitalize(word))).join('');
+      const pascalCase = words.map(capitalize).join('');
+      const snakeCase = words.join('_');
+      const kebabCase = words.join('-');
+      const titleCase = words.map(capitalize).join(' ');
+      const screamingSnake = words.join('_').toUpperCase();
+      const sentenceCase = `${capitalize(words[0])}${words
+        .slice(1)
+        .map((word) => (word ? ` ${word}` : ''))
+        .join('')}`;
+
+      return {
+        index,
+        source: line,
+        error: '',
+        variants: [
+          { label: 'camelCase', value: camelCase },
+          { label: 'PascalCase', value: pascalCase },
+          { label: 'snake_case', value: snakeCase },
+          { label: 'kebab-case', value: kebabCase },
+          { label: 'Title Case', value: titleCase },
+          { label: 'SCREAMING_SNAKE_CASE', value: screamingSnake },
+          { label: 'Sentence case', value: sentenceCase },
+        ],
+      } as const;
+    });
+
+    const firstError = rows.find((row) => row.error);
+
+    if (firstError) {
+      return { error: firstError.error, rows: null };
+    }
+
+    return { error: '', rows };
   }, [stringCaseInput]);
 
   const togglePermission = (scope: 'owner' | 'group' | 'others', permission: 'read' | 'write' | 'execute') => {
@@ -1712,20 +1732,39 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
             {stringCaseResults.error && <p className="text-sm text-rose-400">{stringCaseResults.error}</p>}
 
-            {stringCaseResults.values && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {stringCaseResults.values.map((result) => (
-                  <div key={result.label} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold text-white">{result.label}</p>
+            {stringCaseResults.rows && (
+              <div className="space-y-3">
+                {stringCaseResults.rows.map((row) => (
+                  <div key={row.index} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Line {row.index + 1}</p>
+                        {row.source && <p className="text-sm font-semibold text-white">{row.source}</p>}
+                      </div>
                       <button
-                        onClick={() => copyToClipboard(result.value)}
-                        className="flex items-center gap-2 text-xs text-slate-300 hover:text-white"
+                        onClick={() => copyToClipboard(row.source)}
+                        className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-1 text-xs text-slate-200 hover:border-white/30"
                       >
-                        <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy
+                        <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy line
                       </button>
                     </div>
-                    <p className="font-mono text-sm text-slate-200 break-words">{result.value}</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {row.variants?.map((result) => (
+                        <div key={result.label} className="rounded-xl border border-white/10 bg-white/5 p-3 space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-semibold text-white">{result.label}</p>
+                            <button
+                              onClick={() => copyToClipboard(result.value)}
+                              className="flex items-center gap-2 text-xs text-slate-300 hover:text-white"
+                            >
+                              <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy
+                            </button>
+                          </div>
+                          <p className="font-mono text-sm text-slate-200 break-words">{result.value}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
