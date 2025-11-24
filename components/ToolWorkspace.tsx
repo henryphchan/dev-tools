@@ -259,13 +259,13 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [diffEnd, setDiffEnd] = useState(initialDate);
   const [diffResults, setDiffResults] = useState<
     | {
-        seconds: number;
-        minutes: number;
-        hours: number;
-        days: number;
-        months: number;
-        years: number;
-      }
+      seconds: number;
+      minutes: number;
+      hours: number;
+      days: number;
+      months: number;
+      years: number;
+    }
     | null
   >(null);
   const [diffSummary, setDiffSummary] = useState('');
@@ -767,24 +767,24 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         ? 's'
         : 'x'
       : chmodSpecial.setuid
-      ? 'S'
-      : '-';
+        ? 'S'
+        : '-';
 
     const groupExec = chmodPermissions.group.execute
       ? chmodSpecial.setgid
         ? 's'
         : 'x'
       : chmodSpecial.setgid
-      ? 'S'
-      : '-';
+        ? 'S'
+        : '-';
 
     const otherExec = chmodPermissions.others.execute
       ? chmodSpecial.sticky
         ? 't'
         : 'x'
       : chmodSpecial.sticky
-      ? 'T'
-      : '-';
+        ? 'T'
+        : '-';
 
     const symbolic =
       `${chmodPermissions.owner.read ? 'r' : '-'}${chmodPermissions.owner.write ? 'w' : '-'}${ownerExec}` +
@@ -1408,15 +1408,15 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       setDiffSummary('Both datetimes are identical.');
       setDiffFormattedDetails(
         `Start time: ${start.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
-          `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
-          differenceLine
+        `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+        differenceLine
       );
     } else {
       setDiffSummary(`End occurs ${relative ?? 'relative to the start time'}.`);
       setDiffFormattedDetails(
         `Start time: ${start.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
-          `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
-          differenceLine
+        `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+        differenceLine
       );
     }
 
@@ -2583,11 +2583,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                         <button
                           key={perm.key}
                           onClick={() => togglePermission(scope.key, perm.key)}
-                          className={`rounded-xl border px-3 py-2 text-xs font-semibold transition ${
-                            isActive
+                          className={`rounded-xl border px-3 py-2 text-xs font-semibold transition ${isActive
                               ? 'border-brand/60 bg-brand/20 text-white shadow-brand'
                               : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/30'
-                          }`}
+                            }`}
                         >
                           {perm.label}
                         </button>
@@ -3263,8 +3262,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
               <div className="space-y-1">
                 <label className="text-sm text-slate-300">Timezone</label>
                 <select value={cronZone} onChange={(e) => setCronZone(e.target.value)} className="w-full px-3 py-2">
-                  {timeZones.map((zone) => (
-                    <option key={zone}>{zone}</option>
+                  {timezoneSuggestions.map((zone) => (
+                    <option key={zone.value} value={zone.value}>
+                      {zone.label}
+                    </option>
                   ))}
                 </select>
               </div>
