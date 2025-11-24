@@ -188,6 +188,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [photoName, setPhotoName] = useState('');
   const [photoDate, setPhotoDate] = useState('');
   const [photoZone, setPhotoZone] = useState('UTC');
+  const [showTimezoneSuggestions, setShowTimezoneSuggestions] = useState(false);
   const [photoLatitude, setPhotoLatitude] = useState('');
   const [photoLongitude, setPhotoLongitude] = useState('');
   const [photoAltitude, setPhotoAltitude] = useState('');
@@ -218,6 +219,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [sourceTime, setSourceTime] = useState(initialDate);
   const [sourceZone, setSourceZone] = useState('UTC');
   const [targetZone, setTargetZone] = useState('America/New_York');
+  const filteredTimeZones = useMemo(
+    () => timeZones.filter((zone) => zone.toLowerCase().includes(photoZone.toLowerCase())),
+    [photoZone]
+  );
   const [convertedTime, setConvertedTime] = useState('');
   const [timeError, setTimeError] = useState('');
 
@@ -1541,19 +1546,45 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs text-slate-400">Timezone or offset</label>
-                      <input
-                        type="text"
-                        value={photoZone}
-                        onChange={(e) => setPhotoZone(e.target.value)}
-                        list="timezone-suggestions"
-                        placeholder="UTC or America/New_York"
-                        className="w-full px-3 py-2"
-                      />
-                      <datalist id="timezone-suggestions">
-                        {timeZones.map((zone) => (
-                          <option key={zone} value={zone} />
-                        ))}
-                      </datalist>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={photoZone}
+                          onChange={(e) => {
+                            setPhotoZone(e.target.value);
+                            setShowTimezoneSuggestions(true);
+                          }}
+                          onFocus={() => setShowTimezoneSuggestions(true)}
+                          onBlur={() => setTimeout(() => setShowTimezoneSuggestions(false), 120)}
+                          placeholder="UTC or America/New_York"
+                          className="w-full px-3 py-2"
+                          role="combobox"
+                          aria-expanded={showTimezoneSuggestions && filteredTimeZones.length > 0}
+                          aria-controls="timezone-suggestion-list"
+                          autoComplete="off"
+                        />
+                        {showTimezoneSuggestions && filteredTimeZones.length > 0 && (
+                          <div
+                            id="timezone-suggestion-list"
+                            className="absolute z-20 mt-1 w-full rounded-lg border border-white/10 bg-slate-900/90 backdrop-blur shadow-xl max-h-48 overflow-y-auto custom-scrollbar"
+                          >
+                            {filteredTimeZones.map((zone) => (
+                              <button
+                                key={zone}
+                                type="button"
+                                className="block w-full px-3 py-2 text-left text-sm text-slate-100 hover:bg-white/10"
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => {
+                                  setPhotoZone(zone);
+                                  setShowTimezoneSuggestions(false);
+                                }}
+                              >
+                                {zone}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
