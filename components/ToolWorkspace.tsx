@@ -653,7 +653,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       .map((word) => word.toLowerCase());
   };
 
-  const stringCaseResults = useMemo(() => {
+  type StringCaseVariant = { label: string; value: string };
+  type StringCaseRow = { index: number; source: string; variants: StringCaseVariant[] };
+  type StringCaseResult = { error: string; rows: StringCaseRow[] | null };
+
+  const stringCaseResults = useMemo<StringCaseResult>(() => {
     const lines = stringCaseInput
       .split(/\r?\n/)
       .map((line) => line.trim())
@@ -665,16 +669,13 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
     const capitalize = (word: string) => (word ? word[0].toUpperCase() + word.slice(1) : '');
 
-    const rows = lines.map((line, index) => {
+    const rows: StringCaseRow[] = [];
+
+    for (const [index, line] of lines.entries()) {
       const words = splitIntoWords(line);
 
       if (!words.length) {
-        return {
-          index,
-          source: line,
-          variants: null,
-          error: `Line ${index + 1} has no letters or digits to convert.`,
-        } as const;
+        return { error: `Line ${index + 1} has no letters or digits to convert.`, rows: null };
       }
 
       const camelCase = words.map((word, idx) => (idx === 0 ? word : capitalize(word))).join('');
@@ -688,10 +689,9 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         .map((word) => (word ? ` ${word}` : ''))
         .join('')}`;
 
-      return {
+      rows.push({
         index,
         source: line,
-        error: '',
         variants: [
           { label: 'camelCase', value: camelCase },
           { label: 'PascalCase', value: pascalCase },
@@ -701,13 +701,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
           { label: 'SCREAMING_SNAKE_CASE', value: screamingSnake },
           { label: 'Sentence case', value: sentenceCase },
         ],
-      } as const;
-    });
-
-    const firstError = rows.find((row) => row.error);
-
-    if (firstError) {
-      return { error: firstError.error, rows: null };
+      });
     }
 
     return { error: '', rows };
