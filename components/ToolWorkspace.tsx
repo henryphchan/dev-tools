@@ -537,7 +537,9 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       return;
     }
 
-    if (!photoDataUrl.startsWith('data:image/jpeg')) {
+    const isJpegDataUrl = /^data:image\/jpe?g/i.test(photoDataUrl);
+
+    if (!isJpegDataUrl) {
       setPhotoError('Updating EXIF requires a JPEG file (.jpg or .jpeg).');
       return;
     }
@@ -1650,7 +1652,6 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                                 onChange={(e) => setTimezoneQuery(e.target.value)}
                                 placeholder="Search ISO 8601 offset or tz database name"
                                 className="w-full rounded-md border border-white/10 bg-slate-800/80 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
-                                onMouseDown={(e) => e.preventDefault()}
                               />
                             </div>
                             <div className="max-h-48 overflow-y-auto custom-scrollbar">
