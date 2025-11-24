@@ -18,7 +18,8 @@ export type ToolId =
   | 'regex-tester'
   | 'digest'
   | 'string-case'
-  | 'chmod';
+  | 'chmod'
+  | 'photo-exif';
 
 export interface ToolInfo {
   id: ToolId;
@@ -272,6 +273,18 @@ export const tools: ToolInfo[] = [
     badge: 'Development',
     accent: 'Binary',
     keywords: ['bitwise calculator', 'binary', 'and or xor', 'bit shifts', 'debugging'],
+  },
+  {
+    id: 'photo-exif',
+    slug: 'photo-exif-editor',
+    title: 'Photo EXIF & Metadata Editor',
+    seoTitle: 'Edit photo EXIF metadata including timezone and GPS | Dev Tools',
+    description: 'Upload a photo to inspect and rewrite EXIF fields, timestamps, and GPS tags.',
+    longDescription:
+      'Review every EXIF field in your photo, adjust capture times with timezone offsets, and retag GPS coordinates before saving a fresh copy—all in your browser.',
+    badge: 'Media',
+    accent: 'Imaging',
+    keywords: ['exif', 'photo metadata', 'gps tags', 'timezone', 'image editing'],
   },
 ];
 

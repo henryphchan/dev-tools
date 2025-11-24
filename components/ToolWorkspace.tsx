@@ -15,6 +15,8 @@ import yaml from 'js-yaml';
 import QRCode from 'qrcode';
 import CryptoJS from 'crypto-js';
 import * as blake from 'blakejs';
+import exifr from 'exifr';
+import piexif from 'piexifjs';
 import {
   ArrowPathRoundedSquareIcon,
   ClipboardDocumentCheckIcon,
@@ -178,6 +180,21 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [digestResult, setDigestResult] = useState('');
   const [digestError, setDigestError] = useState('');
 
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [photoDataUrl, setPhotoDataUrl] = useState('');
+  const [photoMetadata, setPhotoMetadata] = useState<{ key: string; value: string }[]>([]);
+  const [photoName, setPhotoName] = useState('');
+  const [photoDate, setPhotoDate] = useState('');
+  const [photoZone, setPhotoZone] = useState('UTC');
+  const [photoLatitude, setPhotoLatitude] = useState('');
+  const [photoLongitude, setPhotoLongitude] = useState('');
+  const [photoAltitude, setPhotoAltitude] = useState('');
+  const [photoMake, setPhotoMake] = useState('');
+  const [photoModel, setPhotoModel] = useState('');
+  const [photoOrientation, setPhotoOrientation] = useState('1');
+  const [photoError, setPhotoError] = useState('');
+  const [photoMessage, setPhotoMessage] = useState('');
+
   const [diffLeftText, setDiffLeftText] = useState('');
   const [diffRightText, setDiffRightText] = useState('');
   const [diffLeftLabel, setDiffLeftLabel] = useState('Left text');
@@ -270,6 +287,210 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     } catch (error) {
       setRegexError('Invalid regex pattern or flags.');
       setRegexMatches([]);
+    }
+  };
+
+  const formatExifValue = (value: unknown): string => {
+    if (value instanceof Date) {
+      return DateTime.fromJSDate(value).toISO({ suppressMilliseconds: true }) ?? value.toString();
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((entry) => formatExifValue(entry)).join(', ');
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      try {
+        return JSON.stringify(value);
+      } catch (error) {
+        console.error('Could not format EXIF value', error);
+      }
+    }
+
+    if (value === undefined) return '—';
+    if (value === null) return 'null';
+
+    return String(value);
+  };
+
+  const populatePhotoForm = (metadata: Record<string, unknown>) => {
+    const captureDate = metadata.DateTimeOriginal as Date | undefined;
+    const offset = (metadata as { OffsetTimeOriginal?: string }).OffsetTimeOriginal;
+    const latitude = (metadata as { latitude?: number }).latitude ?? (metadata as { GPSLatitude?: number }).GPSLatitude;
+    const longitude =
+      (metadata as { longitude?: number }).longitude ?? (metadata as { GPSLongitude?: number }).GPSLongitude;
+    const altitude = (metadata as { GPSAltitude?: number }).GPSAltitude;
+
+    if (captureDate instanceof Date && !Number.isNaN(captureDate.getTime())) {
+      setPhotoDate(
+        DateTime.fromJSDate(captureDate).toISO({ suppressMilliseconds: true, suppressSeconds: true })?.slice(0, 16) ?? ''
+      );
+    } else {
+      setPhotoDate('');
+    }
+
+    setPhotoZone(offset || 'UTC');
+    setPhotoLatitude(typeof latitude === 'number' ? latitude.toFixed(6) : '');
+    setPhotoLongitude(typeof longitude === 'number' ? longitude.toFixed(6) : '');
+    setPhotoAltitude(typeof altitude === 'number' ? altitude.toString() : '');
+    setPhotoMake((metadata as { Make?: string }).Make || '');
+    setPhotoModel((metadata as { Model?: string }).Model || '');
+    setPhotoOrientation(String((metadata as { Orientation?: number }).Orientation || '1'));
+
+    const entries = Object.entries(metadata)
+      .filter(([, value]) => typeof value !== 'function')
+      .map(([key, value]) => ({ key, value: formatExifValue(value) }))
+      .sort((a, b) => a.key.localeCompare(b.key));
+
+    setPhotoMetadata(entries);
+  };
+
+  const handlePhotoFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setPhotoError('');
+    setPhotoMessage('');
+    setPhotoName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      setPhotoPreview(dataUrl);
+      setPhotoDataUrl(dataUrl);
+
+      try {
+        const metadata = (await exifr.parse(file, { gps: true })) as Record<string, unknown> | undefined;
+        if (metadata) {
+          populatePhotoForm(metadata);
+          if (!file.type.includes('jpeg')) {
+            setPhotoMessage('Metadata can be inspected for any image, but EXIF updates are saved as JPEG.');
+          }
+        } else {
+          setPhotoMetadata([]);
+        }
+      } catch (error) {
+        console.error('Failed to parse EXIF metadata', error);
+        setPhotoError('Unable to read EXIF metadata from this file.');
+      }
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const decimalToDms = (value: number) => {
+    const absolute = Math.abs(value);
+    const degrees = Math.floor(absolute);
+    const minutesFloat = (absolute - degrees) * 60;
+    const minutes = Math.floor(minutesFloat);
+    const seconds = Math.round((minutesFloat - minutes) * 60 * 100);
+
+    return [
+      [degrees, 1],
+      [minutes, 1],
+      [seconds, 100],
+    ];
+  };
+
+  const refreshMetadataFromDataUrl = async (dataUrl: string) => {
+    try {
+      const buffer = await fetch(dataUrl).then((response) => response.arrayBuffer());
+      const metadata = (await exifr.parse(buffer, { gps: true })) as Record<string, unknown> | undefined;
+      if (metadata) {
+        populatePhotoForm(metadata);
+      }
+    } catch (error) {
+      console.error('Failed to refresh EXIF metadata', error);
+    }
+  };
+
+  const handlePhotoSave = async () => {
+    setPhotoError('');
+    setPhotoMessage('');
+
+    if (!photoDataUrl) {
+      setPhotoError('Upload a photo to start editing metadata.');
+      return;
+    }
+
+    if (!photoDataUrl.startsWith('data:image/jpeg')) {
+      setPhotoError('Updating EXIF requires a JPEG file (.jpg or .jpeg).');
+      return;
+    }
+
+    try {
+      const exifData = piexif.load(photoDataUrl);
+      exifData.Exif = exifData.Exif || {};
+      exifData.GPS = exifData.GPS || {};
+      exifData.Image = exifData.Image || {};
+
+      if (photoDate) {
+        const captureDate = DateTime.fromISO(photoDate, { zone: photoZone || 'UTC' });
+        if (!captureDate.isValid) {
+          setPhotoError('Enter a valid capture date/time and timezone.');
+          return;
+        }
+
+        const formatted = captureDate.toFormat('yyyy:MM:dd HH:mm:ss');
+        const offset = captureDate.toFormat('ZZ');
+
+        exifData.Exif[piexif.ExifIFD.DateTimeOriginal] = formatted;
+        exifData.Exif[piexif.ExifIFD.CreateDate] = formatted;
+        exifData.Exif[piexif.ExifIFD.OffsetTimeOriginal] = offset;
+      }
+
+      if (photoLatitude && photoLongitude) {
+        const lat = Number(photoLatitude);
+        const lon = Number(photoLongitude);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+          setPhotoError('Latitude and longitude must be numeric values.');
+          return;
+        }
+
+        exifData.GPS[piexif.GPSIFD.GPSLatitude] = decimalToDms(lat);
+        exifData.GPS[piexif.GPSIFD.GPSLatitudeRef] = lat >= 0 ? 'N' : 'S';
+        exifData.GPS[piexif.GPSIFD.GPSLongitude] = decimalToDms(lon);
+        exifData.GPS[piexif.GPSIFD.GPSLongitudeRef] = lon >= 0 ? 'E' : 'W';
+      }
+
+      if (photoAltitude) {
+        const altitude = Number(photoAltitude);
+        if (!Number.isFinite(altitude)) {
+          setPhotoError('Altitude must be a numeric value.');
+          return;
+        }
+
+        exifData.GPS[piexif.GPSIFD.GPSAltitude] = [Math.round(Math.abs(altitude) * 100), 100];
+        exifData.GPS[piexif.GPSIFD.GPSAltitudeRef] = altitude < 0 ? 1 : 0;
+      }
+
+      if (photoMake) {
+        exifData.Image[piexif.ImageIFD.Make] = photoMake;
+      }
+
+      if (photoModel) {
+        exifData.Image[piexif.ImageIFD.Model] = photoModel;
+      }
+
+      exifData.Image[piexif.ImageIFD.Orientation] = Number.parseInt(photoOrientation, 10) || 1;
+
+      const exifBytes = piexif.dump(exifData);
+      const updatedDataUrl = piexif.insert(exifBytes, photoDataUrl);
+
+      setPhotoDataUrl(updatedDataUrl);
+      setPhotoPreview(updatedDataUrl);
+      await refreshMetadataFromDataUrl(updatedDataUrl);
+
+      const link = document.createElement('a');
+      link.href = updatedDataUrl;
+      link.download = photoName ? `edited-${photoName}` : 'photo-with-updated-exif.jpg';
+      link.click();
+
+      setPhotoMessage('EXIF updated. A new JPEG has been downloaded with your changes.');
+    } catch (error) {
+      console.error('Failed to update EXIF metadata', error);
+      setPhotoError('Unable to update EXIF. Make sure the image is a JPEG and try again.');
     }
   };
 
@@ -1111,6 +1332,177 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
           <span className="badge">Copy-ready outputs</span>
         </div>
       </header>
+
+      {tool.id === 'photo-exif' && (
+        <ToolCard title="Photo EXIF & Metadata Editor" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_0.95fr] gap-4 items-start">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm text-slate-300">Upload a photo</label>
+                <input type="file" accept="image/*" onChange={handlePhotoFileChange} className="w-full" />
+                <p className="text-xs text-slate-400">
+                  View metadata from any image. Updating EXIF works best with JPEG files (.jpg / .jpeg).
+                </p>
+                {photoName && (
+                  <p className="text-xs text-slate-300">
+                    Selected: <span className="font-mono text-white">{photoName}</span>
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm text-slate-300">
+                  <span className="badge">Preview</span>
+                  <span className="text-xs text-slate-400">Local only—never uploaded</span>
+                </div>
+                <div className="relative aspect-video rounded-xl bg-slate-900/60 border border-white/10 overflow-hidden">
+                  {photoPreview ? (
+                    <Image src={photoPreview} alt="Uploaded photo preview" fill className="object-contain" sizes="(min-width: 1280px) 640px, 100vw" />
+                  ) : (
+                    <div className="absolute inset-0 grid place-items-center text-sm text-slate-500">
+                      Upload a photo to preview and inspect EXIF metadata.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-slate-300">
+                  <span className="badge">Metadata</span>
+                  <span className="text-xs text-slate-400">Showing {photoMetadata.length} entries</span>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+                  {photoMetadata.length === 0 && (
+                    <p className="text-sm text-slate-400">Upload an image to extract EXIF and metadata fields.</p>
+                  )}
+                  {photoMetadata.map((entry) => (
+                    <div key={entry.key} className="grid grid-cols-[1fr_1.1fr] gap-3 text-xs text-slate-200">
+                      <span className="font-semibold text-slate-300 break-words">{entry.key}</span>
+                      <span className="font-mono text-slate-100 break-words">{entry.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-white">Capture time & timezone</p>
+                  <div className="grid grid-cols-1 md:grid-cols-[1.15fr_0.85fr] gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Capture date</label>
+                      <input
+                        type="datetime-local"
+                        value={photoDate}
+                        onChange={(e) => setPhotoDate(e.target.value)}
+                        className="w-full px-3 py-2"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Timezone or offset</label>
+                      <input
+                        type="text"
+                        value={photoZone}
+                        onChange={(e) => setPhotoZone(e.target.value)}
+                        list="timezone-suggestions"
+                        placeholder="UTC or America/New_York"
+                        className="w-full px-3 py-2"
+                      />
+                      <datalist id="timezone-suggestions">
+                        {timeZones.map((zone) => (
+                          <option key={zone} value={zone} />
+                        ))}
+                      </datalist>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-white">Location (GPS)</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Latitude</label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={photoLatitude}
+                        onChange={(e) => setPhotoLatitude(e.target.value)}
+                        placeholder="e.g. 37.7749"
+                        className="w-full px-3 py-2"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Longitude</label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={photoLongitude}
+                        onChange={(e) => setPhotoLongitude(e.target.value)}
+                        placeholder="e.g. -122.4194"
+                        className="w-full px-3 py-2"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Altitude (m)</label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={photoAltitude}
+                        onChange={(e) => setPhotoAltitude(e.target.value)}
+                        placeholder="Optional"
+                        className="w-full px-3 py-2"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-400">Camera make</label>
+                    <input
+                      type="text"
+                      value={photoMake}
+                      onChange={(e) => setPhotoMake(e.target.value)}
+                      placeholder="Canon, Apple, Sony"
+                      className="w-full px-3 py-2"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-400">Camera model</label>
+                    <input
+                      type="text"
+                      value={photoModel}
+                      onChange={(e) => setPhotoModel(e.target.value)}
+                      placeholder="iPhone 15 Pro, A7 III"
+                      className="w-full px-3 py-2"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-slate-400">Orientation</label>
+                  <select value={photoOrientation} onChange={(e) => setPhotoOrientation(e.target.value)} className="w-full px-3 py-2">
+                    <option value="1">Horizontal (normal)</option>
+                    <option value="3">Upside down</option>
+                    <option value="6">Rotate 90° CW</option>
+                    <option value="8">Rotate 90° CCW</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button onClick={handlePhotoSave} className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand">
+                    <CursorArrowRaysIcon className="h-4 w-4" />
+                    Update EXIF & download
+                  </button>
+                  {photoError && <p className="text-sm text-rose-400">{photoError}</p>}
+                  {photoMessage && !photoError && <p className="text-sm text-emerald-300">{photoMessage}</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+        </ToolCard>
+      )}
 
       {tool.id === 'qr-generator' && (
         <ToolCard title="QR Code Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
