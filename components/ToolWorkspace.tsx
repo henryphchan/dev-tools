@@ -1398,24 +1398,25 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     const millisDelta = end.toMillis() - start.toMillis();
     const relative = end.toRelative({ base: start, style: 'long' });
 
+    const differenceLine = `${Math.trunc(diffParts.years ?? 0)} Year ${Math.trunc(diffParts.months ?? 0)} Month ${Math.trunc(
+      diffParts.days ?? 0
+    )} Day ${Math.trunc(diffParts.hours ?? 0)} Hour ${Math.trunc(diffParts.minutes ?? 0)} Minute ${Math.trunc(
+      diffParts.seconds ?? 0
+    )} Second`;
+
     if (millisDelta === 0) {
       setDiffSummary('Both datetimes are identical.');
       setDiffFormattedDetails(
         `Start time: ${start.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
           `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
-          'Difference:\n0 Year 0 Month 0 Day 0 Hour 0 Minute 0 Second'
+          differenceLine
       );
     } else {
       setDiffSummary(`End occurs ${relative ?? 'relative to the start time'}.`);
       setDiffFormattedDetails(
         `Start time: ${start.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
           `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
-          'Difference:\n' +
-          `${Math.trunc(diffParts.years ?? 0)} Year ${Math.trunc(diffParts.months ?? 0)} Month ${Math.trunc(
-            diffParts.days ?? 0
-          )} Day ${Math.trunc(diffParts.hours ?? 0)} Hour ${Math.trunc(diffParts.minutes ?? 0)} Minute ${Math.trunc(
-            diffParts.seconds ?? 0
-          )} Second`
+          differenceLine
       );
     }
 
