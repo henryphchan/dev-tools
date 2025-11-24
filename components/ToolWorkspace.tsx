@@ -714,7 +714,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   }, [stringCaseInput]);
 
   const handleExportStringCaseCsv = () => {
-    if (!stringCaseResults.rows?.length) return;
+    if (!stringCaseResults.rows || stringCaseResults.rows.length === 0) return;
 
     const headers = [
       'Line',
