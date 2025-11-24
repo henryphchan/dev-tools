@@ -372,13 +372,19 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     }
   };
 
-  const normalizeExifSection = (section: Record<string, unknown> | undefined) => {
+  const sanitizeExifSection = (section: Record<string, unknown> | undefined, ifd: string) => {
     if (!section) return {};
+
+    const tags = (piexif as { TAGS?: Record<string, Record<number, { type?: unknown }>> }).TAGS?.[ifd] ?? {};
 
     return Object.entries(section).reduce<Record<number, unknown>>((acc, [key, value]) => {
       const numericKey = Number(key);
 
       if (Number.isNaN(numericKey)) {
+        return acc;
+      }
+
+      if (!tags[numericKey] || typeof tags[numericKey].type === 'undefined') {
         return acc;
       }
 
@@ -389,11 +395,14 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
   const buildExifStructure = (data: Record<string, any>) => {
     return {
-      '0th': normalizeExifSection((data as { '0th'?: Record<string, unknown>; Image?: Record<string, unknown> })['0th'] ?? data.Image),
-      Exif: normalizeExifSection(data.Exif as Record<string, unknown>),
-      GPS: normalizeExifSection(data.GPS as Record<string, unknown>),
-      Interop: normalizeExifSection(data.Interop as Record<string, unknown>),
-      '1st': normalizeExifSection((data as { '1st'?: Record<string, unknown> })['1st']),
+      '0th': sanitizeExifSection(
+        (data as { '0th'?: Record<string, unknown>; Image?: Record<string, unknown> })['0th'] ?? data.Image,
+        '0th'
+      ),
+      Exif: sanitizeExifSection(data.Exif as Record<string, unknown>, 'Exif'),
+      GPS: sanitizeExifSection(data.GPS as Record<string, unknown>, 'GPS'),
+      Interop: sanitizeExifSection(data.Interop as Record<string, unknown>, 'Interop'),
+      '1st': sanitizeExifSection((data as { '1st'?: Record<string, unknown> })['1st'], '1st'),
       thumbnail: (data as { thumbnail?: string | null }).thumbnail ?? null,
     };
   };
