@@ -393,6 +393,15 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     }, {});
   };
 
+  const sanitizeExifForDump = (data: Record<string, any>) => {
+    const allowedIfds: (keyof piexif.ExifDict)[] = ['0th', 'Exif', 'GPS', 'Interop', '1st'];
+
+    return allowedIfds.reduce<piexif.ExifDict>((acc, ifd) => {
+      acc[ifd] = sanitizeExifSection(data?.[ifd] as Record<string, unknown>, ifd);
+      return acc;
+    }, { thumbnail: (data as { thumbnail?: string | null }).thumbnail ?? null } as piexif.ExifDict);
+  };
+
   const buildExifStructure = (data: Record<string, any>) => {
     return {
       '0th': sanitizeExifSection(
@@ -598,7 +607,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
       exifData['0th'][piexif.ImageIFD.Orientation] = Number.parseInt(photoOrientation, 10) || 1;
 
-      const exifBytes = piexif.dump(exifData);
+      const exifBytes = piexif.dump(sanitizeExifForDump(exifData));
       const updatedDataUrl = piexif.insert(exifBytes, photoDataUrl);
 
       setPhotoDataUrl(updatedDataUrl);
