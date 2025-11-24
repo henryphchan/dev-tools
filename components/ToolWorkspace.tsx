@@ -1639,10 +1639,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                           />
                         </button>
                         {showTimezoneSuggestions && (
-                          <div
-                            id="timezone-suggestion-list"
-                            className="absolute z-20 mt-2 w-full overflow-hidden rounded-lg border border-white/10 bg-slate-900/95 backdrop-blur shadow-xl"
-                          >
+                        <div
+                          id="timezone-suggestion-list"
+                          className="absolute z-[1200] mt-2 w-full overflow-hidden rounded-lg border border-white/10 bg-slate-900/95 backdrop-blur shadow-xl"
+                        >
                             <div className="border-b border-white/10 p-2">
                               <input
                                 type="text"
