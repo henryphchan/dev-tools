@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { tools } from '../lib/tools';
-import { SparklesIcon, XMarkIcon } from './icons';
+import { SparklesIcon, XMarkIcon, GitHubIcon, LinkedInIcon } from './icons';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -104,6 +104,26 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       </nav>
 
       <div className="p-4 border-t border-white/10">
+        <div className="flex justify-center gap-4 mb-4">
+          <a
+            href="https://github.com/henryphchan/dev-tools/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-slate-400 hover:text-white transition-colors"
+            aria-label="GitHub"
+          >
+            <GitHubIcon className="w-5 h-5" />
+          </a>
+          <a
+            href="https://www.linkedin.com/in/henry-ph-chan/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-slate-400 hover:text-white transition-colors"
+            aria-label="LinkedIn"
+          >
+            <LinkedInIcon className="w-5 h-5" />
+          </a>
+        </div>
         <p className="text-xs text-slate-600 text-center">
           &copy; {new Date().getFullYear()} Dev Tools
         </p>

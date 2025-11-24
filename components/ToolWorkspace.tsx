@@ -15,22 +15,59 @@ import yaml from 'js-yaml';
 import QRCode from 'qrcode';
 import CryptoJS from 'crypto-js';
 import * as blake from 'blakejs';
+import exifr from 'exifr';
+import piexif from 'piexifjs';
+import { getTimeZones } from '@vvo/tzdb';
+import 'leaflet/dist/leaflet.css';
+import type * as Leaflet from 'leaflet';
 import {
   ArrowPathRoundedSquareIcon,
   ClipboardDocumentCheckIcon,
   CursorArrowRaysIcon,
+  ChevronDownIcon,
 } from './icons';
 
-const timeZones = [
-  'UTC',
-  'America/New_York',
-  'America/Los_Angeles',
-  'Europe/London',
-  'Europe/Berlin',
-  'Asia/Tokyo',
-  'Asia/Kolkata',
-  'Australia/Sydney',
-];
+type TimezoneOption = {
+  value: string;
+  label: string;
+};
+
+const tzDatabaseZones = getTimeZones({ includeUtc: true });
+
+const formatOffsetMinutes = (offsetMinutes: number) => {
+  const sign = offsetMinutes >= 0 ? '+' : '-';
+  const absoluteMinutes = Math.abs(offsetMinutes);
+  const hours = Math.floor(absoluteMinutes / 60)
+    .toString()
+    .padStart(2, '0');
+  const minutes = (absoluteMinutes % 60).toString().padStart(2, '0');
+
+  return `${sign}${hours}:${minutes}`;
+};
+
+const timezoneOptions: TimezoneOption[] = tzDatabaseZones
+  .map((zone) => {
+    const formattedOffset = formatOffsetMinutes(zone.currentTimeOffsetInMinutes);
+
+    return {
+      value: zone.name,
+      label: `${zone.name} (UTC${formattedOffset})`,
+    };
+  })
+  .sort((a, b) => a.label.localeCompare(b.label));
+
+const uniqueOffsets = Array.from(
+  new Set(tzDatabaseZones.map((zone) => formatOffsetMinutes(zone.currentTimeOffsetInMinutes)))
+).sort();
+
+const isoOffsetOptions: TimezoneOption[] = uniqueOffsets.map((offset) => ({
+  value: `UTC${offset}`,
+  label: `UTC${offset}`,
+}));
+
+const timezoneSuggestions: TimezoneOption[] = [...isoOffsetOptions, ...timezoneOptions];
+
+const getZoneLabel = (value: string) => timezoneSuggestions.find((option) => option.value === value)?.label || value;
 
 type ColumnProfile = {
   name: string;
@@ -178,6 +215,29 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [digestResult, setDigestResult] = useState('');
   const [digestError, setDigestError] = useState('');
 
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [photoDataUrl, setPhotoDataUrl] = useState('');
+  const [photoMetadata, setPhotoMetadata] = useState<{ key: string; value: string }[]>([]);
+  const [photoName, setPhotoName] = useState('');
+  const [photoDate, setPhotoDate] = useState('');
+  const [photoZone, setPhotoZone] = useState('UTC');
+  const [showTimezoneSuggestions, setShowTimezoneSuggestions] = useState(false);
+  const [photoLatitude, setPhotoLatitude] = useState('');
+  const [photoLongitude, setPhotoLongitude] = useState('');
+  const [photoAltitude, setPhotoAltitude] = useState('');
+  const [photoMake, setPhotoMake] = useState('');
+  const [photoModel, setPhotoModel] = useState('');
+  const [photoOrientation, setPhotoOrientation] = useState('1');
+  const [photoMetadataJson, setPhotoMetadataJson] = useState('');
+  const [photoMetadataJsonError, setPhotoMetadataJsonError] = useState('');
+  const [photoError, setPhotoError] = useState('');
+  const [photoMessage, setPhotoMessage] = useState('');
+  const [leafletLoaded, setLeafletLoaded] = useState(false);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<Leaflet.Map | null>(null);
+  const mapMarkerRef = useRef<Leaflet.Marker | null>(null);
+  const leafletRef = useRef<typeof Leaflet>();
+
   const [diffLeftText, setDiffLeftText] = useState('');
   const [diffRightText, setDiffRightText] = useState('');
   const [diffLeftLabel, setDiffLeftLabel] = useState('Left text');
@@ -195,11 +255,42 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [convertedTime, setConvertedTime] = useState('');
   const [timeError, setTimeError] = useState('');
 
+  const [diffStart, setDiffStart] = useState(initialDate);
+  const [diffEnd, setDiffEnd] = useState(initialDate);
+  const [diffResults, setDiffResults] = useState<
+    | {
+      seconds: number;
+      minutes: number;
+      hours: number;
+      days: number;
+      months: number;
+      years: number;
+    }
+    | null
+  >(null);
+  const [diffSummary, setDiffSummary] = useState('');
+  const [diffFormattedDetails, setDiffFormattedDetails] = useState('');
+  const [diffError, setDiffError] = useState('');
+
   const [bitwiseA, setBitwiseA] = useState('5');
   const [bitwiseB, setBitwiseB] = useState('3');
   const [bitwiseOp, setBitwiseOp] = useState('AND');
   const [bitwiseResult, setBitwiseResult] = useState('');
   const [bitwiseError, setBitwiseError] = useState('');
+
+  const [stringCaseInput, setStringCaseInput] = useState('user_profile id');
+
+  const [chmodPermissions, setChmodPermissions] = useState({
+    owner: { read: true, write: true, execute: true },
+    group: { read: true, write: false, execute: true },
+    others: { read: true, write: false, execute: true },
+  });
+
+  const [chmodSpecial, setChmodSpecial] = useState({
+    setuid: false,
+    setgid: false,
+    sticky: false,
+  });
 
   const [cronExpression, setCronExpression] = useState('*/5 * * * *');
   const [cronZone, setCronZone] = useState('UTC');
@@ -258,6 +349,454 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       setRegexMatches([]);
     }
   };
+
+  const formatExifValue = (value: unknown): string => {
+    if (value instanceof Date) {
+      return DateTime.fromJSDate(value).toISO({ suppressMilliseconds: true }) ?? value.toString();
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((entry) => formatExifValue(entry)).join(', ');
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      try {
+        return JSON.stringify(value);
+      } catch (error) {
+        console.error('Could not format EXIF value', error);
+      }
+    }
+
+    if (value === undefined) return '—';
+    if (value === null) return 'null';
+
+    return String(value);
+  };
+
+  const setMetadataJsonFromObject = (metadata: Record<string, unknown> | undefined) => {
+    if (!metadata) {
+      setPhotoMetadataJson('');
+      return;
+    }
+
+    try {
+      setPhotoMetadataJson(JSON.stringify(metadata, null, 2));
+      setPhotoMetadataJsonError('');
+    } catch (error) {
+      console.error('Unable to serialize EXIF metadata', error);
+      setPhotoMetadataJson('');
+      setPhotoMetadataJsonError('Could not serialize EXIF metadata to JSON.');
+    }
+  };
+
+  const sanitizeExifSection = (section: Record<string, unknown> | undefined, ifd: string) => {
+    if (!section) return {};
+
+    const tags = (piexif as { TAGS?: Record<string, Record<number, { type?: unknown }>> }).TAGS?.[ifd] ?? {};
+
+    return Object.entries(section).reduce<Record<number, unknown>>((acc, [key, value]) => {
+      const numericKey = Number(key);
+
+      if (Number.isNaN(numericKey)) {
+        return acc;
+      }
+
+      if (!tags[numericKey] || typeof tags[numericKey].type === 'undefined') {
+        return acc;
+      }
+
+      acc[numericKey] = value;
+      return acc;
+    }, {});
+  };
+
+  const sanitizeExifForDump = (data: Record<string, any>) => {
+    const allowedIfds: (keyof piexif.ExifDict)[] = ['0th', 'Exif', 'GPS', 'Interop', '1st'];
+
+    return allowedIfds.reduce<piexif.ExifDict>((acc, ifd) => {
+      acc[ifd] = sanitizeExifSection(data?.[ifd] as Record<string, unknown>, ifd);
+      return acc;
+    }, { thumbnail: (data as { thumbnail?: string | null }).thumbnail ?? null } as piexif.ExifDict);
+  };
+
+  const buildExifStructure = (data: Record<string, any>) => {
+    return {
+      '0th': sanitizeExifSection(
+        (data as { '0th'?: Record<string, unknown>; Image?: Record<string, unknown> })['0th'] ?? data.Image,
+        '0th'
+      ),
+      Exif: sanitizeExifSection(data.Exif as Record<string, unknown>, 'Exif'),
+      GPS: sanitizeExifSection(data.GPS as Record<string, unknown>, 'GPS'),
+      Interop: sanitizeExifSection(data.Interop as Record<string, unknown>, 'Interop'),
+      '1st': sanitizeExifSection((data as { '1st'?: Record<string, unknown> })['1st'], '1st'),
+      thumbnail: (data as { thumbnail?: string | null }).thumbnail ?? null,
+    };
+  };
+
+  const populatePhotoForm = (metadata: Record<string, unknown>) => {
+    const captureDate = metadata.DateTimeOriginal as Date | undefined;
+    const offset = (metadata as { OffsetTimeOriginal?: string }).OffsetTimeOriginal;
+    const latitude = (metadata as { latitude?: number }).latitude ?? (metadata as { GPSLatitude?: number }).GPSLatitude;
+    const longitude =
+      (metadata as { longitude?: number }).longitude ?? (metadata as { GPSLongitude?: number }).GPSLongitude;
+    const altitude = (metadata as { GPSAltitude?: number }).GPSAltitude;
+
+    if (captureDate instanceof Date && !Number.isNaN(captureDate.getTime())) {
+      setPhotoDate(
+        DateTime.fromJSDate(captureDate).toISO({ suppressMilliseconds: true, suppressSeconds: true })?.slice(0, 16) ?? ''
+      );
+    } else {
+      setPhotoDate('');
+    }
+
+    setPhotoZone(offset || 'UTC');
+    setPhotoLatitude(typeof latitude === 'number' ? latitude.toFixed(6) : '');
+    setPhotoLongitude(typeof longitude === 'number' ? longitude.toFixed(6) : '');
+    setPhotoAltitude(typeof altitude === 'number' ? altitude.toString() : '');
+    setPhotoMake((metadata as { Make?: string }).Make || '');
+    setPhotoModel((metadata as { Model?: string }).Model || '');
+    setPhotoOrientation(String((metadata as { Orientation?: number }).Orientation || '1'));
+
+    const entries = Object.entries(metadata)
+      .filter(([, value]) => typeof value !== 'function')
+      .map(([key, value]) => ({ key, value: formatExifValue(value) }))
+      .sort((a, b) => a.key.localeCompare(b.key));
+
+    setPhotoMetadata(entries);
+  };
+
+  const handlePhotoFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setPhotoError('');
+    setPhotoMessage('');
+    setPhotoName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      setPhotoPreview(dataUrl);
+      setPhotoDataUrl(dataUrl);
+
+      try {
+        const metadata = (await exifr.parse(file, { gps: true })) as Record<string, unknown> | undefined;
+        if (metadata) {
+          populatePhotoForm(metadata);
+          setMetadataJsonFromObject(metadata);
+
+          const mime = file.type.toLowerCase();
+          const isJpeg = /image\/jpe?g/.test(mime);
+
+          if (!isJpeg) {
+            setPhotoMessage('Metadata can be inspected for any image, but EXIF updates are saved as JPEG.');
+          } else {
+            try {
+              const rawExif = piexif.load(dataUrl) as Record<string, unknown>;
+              setMetadataJsonFromObject(rawExif);
+            } catch (error) {
+              console.error('Unable to load EXIF JSON from JPEG', error);
+            }
+          }
+        } else {
+          setPhotoMetadata([]);
+        }
+      } catch (error) {
+        console.error('Failed to parse EXIF metadata', error);
+        setPhotoError('Unable to read EXIF metadata from this file.');
+      }
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const decimalToDms = (value: number) => {
+    const absolute = Math.abs(value);
+    const degrees = Math.floor(absolute);
+    const minutesFloat = (absolute - degrees) * 60;
+    const minutes = Math.floor(minutesFloat);
+    const seconds = Math.round((minutesFloat - minutes) * 60 * 100);
+
+    return [
+      [degrees, 1],
+      [minutes, 1],
+      [seconds, 100],
+    ];
+  };
+
+  const refreshMetadataFromDataUrl = async (dataUrl: string) => {
+    try {
+      const buffer = await fetch(dataUrl).then((response) => response.arrayBuffer());
+      const metadata = (await exifr.parse(buffer, { gps: true })) as Record<string, unknown> | undefined;
+      if (metadata) {
+        populatePhotoForm(metadata);
+        try {
+          const rawExif = piexif.load(dataUrl) as Record<string, unknown>;
+          setMetadataJsonFromObject(rawExif);
+        } catch (error) {
+          console.error('Unable to reload EXIF JSON after update', error);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh EXIF metadata', error);
+    }
+  };
+
+  const handlePhotoSave = async () => {
+    setPhotoError('');
+    setPhotoMessage('');
+
+    if (!photoDataUrl) {
+      setPhotoError('Upload a photo to start editing metadata.');
+      return;
+    }
+
+    const isJpegDataUrl = /^data:image\/jpe?g/i.test(photoDataUrl);
+
+    if (!isJpegDataUrl) {
+      setPhotoError('Updating EXIF requires a JPEG file (.jpg or .jpeg).');
+      return;
+    }
+
+    try {
+      let exifDataRaw: Record<string, any>;
+
+      try {
+        exifDataRaw = photoMetadataJson ? JSON.parse(photoMetadataJson) : piexif.load(photoDataUrl);
+        setPhotoMetadataJsonError('');
+      } catch (error) {
+        console.error('Metadata JSON is invalid', error);
+        setPhotoMetadataJsonError('Metadata JSON is invalid. Please fix formatting or clear the field.');
+        setPhotoError('Metadata JSON is invalid. Fix it before saving.');
+        return;
+      }
+
+      const exifData = buildExifStructure(exifDataRaw);
+
+      if (photoDate) {
+        const captureDate = DateTime.fromISO(photoDate, { zone: photoZone || 'UTC' });
+        if (!captureDate.isValid) {
+          setPhotoError('Enter a valid capture date/time and timezone.');
+          return;
+        }
+
+        const formatted = captureDate.toFormat('yyyy:MM:dd HH:mm:ss');
+        const offset = captureDate.toFormat('ZZ');
+
+        exifData.Exif[piexif.ExifIFD.DateTimeOriginal] = formatted;
+        exifData.Exif[piexif.ExifIFD.CreateDate] = formatted;
+        exifData.Exif[piexif.ExifIFD.OffsetTimeOriginal] = offset;
+      }
+
+      if (photoLatitude && photoLongitude) {
+        const lat = Number(photoLatitude);
+        const lon = Number(photoLongitude);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+          setPhotoError('Latitude and longitude must be numeric values.');
+          return;
+        }
+
+        exifData.GPS[piexif.GPSIFD.GPSLatitude] = decimalToDms(lat);
+        exifData.GPS[piexif.GPSIFD.GPSLatitudeRef] = lat >= 0 ? 'N' : 'S';
+        exifData.GPS[piexif.GPSIFD.GPSLongitude] = decimalToDms(lon);
+        exifData.GPS[piexif.GPSIFD.GPSLongitudeRef] = lon >= 0 ? 'E' : 'W';
+      }
+
+      if (photoAltitude) {
+        const altitude = Number(photoAltitude);
+        if (!Number.isFinite(altitude)) {
+          setPhotoError('Altitude must be a numeric value.');
+          return;
+        }
+
+        exifData.GPS[piexif.GPSIFD.GPSAltitude] = [Math.round(Math.abs(altitude) * 100), 100];
+        exifData.GPS[piexif.GPSIFD.GPSAltitudeRef] = altitude < 0 ? 1 : 0;
+      }
+
+      if (photoMake) {
+        exifData['0th'][piexif.ImageIFD.Make] = photoMake;
+      }
+
+      if (photoModel) {
+        exifData['0th'][piexif.ImageIFD.Model] = photoModel;
+      }
+
+      exifData['0th'][piexif.ImageIFD.Orientation] = Number.parseInt(photoOrientation, 10) || 1;
+
+      const exifBytes = piexif.dump(sanitizeExifForDump(exifData));
+      const updatedDataUrl = piexif.insert(exifBytes, photoDataUrl);
+
+      setPhotoDataUrl(updatedDataUrl);
+      setPhotoPreview(updatedDataUrl);
+      await refreshMetadataFromDataUrl(updatedDataUrl);
+
+      const link = document.createElement('a');
+      link.href = updatedDataUrl;
+      link.download = photoName ? `edited-${photoName}` : 'photo-with-updated-exif.jpg';
+      link.click();
+
+      setPhotoMessage('EXIF updated. A new JPEG has been downloaded with your changes.');
+    } catch (error) {
+      console.error('Failed to update EXIF metadata', error);
+      setPhotoError('Unable to update EXIF. Make sure the image is a JPEG and try again.');
+    }
+  };
+
+  const splitIntoWords = (value: string) => {
+    return value
+      .replace(/[_-]+/g, ' ')
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+      .split(/[^A-Za-z0-9]+/)
+      .filter(Boolean)
+      .map((word) => word.toLowerCase());
+  };
+
+  const stringCaseResults = useMemo(() => {
+    const lines = stringCaseInput
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    if (!lines.length) {
+      return { error: 'Enter text to convert into different casing styles.', rows: null };
+    }
+
+    const capitalize = (word: string) => (word ? word[0].toUpperCase() + word.slice(1) : '');
+
+    const rows = lines.map((line, index) => {
+      const words = splitIntoWords(line);
+
+      if (!words.length) {
+        return {
+          index,
+          source: line,
+          variants: null,
+          error: `Line ${index + 1} has no letters or digits to convert.`,
+        } as const;
+      }
+
+      const camelCase = words.map((word, idx) => (idx === 0 ? word : capitalize(word))).join('');
+      const pascalCase = words.map(capitalize).join('');
+      const snakeCase = words.join('_');
+      const kebabCase = words.join('-');
+      const titleCase = words.map(capitalize).join(' ');
+      const screamingSnake = words.join('_').toUpperCase();
+      const sentenceCase = `${capitalize(words[0])}${words
+        .slice(1)
+        .map((word) => (word ? ` ${word}` : ''))
+        .join('')}`;
+
+      return {
+        index,
+        source: line,
+        error: '',
+        variants: [
+          { label: 'camelCase', value: camelCase },
+          { label: 'PascalCase', value: pascalCase },
+          { label: 'snake_case', value: snakeCase },
+          { label: 'kebab-case', value: kebabCase },
+          { label: 'Title Case', value: titleCase },
+          { label: 'SCREAMING_SNAKE_CASE', value: screamingSnake },
+          { label: 'Sentence case', value: sentenceCase },
+        ],
+      } as const;
+    });
+
+    const firstError = rows.find((row) => row.error);
+
+    if (firstError) {
+      return { error: firstError.error, rows: null };
+    }
+
+    return { error: '', rows };
+  }, [stringCaseInput]);
+
+  const handleExportStringCaseCsv = () => {
+    if (!stringCaseResults.rows?.length) return;
+
+    const headers = [
+      'Line',
+      'Source',
+      ...stringCaseResults.rows[0].variants.map((variant) => variant.label),
+    ];
+
+    const data = stringCaseResults.rows.map((row) => [
+      row.index + 1,
+      row.source,
+      ...row.variants.map((variant) => variant.value),
+    ]);
+
+    const csv = Papa.unparse({ fields: headers, data });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'string-case-conversions.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const togglePermission = (scope: 'owner' | 'group' | 'others', permission: 'read' | 'write' | 'execute') => {
+    setChmodPermissions((prev) => ({
+      ...prev,
+      [scope]: {
+        ...prev[scope],
+        [permission]: !prev[scope][permission],
+      },
+    }));
+  };
+
+  const chmodSummary = useMemo(() => {
+    const digitFor = (scope: keyof typeof chmodPermissions) => {
+      const perms = chmodPermissions[scope];
+      return (perms.read ? 4 : 0) + (perms.write ? 2 : 0) + (perms.execute ? 1 : 0);
+    };
+
+    const ownerDigit = digitFor('owner');
+    const groupDigit = digitFor('group');
+    const otherDigit = digitFor('others');
+
+    const specialDigit = (chmodSpecial.setuid ? 4 : 0) + (chmodSpecial.setgid ? 2 : 0) + (chmodSpecial.sticky ? 1 : 0);
+    const octal = `${specialDigit ? specialDigit : ''}${ownerDigit}${groupDigit}${otherDigit}`;
+
+    const ownerExec = chmodPermissions.owner.execute
+      ? chmodSpecial.setuid
+        ? 's'
+        : 'x'
+      : chmodSpecial.setuid
+        ? 'S'
+        : '-';
+
+    const groupExec = chmodPermissions.group.execute
+      ? chmodSpecial.setgid
+        ? 's'
+        : 'x'
+      : chmodSpecial.setgid
+        ? 'S'
+        : '-';
+
+    const otherExec = chmodPermissions.others.execute
+      ? chmodSpecial.sticky
+        ? 't'
+        : 'x'
+      : chmodSpecial.sticky
+        ? 'T'
+        : '-';
+
+    const symbolic =
+      `${chmodPermissions.owner.read ? 'r' : '-'}${chmodPermissions.owner.write ? 'w' : '-'}${ownerExec}` +
+      `${chmodPermissions.group.read ? 'r' : '-'}${chmodPermissions.group.write ? 'w' : '-'}${groupExec}` +
+      `${chmodPermissions.others.read ? 'r' : '-'}${chmodPermissions.others.write ? 'w' : '-'}${otherExec}`;
+
+    return {
+      octal,
+      fullOctal: `${specialDigit}${ownerDigit}${groupDigit}${otherDigit}`,
+      symbolic,
+    };
+  }, [chmodPermissions, chmodSpecial]);
 
   const handleJsonFormat = () => {
     try {
@@ -823,6 +1362,70 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     setTimeError('');
   };
 
+  const handleDateDifference = () => {
+    const start = DateTime.fromISO(diffStart);
+    const end = DateTime.fromISO(diffEnd);
+
+    if (!start.isValid || !end.isValid) {
+      setDiffError('Please provide two valid dates/times.');
+      setDiffResults(null);
+      setDiffSummary('');
+      setDiffFormattedDetails('');
+      return;
+    }
+
+    const diff = end.diff(start);
+
+    const detailedDiff = end.diff(start, [
+      'years',
+      'months',
+      'days',
+      'hours',
+      'minutes',
+      'seconds',
+    ]);
+    const diffParts = detailedDiff.toObject();
+
+    setDiffResults({
+      seconds: diff.as('seconds'),
+      minutes: diff.as('minutes'),
+      hours: diff.as('hours'),
+      days: diff.as('days'),
+      months: diff.as('months'),
+      years: diff.as('years'),
+    });
+
+    const millisDelta = end.toMillis() - start.toMillis();
+    const relative = end.toRelative({ base: start, style: 'long' });
+
+    const differenceLine = `${Math.trunc(diffParts.years ?? 0)} Year ${Math.trunc(diffParts.months ?? 0)} Month ${Math.trunc(
+      diffParts.days ?? 0
+    )} Day ${Math.trunc(diffParts.hours ?? 0)} Hour ${Math.trunc(diffParts.minutes ?? 0)} Minute ${Math.trunc(
+      diffParts.seconds ?? 0
+    )} Second`;
+
+    if (millisDelta === 0) {
+      setDiffSummary('Both datetimes are identical.');
+      setDiffFormattedDetails(
+        `Start time: ${start.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+        `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+        differenceLine
+      );
+    } else {
+      setDiffSummary(`End occurs ${relative ?? 'relative to the start time'}.`);
+      setDiffFormattedDetails(
+        `Start time: ${start.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+        `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+        differenceLine
+      );
+    }
+
+    setDiffError('');
+  };
+
+  const formatDiffValue = (value: number) =>
+    value.toLocaleString(undefined, { maximumFractionDigits: 4, minimumFractionDigits: 0 });
+
   const handleBitwise = () => {
     const a = Number(bitwiseA);
     const b = Number(bitwiseB);
@@ -919,6 +1522,85 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const initMap = async () => {
+      if (!mapContainerRef.current || mapInstanceRef.current || leafletRef.current || !isMounted) return;
+
+      try {
+        const L = await import('leaflet');
+        leafletRef.current = L;
+
+        const defaultIcon = L.icon({
+          iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+          iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+        });
+
+        L.Marker.prototype.options.icon = defaultIcon;
+
+        const map = L.map(mapContainerRef.current).setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 19,
+        }).addTo(map);
+
+        map.on('click', (event) => {
+          const lat = event.latlng.lat;
+          const lng = event.latlng.lng;
+          setPhotoLatitude(lat.toFixed(6));
+          setPhotoLongitude(lng.toFixed(6));
+
+          if (!leafletRef.current) return;
+
+          if (!mapMarkerRef.current) {
+            mapMarkerRef.current = L.marker([lat, lng]).addTo(map);
+          } else {
+            mapMarkerRef.current.setLatLng([lat, lng]);
+          }
+        });
+
+        mapInstanceRef.current = map;
+        setLeafletLoaded(true);
+      } catch (error) {
+        console.error('Failed to initialize map', error);
+      }
+    };
+
+    initMap();
+
+    return () => {
+      isMounted = false;
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!leafletLoaded || !leafletRef.current || !mapInstanceRef.current) return;
+
+    const lat = Number(photoLatitude);
+    const lng = Number(photoLongitude);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+    const L = leafletRef.current;
+    const position = L.latLng(lat, lng);
+
+    if (!mapMarkerRef.current) {
+      mapMarkerRef.current = L.marker(position).addTo(mapInstanceRef.current);
+    } else {
+      mapMarkerRef.current.setLatLng(position);
+    }
+
+    mapInstanceRef.current.setView(position, Math.max(mapInstanceRef.current.getZoom(), 5));
+  }, [leafletLoaded, photoLatitude, photoLongitude]);
+
   return (
     <main className="w-full mx-auto px-4 py-6 space-y-6">
       <nav className="flex items-center gap-2 text-sm text-slate-300" aria-label="Breadcrumb">
@@ -942,6 +1624,245 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
           <span className="badge">Copy-ready outputs</span>
         </div>
       </header>
+
+      {tool.id === 'photo-exif' && (
+        <ToolCard title="Photo EXIF & Metadata Editor" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_0.95fr] gap-4 items-start">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm text-slate-300">Upload a photo</label>
+                <input type="file" accept="image/*" onChange={handlePhotoFileChange} className="w-full" />
+                <p className="text-xs text-slate-400">
+                  View metadata from any image. Updating EXIF works best with JPEG files (.jpg / .jpeg).
+                </p>
+                {photoName && (
+                  <p className="text-xs text-slate-300">
+                    Selected: <span className="font-mono text-white">{photoName}</span>
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm text-slate-300">
+                  <span className="badge">Preview</span>
+                  <span className="text-xs text-slate-400">Local only—never uploaded</span>
+                </div>
+                <div className="relative aspect-video rounded-xl bg-slate-900/60 border border-white/10 overflow-hidden">
+                  {photoPreview ? (
+                    <Image src={photoPreview} alt="Uploaded photo preview" fill className="object-contain" sizes="(min-width: 1280px) 640px, 100vw" />
+                  ) : (
+                    <div className="absolute inset-0 grid place-items-center text-sm text-slate-500">
+                      Upload a photo to preview and inspect EXIF metadata.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-slate-300">
+                  <span className="badge">Metadata</span>
+                  <span className="text-xs text-slate-400">Showing {photoMetadata.length} entries</span>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+                  {photoMetadata.length === 0 && (
+                    <p className="text-sm text-slate-400">Upload an image to extract EXIF and metadata fields.</p>
+                  )}
+                  {photoMetadata.map((entry) => (
+                    <div key={entry.key} className="grid grid-cols-[1fr_1.1fr] gap-3 text-xs text-slate-200">
+                      <span className="font-semibold text-slate-300 break-words">{entry.key}</span>
+                      <span className="font-mono text-slate-100 break-words">{entry.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-white">Capture time & timezone</p>
+                  <div className="grid grid-cols-1 md:grid-cols-[1.15fr_0.85fr] gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Capture date</label>
+                      <input
+                        type="datetime-local"
+                        value={photoDate}
+                        onChange={(e) => setPhotoDate(e.target.value)}
+                        className="w-full px-3 py-2"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Timezone or offset</label>
+                      <div
+                        className="relative"
+                        onBlur={() => setTimeout(() => setShowTimezoneSuggestions(false), 120)}
+                      >
+                        <button
+                          type="button"
+                          className="flex w-full items-center justify-between rounded-lg border border-white/10 bg-slate-900/40 px-3 py-2 text-left text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
+                          role="combobox"
+                          aria-expanded={showTimezoneSuggestions}
+                          aria-controls="timezone-suggestion-list"
+                          onClick={() => {
+                            setShowTimezoneSuggestions((prev) => !prev);
+                          }}
+                        >
+                          <span className={photoZone ? 'text-slate-100' : 'text-slate-500'}>
+                            {photoZone ? getZoneLabel(photoZone) : 'Select timezone'}
+                          </span>
+                          <ChevronDownIcon
+                            className={`h-4 w-4 transition-transform ${showTimezoneSuggestions ? 'rotate-180' : ''}`}
+                            aria-hidden
+                          />
+                        </button>
+                        {showTimezoneSuggestions && (
+                          <div
+                            id="timezone-suggestion-list"
+                            className="absolute z-[1200] mt-2 w-full overflow-hidden rounded-lg border border-white/10 bg-slate-900/95 backdrop-blur shadow-xl"
+                          >
+                            <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                              {timezoneSuggestions.map((zone) => (
+                                <button
+                                  key={zone.value}
+                                  type="button"
+                                  className="block w-full px-3 py-2 text-left text-sm text-slate-100 hover:bg-white/10"
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  onClick={() => {
+                                    setPhotoZone(zone.value);
+                                    setShowTimezoneSuggestions(false);
+                                  }}
+                                >
+                                  {zone.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-white">Location (GPS)</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Latitude</label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={photoLatitude}
+                        onChange={(e) => setPhotoLatitude(e.target.value)}
+                        placeholder="e.g. 37.7749"
+                        className="w-full px-3 py-2"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Longitude</label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={photoLongitude}
+                        onChange={(e) => setPhotoLongitude(e.target.value)}
+                        placeholder="e.g. -122.4194"
+                        className="w-full px-3 py-2"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-slate-400">Altitude (m)</label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={photoAltitude}
+                        onChange={(e) => setPhotoAltitude(e.target.value)}
+                        placeholder="Optional"
+                        className="w-full px-3 py-2"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <p>Pin location on map</p>
+                      <p>Click anywhere to set latitude/longitude</p>
+                    </div>
+                    <div
+                      ref={mapContainerRef}
+                      className="h-64 rounded-2xl border border-white/10 bg-slate-950/60 overflow-hidden"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-400">Camera make</label>
+                    <input
+                      type="text"
+                      value={photoMake}
+                      onChange={(e) => setPhotoMake(e.target.value)}
+                      placeholder="Canon, Apple, Sony"
+                      className="w-full px-3 py-2"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-400">Camera model</label>
+                    <input
+                      type="text"
+                      value={photoModel}
+                      onChange={(e) => setPhotoModel(e.target.value)}
+                      placeholder="iPhone 15 Pro, A7 III"
+                      className="w-full px-3 py-2"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-slate-400">Orientation</label>
+                  <select
+                    value={photoOrientation}
+                    onChange={(e) => setPhotoOrientation(e.target.value)}
+                    className="w-full px-3 py-2"
+                  >
+                    <option value="1">Horizontal (normal)</option>
+                    <option value="3">Upside down</option>
+                    <option value="6">Rotate 90° CW</option>
+                    <option value="8">Rotate 90° CCW</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 text-sm text-slate-300">
+                    <p className="font-semibold text-white">Raw EXIF metadata JSON</p>
+                    <span className="text-xs text-slate-400">Edit any tag before saving</span>
+                  </div>
+                  <textarea
+                    value={photoMetadataJson}
+                    onChange={(e) => setPhotoMetadataJson(e.target.value)}
+                    rows={10}
+                    className="w-full font-mono text-xs"
+                    placeholder={'{ "Exif": { ... }, "GPS": { ... } }'}
+                  />
+                  <p className="text-xs text-slate-400">
+                    Paste or edit all EXIF sections (Exif, GPS, Image). Invalid JSON will block saving.
+                  </p>
+                  {photoMetadataJsonError && <p className="text-xs text-rose-400">{photoMetadataJsonError}</p>}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={handlePhotoSave}
+                    className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand"
+                  >
+                    <CursorArrowRaysIcon className="h-4 w-4" />
+                    Update EXIF & download
+                  </button>
+                  {photoError && <p className="text-sm text-rose-400">{photoError}</p>}
+                  {photoMessage && !photoError && <p className="text-sm text-emerald-300">{photoMessage}</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+        </ToolCard>
+      )}
 
       {tool.id === 'qr-generator' && (
         <ToolCard title="QR Code Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
@@ -1573,6 +2494,168 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         </ToolCard>
       )}
 
+      {tool.id === 'string-case' && (
+        <ToolCard title="String Case Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm text-slate-300">Input text</label>
+              <textarea
+                value={stringCaseInput}
+                onChange={(e) => setStringCaseInput(e.target.value)}
+                placeholder="userProfile id"
+                className="w-full"
+                rows={3}
+              />
+            </div>
+
+            {stringCaseResults.error && <p className="text-sm text-rose-400">{stringCaseResults.error}</p>}
+
+            {stringCaseResults.rows && (
+              <div className="space-y-3">
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleExportStringCaseCsv}
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-white/30"
+                  >
+                    Export CSV
+                  </button>
+                </div>
+                {stringCaseResults.rows.map((row) => (
+                  <div key={row.index} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Line {row.index + 1}</p>
+                        {row.source && <p className="text-sm font-semibold text-white">{row.source}</p>}
+                      </div>
+                      <button
+                        onClick={() => copyToClipboard(row.source)}
+                        className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-1 text-xs text-slate-200 hover:border-white/30"
+                      >
+                        <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy line
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {row.variants?.map((result) => (
+                        <div key={result.label} className="rounded-xl border border-white/10 bg-white/5 p-3 space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-semibold text-white">{result.label}</p>
+                            <button
+                              onClick={() => copyToClipboard(result.value)}
+                              className="flex items-center gap-2 text-xs text-slate-300 hover:text-white"
+                            >
+                              <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy
+                            </button>
+                          </div>
+                          <p className="font-mono text-sm text-slate-200 break-words">{result.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </ToolCard>
+      )}
+
+      {tool.id === 'chmod' && (
+        <ToolCard title="Chmod Calculator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {(
+                [
+                  { key: 'owner', label: 'Owner' },
+                  { key: 'group', label: 'Group' },
+                  { key: 'others', label: 'Others' },
+                ] as const
+              ).map((scope) => (
+                <div key={scope.key} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
+                  <p className="text-sm font-semibold text-white">{scope.label}</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { key: 'read', label: 'Read' },
+                      { key: 'write', label: 'Write' },
+                      { key: 'execute', label: 'Exec' },
+                    ] as const).map((perm) => {
+                      const isActive = chmodPermissions[scope.key][perm.key];
+                      return (
+                        <button
+                          key={perm.key}
+                          onClick={() => togglePermission(scope.key, perm.key)}
+                          className={`rounded-xl border px-3 py-2 text-xs font-semibold transition ${isActive
+                              ? 'border-brand/60 bg-brand/20 text-white shadow-brand'
+                              : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/30'
+                            }`}
+                        >
+                          {perm.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {(
+                [
+                  { key: 'setuid', label: 'Setuid (u+s)', help: 'Use caller UID on execution' },
+                  { key: 'setgid', label: 'Setgid (g+s)', help: 'Use caller GID on execution' },
+                  { key: 'sticky', label: 'Sticky (t)', help: 'Only owners can delete inside dirs' },
+                ] as const
+              ).map((flag) => (
+                <label key={flag.key} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+                  <input
+                    type="checkbox"
+                    checked={chmodSpecial[flag.key]}
+                    onChange={(e) => setChmodSpecial((prev) => ({ ...prev, [flag.key]: e.target.checked }))}
+                    className="mt-1 h-4 w-4 rounded border-white/20 bg-white/5"
+                  />
+                  <div>
+                    <p className="font-semibold text-white">{flag.label}</p>
+                    <p className="text-slate-400 text-xs">{flag.help}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="code-output space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-slate-400">Octal (compact)</p>
+                  <button onClick={() => copyToClipboard(chmodSummary.octal)} className="flex items-center gap-1 text-xs text-slate-300 hover:text-white">
+                    <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy
+                  </button>
+                </div>
+                <p className="text-lg font-semibold text-white">{chmodSummary.octal}</p>
+              </div>
+
+              <div className="code-output space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-slate-400">Octal (4-digit)</p>
+                  <button onClick={() => copyToClipboard(chmodSummary.fullOctal)} className="flex items-center gap-1 text-xs text-slate-300 hover:text-white">
+                    <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy
+                  </button>
+                </div>
+                <p className="text-lg font-semibold text-white">{chmodSummary.fullOctal}</p>
+                <p className="text-xs text-slate-400">Includes special bits as the leading digit.</p>
+              </div>
+
+              <div className="code-output space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-slate-400">Symbolic</p>
+                  <button onClick={() => copyToClipboard(chmodSummary.symbolic)} className="flex items-center gap-1 text-xs text-slate-300 hover:text-white">
+                    <ClipboardDocumentCheckIcon className="w-4 h-4" /> Copy
+                  </button>
+                </div>
+                <p className="text-lg font-semibold text-white">{chmodSummary.symbolic}</p>
+              </div>
+            </div>
+          </div>
+        </ToolCard>
+      )}
+
       {tool.id === 'timestamp' && (
         <ToolCard title="Timestamp to Date Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
           <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_auto] gap-3 items-end">
@@ -1607,6 +2690,79 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
           {timestampError && <p className="text-sm text-rose-400">{timestampError}</p>}
           {timestampResult && <pre className="code-output" aria-label="Timestamp output">{timestampResult}</pre>}
           <p className="text-xs text-slate-400">Outputs include your local timezone and ISO-8601 format.</p>
+        </ToolCard>
+      )}
+
+      {tool.id === 'datetime-diff' && (
+        <ToolCard title="Datetime Difference Calculator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm text-slate-300">Start datetime</label>
+              <input
+                type="datetime-local"
+                value={diffStart}
+                onChange={(e) => setDiffStart(e.target.value)}
+                className="w-full px-3 py-2"
+              />
+              <p className="text-xs text-slate-400">Defaults to your current date and time.</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-slate-300">End datetime</label>
+              <input
+                type="datetime-local"
+                value={diffEnd}
+                onChange={(e) => setDiffEnd(e.target.value)}
+                className="w-full px-3 py-2"
+              />
+              <p className="text-xs text-slate-400">Update either value to measure a new gap.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 mt-3">
+            <button
+              onClick={handleDateDifference}
+              className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand"
+            >
+              <CursorArrowRaysIcon className="h-4 w-4" />
+              Calculate difference
+            </button>
+            {diffError && <p className="text-sm text-rose-400">{diffError}</p>}
+          </div>
+
+          {(diffFormattedDetails || diffSummary) && (
+            <div className="mt-3 space-y-2">
+              {diffFormattedDetails && (
+                <pre className="code-output whitespace-pre-wrap" aria-label="Datetime difference formatted">
+                  {diffFormattedDetails}
+                </pre>
+              )}
+              {diffSummary && <p className="text-sm text-slate-200">{diffSummary}</p>}
+            </div>
+          )}
+
+          {diffResults && (
+            <div className="mt-4 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {[
+                  { label: 'Seconds', value: diffResults.seconds },
+                  { label: 'Minutes', value: diffResults.minutes },
+                  { label: 'Hours', value: diffResults.hours },
+                  { label: 'Days', value: diffResults.days },
+                  { label: 'Months', value: diffResults.months },
+                  { label: 'Years', value: diffResults.years },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-sm text-slate-400">{item.label}</p>
+                    <p className="text-lg font-semibold text-white">{formatDiffValue(item.value)}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-slate-400">
+                Positive values mean the end datetime is after the start; negative values mean the start is later.
+              </p>
+            </div>
+          )}
         </ToolCard>
       )}
 
@@ -2022,16 +3178,20 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                 className="w-full px-3 py-2"
               />
               <select value={sourceZone} onChange={(e) => setSourceZone(e.target.value)} className="w-full px-3 py-2">
-                {timeZones.map((zone) => (
-                  <option key={zone}>{zone}</option>
+                {timezoneSuggestions.map((zone) => (
+                  <option key={zone.value} value={zone.value}>
+                    {zone.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-sm text-slate-300">Target timezone</label>
               <select value={targetZone} onChange={(e) => setTargetZone(e.target.value)} className="w-full px-3 py-2">
-                {timeZones.map((zone) => (
-                  <option key={zone}>{zone}</option>
+                {timezoneSuggestions.map((zone) => (
+                  <option key={zone.value} value={zone.value}>
+                    {zone.label}
+                  </option>
                 ))}
               </select>
               <button onClick={handleTimeConversion} className="mt-2 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand">
@@ -2102,8 +3262,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
               <div className="space-y-1">
                 <label className="text-sm text-slate-300">Timezone</label>
                 <select value={cronZone} onChange={(e) => setCronZone(e.target.value)} className="w-full px-3 py-2">
-                  {timeZones.map((zone) => (
-                    <option key={zone}>{zone}</option>
+                  {timezoneSuggestions.map((zone) => (
+                    <option key={zone.value} value={zone.value}>
+                      {zone.label}
+                    </option>
                   ))}
                 </select>
               </div>
