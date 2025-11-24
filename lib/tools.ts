@@ -16,7 +16,9 @@ export type ToolId =
   | 'qr-generator'
   | 'word-cloud'
   | 'regex-tester'
-  | 'digest';
+  | 'digest'
+  | 'string-case'
+  | 'chmod';
 
 export interface ToolInfo {
   id: ToolId;
@@ -44,6 +46,18 @@ export const tools: ToolInfo[] = [
     keywords: ['diff', 'compare files', 'text difference', 'file diff', 'highlight changes'],
   },
   {
+    id: 'string-case',
+    slug: 'string-case-converter',
+    title: 'String Case Converter',
+    seoTitle: 'Convert strings between camelCase, snake_case, and more | Dev Tools',
+    description: 'Translate text between camelCase, PascalCase, kebab-case, and snake_case instantly.',
+    longDescription:
+      'Paste any text and see it converted across popular casing styles like camelCase, PascalCase, kebab-case, snake_case, and SCREAMING_SNAKE. Great for renaming variables or aligning API fields.',
+    badge: 'Text & Analysis',
+    accent: 'Casing',
+    keywords: ['case converter', 'camelCase', 'snake_case', 'PascalCase', 'kebab-case', 'naming'],
+  },
+  {
     id: 'cron',
     slug: 'cron-expression-validator',
     title: 'Cron Expression Validator',
@@ -54,6 +68,18 @@ export const tools: ToolInfo[] = [
     badge: 'Development',
     accent: 'Automation',
     keywords: ['cron', 'scheduler', 'cron validator', 'crontab', 'scheduled jobs', 'devops'],
+  },
+  {
+    id: 'chmod',
+    slug: 'chmod-calculator',
+    title: 'Chmod Calculator',
+    seoTitle: 'Calculate chmod permissions with octal and symbolic output | Dev Tools',
+    description: 'Toggle owner/group/other permissions and copy the matching chmod notation.',
+    longDescription:
+      'Interactively flip read, write, and execute bits for owners, groups, and others. See octal, 4-digit (special bits), and symbolic chmod strings update instantly for server hardening or script generation.',
+    badge: 'Security',
+    accent: 'Permissions',
+    keywords: ['chmod', 'file permissions', 'octal permissions', 'rwx', 'unix permissions'],
   },
   {
     id: 'csv-profiler',
