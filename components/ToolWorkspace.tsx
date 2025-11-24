@@ -17,6 +17,7 @@ import CryptoJS from 'crypto-js';
 import * as blake from 'blakejs';
 import exifr from 'exifr';
 import piexif from 'piexifjs';
+import { getTimeZones } from '@vvo/tzdb';
 import 'leaflet/dist/leaflet.css';
 import type * as Leaflet from 'leaflet';
 import {
@@ -26,16 +27,73 @@ import {
   ChevronDownIcon,
 } from './icons';
 
-const timeZones = [
-  'UTC',
-  'America/New_York',
-  'America/Los_Angeles',
-  'Europe/London',
-  'Europe/Berlin',
-  'Asia/Tokyo',
-  'Asia/Kolkata',
-  'Australia/Sydney',
-];
+type TimezoneOption = {
+  value: string;
+  label: string;
+  searchText: string;
+};
+
+const tzDatabaseZones = getTimeZones({ includeUtc: true });
+
+const formatOffsetMinutes = (offsetMinutes: number) => {
+  const sign = offsetMinutes >= 0 ? '+' : '-';
+  const absoluteMinutes = Math.abs(offsetMinutes);
+  const hours = Math.floor(absoluteMinutes / 60)
+    .toString()
+    .padStart(2, '0');
+  const minutes = (absoluteMinutes % 60).toString().padStart(2, '0');
+
+  return `${sign}${hours}:${minutes}`;
+};
+
+const timezoneOptions: TimezoneOption[] = tzDatabaseZones
+  .map((zone) => {
+    const formattedOffset = formatOffsetMinutes(zone.currentTimeOffsetInMinutes);
+
+    return {
+      value: zone.name,
+      label: `${zone.name} (UTC${formattedOffset})`,
+      searchText: `${zone.name} ${zone.alternativeName} ${zone.countryName} utc${formattedOffset}`.toLowerCase(),
+    };
+  })
+  .sort((a, b) => a.label.localeCompare(b.label));
+
+const uniqueOffsets = Array.from(
+  new Set(tzDatabaseZones.map((zone) => formatOffsetMinutes(zone.currentTimeOffsetInMinutes)))
+).sort();
+
+const isoOffsetOptions: TimezoneOption[] = uniqueOffsets.map((offset) => ({
+  value: `UTC${offset}`,
+  label: `UTC${offset}`,
+  searchText: `utc${offset}`.toLowerCase(),
+}));
+
+const timezoneSuggestions: TimezoneOption[] = [...isoOffsetOptions, ...timezoneOptions];
+
+const normalizeZoneInput = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+
+  const offsetMatch = /^([+-])(\d{1,2})(?::?(\d{2}))?$/.exec(trimmed);
+  if (offsetMatch) {
+    const sign = offsetMatch[1];
+    const hours = offsetMatch[2];
+    const minutes = offsetMatch[3] ?? '00';
+    const hourValue = Number(hours);
+    const minuteValue = Number(minutes);
+
+    if (hourValue <= 14 && minuteValue < 60) {
+      const normalizedHours = hourValue.toString().padStart(2, '0');
+      const normalizedMinutes = minutes.padStart(2, '0');
+
+      return `UTC${sign}${normalizedHours}:${normalizedMinutes}`;
+    }
+  }
+
+  return trimmed;
+};
+
+const getZoneLabel = (value: string) => timezoneSuggestions.find((option) => option.value === value)?.label || value;
 
 type ColumnProfile = {
   name: string;
@@ -221,10 +279,19 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [sourceTime, setSourceTime] = useState(initialDate);
   const [sourceZone, setSourceZone] = useState('UTC');
   const [targetZone, setTargetZone] = useState('America/New_York');
-  const filteredTimeZones = useMemo(
-    () => timeZones.filter((zone) => zone.toLowerCase().includes(timezoneQuery.toLowerCase())),
-    [timezoneQuery]
-  );
+  const filteredTimeZones = useMemo(() => {
+    const query = timezoneQuery.trim().toLowerCase();
+    if (!query) return timezoneSuggestions;
+
+    const normalizedQuery = normalizeZoneInput(timezoneQuery).toLowerCase();
+
+    return timezoneSuggestions.filter(
+      (option) =>
+        option.searchText.includes(query) ||
+        option.value.toLowerCase().includes(query) ||
+        option.value.toLowerCase() === normalizedQuery
+    );
+  }, [timezoneQuery]);
   const [convertedTime, setConvertedTime] = useState('');
   const [timeError, setTimeError] = useState('');
 
@@ -1564,7 +1631,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                           }}
                         >
                           <span className={photoZone ? 'text-slate-100' : 'text-slate-500'}>
-                            {photoZone || 'Select timezone'}
+                            {photoZone ? getZoneLabel(photoZone) : 'Select timezone'}
                           </span>
                           <ChevronDownIcon
                             className={`h-4 w-4 transition-transform ${showTimezoneSuggestions ? 'rotate-180' : ''}`}
@@ -1581,7 +1648,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                                 type="text"
                                 value={timezoneQuery}
                                 onChange={(e) => setTimezoneQuery(e.target.value)}
-                                placeholder="Search timezone or type offset"
+                                placeholder="Search ISO 8601 offset or tz database name"
                                 className="w-full rounded-md border border-white/10 bg-slate-800/80 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
                                 onMouseDown={(e) => e.preventDefault()}
                               />
@@ -1589,30 +1656,32 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                             <div className="max-h-48 overflow-y-auto custom-scrollbar">
                               {filteredTimeZones.map((zone) => (
                                 <button
-                                  key={zone}
+                                  key={zone.value}
                                   type="button"
                                   className="block w-full px-3 py-2 text-left text-sm text-slate-100 hover:bg-white/10"
                                   onMouseDown={(e) => e.preventDefault()}
                                   onClick={() => {
-                                    setPhotoZone(zone);
+                                    setPhotoZone(zone.value);
                                     setShowTimezoneSuggestions(false);
                                   }}
                                 >
-                                  {zone}
+                                  {zone.label}
                                 </button>
                               ))}
                               {timezoneQuery &&
-                                !timeZones.some((zone) => zone.toLowerCase() === timezoneQuery.trim().toLowerCase()) && (
+                                !timezoneSuggestions.some(
+                                  (zone) => zone.value.toLowerCase() === normalizeZoneInput(timezoneQuery).toLowerCase()
+                                ) && (
                                   <button
                                     type="button"
                                     className="block w-full px-3 py-2 text-left text-sm text-indigo-200 hover:bg-white/10"
                                     onMouseDown={(e) => e.preventDefault()}
                                     onClick={() => {
-                                      setPhotoZone(timezoneQuery.trim());
+                                      setPhotoZone(normalizeZoneInput(timezoneQuery));
                                       setShowTimezoneSuggestions(false);
                                     }}
                                   >
-                                    Use “{timezoneQuery.trim()}”
+                                    Use “{normalizeZoneInput(timezoneQuery)}”
                                   </button>
                                 )}
                             </div>
@@ -2986,16 +3055,20 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                 className="w-full px-3 py-2"
               />
               <select value={sourceZone} onChange={(e) => setSourceZone(e.target.value)} className="w-full px-3 py-2">
-                {timeZones.map((zone) => (
-                  <option key={zone}>{zone}</option>
+                {timezoneSuggestions.map((zone) => (
+                  <option key={zone.value} value={zone.value}>
+                    {zone.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-sm text-slate-300">Target timezone</label>
               <select value={targetZone} onChange={(e) => setTargetZone(e.target.value)} className="w-full px-3 py-2">
-                {timeZones.map((zone) => (
-                  <option key={zone}>{zone}</option>
+                {timezoneSuggestions.map((zone) => (
+                  <option key={zone.value} value={zone.value}>
+                    {zone.label}
+                  </option>
                 ))}
               </select>
               <button onClick={handleTimeConversion} className="mt-2 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand">

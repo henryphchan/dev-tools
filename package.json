@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vvo/tzdb": "^6.196.0",
     "blakejs": "^1.2.1",
     "cron-parser": "^5.4.0",
     "crypto-js": "^4.2.0",
