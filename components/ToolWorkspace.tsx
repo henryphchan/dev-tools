@@ -30,7 +30,6 @@ import {
 type TimezoneOption = {
   value: string;
   label: string;
-  searchText: string;
 };
 
 const tzDatabaseZones = getTimeZones({ includeUtc: true });
@@ -53,7 +52,6 @@ const timezoneOptions: TimezoneOption[] = tzDatabaseZones
     return {
       value: zone.name,
       label: `${zone.name} (UTC${formattedOffset})`,
-      searchText: `${zone.name} ${zone.alternativeName} ${zone.countryName} utc${formattedOffset}`.toLowerCase(),
     };
   })
   .sort((a, b) => a.label.localeCompare(b.label));
@@ -65,33 +63,9 @@ const uniqueOffsets = Array.from(
 const isoOffsetOptions: TimezoneOption[] = uniqueOffsets.map((offset) => ({
   value: `UTC${offset}`,
   label: `UTC${offset}`,
-  searchText: `utc${offset}`.toLowerCase(),
 }));
 
 const timezoneSuggestions: TimezoneOption[] = [...isoOffsetOptions, ...timezoneOptions];
-
-const normalizeZoneInput = (value: string) => {
-  const trimmed = value.trim();
-  if (!trimmed) return '';
-
-  const offsetMatch = /^([+-])(\d{1,2})(?::?(\d{2}))?$/.exec(trimmed);
-  if (offsetMatch) {
-    const sign = offsetMatch[1];
-    const hours = offsetMatch[2];
-    const minutes = offsetMatch[3] ?? '00';
-    const hourValue = Number(hours);
-    const minuteValue = Number(minutes);
-
-    if (hourValue <= 14 && minuteValue < 60) {
-      const normalizedHours = hourValue.toString().padStart(2, '0');
-      const normalizedMinutes = minutes.padStart(2, '0');
-
-      return `UTC${sign}${normalizedHours}:${normalizedMinutes}`;
-    }
-  }
-
-  return trimmed;
-};
 
 const getZoneLabel = (value: string) => timezoneSuggestions.find((option) => option.value === value)?.label || value;
 
@@ -247,7 +221,6 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [photoName, setPhotoName] = useState('');
   const [photoDate, setPhotoDate] = useState('');
   const [photoZone, setPhotoZone] = useState('UTC');
-  const [timezoneQuery, setTimezoneQuery] = useState('');
   const [showTimezoneSuggestions, setShowTimezoneSuggestions] = useState(false);
   const [photoLatitude, setPhotoLatitude] = useState('');
   const [photoLongitude, setPhotoLongitude] = useState('');
@@ -279,19 +252,6 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [sourceTime, setSourceTime] = useState(initialDate);
   const [sourceZone, setSourceZone] = useState('UTC');
   const [targetZone, setTargetZone] = useState('America/New_York');
-  const filteredTimeZones = useMemo(() => {
-    const query = timezoneQuery.trim().toLowerCase();
-    if (!query) return timezoneSuggestions;
-
-    const normalizedQuery = normalizeZoneInput(timezoneQuery).toLowerCase();
-
-    return timezoneSuggestions.filter(
-      (option) =>
-        option.searchText.includes(query) ||
-        option.value.toLowerCase().includes(query) ||
-        option.value.toLowerCase() === normalizedQuery
-    );
-  }, [timezoneQuery]);
   const [convertedTime, setConvertedTime] = useState('');
   const [timeError, setTimeError] = useState('');
 
@@ -423,6 +383,17 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     }, {});
   };
 
+  const buildExifStructure = (data: Record<string, any>) => {
+    return {
+      '0th': normalizeExifSection((data as { '0th'?: Record<string, unknown>; Image?: Record<string, unknown> })['0th'] ?? data.Image),
+      Exif: normalizeExifSection(data.Exif as Record<string, unknown>),
+      GPS: normalizeExifSection(data.GPS as Record<string, unknown>),
+      Interop: normalizeExifSection(data.Interop as Record<string, unknown>),
+      '1st': normalizeExifSection((data as { '1st'?: Record<string, unknown> })['1st']),
+      thumbnail: (data as { thumbnail?: string | null }).thumbnail ?? null,
+    };
+  };
+
   const populatePhotoForm = (metadata: Record<string, unknown>) => {
     const captureDate = metadata.DateTimeOriginal as Date | undefined;
     const offset = (metadata as { OffsetTimeOriginal?: string }).OffsetTimeOriginal;
@@ -545,10 +516,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     }
 
     try {
-      let exifData: Record<string, any>;
+      let exifDataRaw: Record<string, any>;
 
       try {
-        exifData = photoMetadataJson ? JSON.parse(photoMetadataJson) : piexif.load(photoDataUrl);
+        exifDataRaw = photoMetadataJson ? JSON.parse(photoMetadataJson) : piexif.load(photoDataUrl);
         setPhotoMetadataJsonError('');
       } catch (error) {
         console.error('Metadata JSON is invalid', error);
@@ -557,9 +528,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         return;
       }
 
-      exifData.Exif = normalizeExifSection(exifData.Exif as Record<string, unknown>);
-      exifData.GPS = normalizeExifSection(exifData.GPS as Record<string, unknown>);
-      exifData.Image = normalizeExifSection(exifData.Image as Record<string, unknown>);
+      const exifData = buildExifStructure(exifDataRaw);
 
       if (photoDate) {
         const captureDate = DateTime.fromISO(photoDate, { zone: photoZone || 'UTC' });
@@ -603,14 +572,14 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       }
 
       if (photoMake) {
-        exifData.Image[piexif.ImageIFD.Make] = photoMake;
+        exifData['0th'][piexif.ImageIFD.Make] = photoMake;
       }
 
       if (photoModel) {
-        exifData.Image[piexif.ImageIFD.Model] = photoModel;
+        exifData['0th'][piexif.ImageIFD.Model] = photoModel;
       }
 
-      exifData.Image[piexif.ImageIFD.Orientation] = Number.parseInt(photoOrientation, 10) || 1;
+      exifData['0th'][piexif.ImageIFD.Orientation] = Number.parseInt(photoOrientation, 10) || 1;
 
       const exifBytes = piexif.dump(exifData);
       const updatedDataUrl = piexif.insert(exifBytes, photoDataUrl);
@@ -1628,7 +1597,6 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                           aria-expanded={showTimezoneSuggestions}
                           aria-controls="timezone-suggestion-list"
                           onClick={() => {
-                            setTimezoneQuery(photoZone);
                             setShowTimezoneSuggestions((prev) => !prev);
                           }}
                         >
@@ -1641,21 +1609,12 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                           />
                         </button>
                         {showTimezoneSuggestions && (
-                        <div
-                          id="timezone-suggestion-list"
-                          className="absolute z-[1200] mt-2 w-full overflow-hidden rounded-lg border border-white/10 bg-slate-900/95 backdrop-blur shadow-xl"
-                        >
-                            <div className="border-b border-white/10 p-2">
-                              <input
-                                type="text"
-                                value={timezoneQuery}
-                                onChange={(e) => setTimezoneQuery(e.target.value)}
-                                placeholder="Search ISO 8601 offset or tz database name"
-                                className="w-full rounded-md border border-white/10 bg-slate-800/80 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
-                              />
-                            </div>
-                            <div className="max-h-48 overflow-y-auto custom-scrollbar">
-                              {filteredTimeZones.map((zone) => (
+                          <div
+                            id="timezone-suggestion-list"
+                            className="absolute z-[1200] mt-2 w-full overflow-hidden rounded-lg border border-white/10 bg-slate-900/95 backdrop-blur shadow-xl"
+                          >
+                            <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                              {timezoneSuggestions.map((zone) => (
                                 <button
                                   key={zone.value}
                                   type="button"
@@ -1669,22 +1628,6 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                                   {zone.label}
                                 </button>
                               ))}
-                              {timezoneQuery &&
-                                !timezoneSuggestions.some(
-                                  (zone) => zone.value.toLowerCase() === normalizeZoneInput(timezoneQuery).toLowerCase()
-                                ) && (
-                                  <button
-                                    type="button"
-                                    className="block w-full px-3 py-2 text-left text-sm text-indigo-200 hover:bg-white/10"
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => {
-                                      setPhotoZone(normalizeZoneInput(timezoneQuery));
-                                      setShowTimezoneSuggestions(false);
-                                    }}
-                                  >
-                                    Use “{normalizeZoneInput(timezoneQuery)}”
-                                  </button>
-                                )}
                             </div>
                           </div>
                         )}
