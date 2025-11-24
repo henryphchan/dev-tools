@@ -375,10 +375,14 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const normalizeExifSection = (section: Record<string, unknown> | undefined) => {
     if (!section) return {};
 
-    return Object.entries(section).reduce<Record<string | number, unknown>>((acc, [key, value]) => {
+    return Object.entries(section).reduce<Record<number, unknown>>((acc, [key, value]) => {
       const numericKey = Number(key);
-      const resolvedKey = Number.isNaN(numericKey) ? key : numericKey;
-      acc[resolvedKey] = value;
+
+      if (Number.isNaN(numericKey)) {
+        return acc;
+      }
+
+      acc[numericKey] = value;
       return acc;
     }, {});
   };
@@ -445,7 +449,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         if (metadata) {
           populatePhotoForm(metadata);
           setMetadataJsonFromObject(metadata);
-          if (!file.type.includes('jpeg')) {
+
+          const mime = file.type.toLowerCase();
+          const isJpeg = /image\/jpe?g/.test(mime);
+
+          if (!isJpeg) {
             setPhotoMessage('Metadata can be inspected for any image, but EXIF updates are saved as JPEG.');
           } else {
             try {
