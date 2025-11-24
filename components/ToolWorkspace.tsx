@@ -411,12 +411,12 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   };
 
   const sanitizeExifForDump = (data: Record<string, any>) => {
-    const allowedIfds: (keyof piexif.ExifDict)[] = ['0th', 'Exif', 'GPS', 'Interop', '1st'];
+    const allowedIfds: string[] = ['0th', 'Exif', 'GPS', 'Interop', '1st'];
 
-    return allowedIfds.reduce<piexif.ExifDict>((acc, ifd) => {
+    return allowedIfds.reduce<any>((acc, ifd) => {
       acc[ifd] = sanitizeExifSection(data?.[ifd] as Record<string, unknown>, ifd);
       return acc;
-    }, { thumbnail: (data as { thumbnail?: string | null }).thumbnail ?? null } as piexif.ExifDict);
+    }, { thumbnail: (data as { thumbnail?: string | null }).thumbnail ?? null } as any);
   };
 
   const buildExifStructure = (data: Record<string, any>) => {
@@ -2584,8 +2584,8 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                           key={perm.key}
                           onClick={() => togglePermission(scope.key, perm.key)}
                           className={`rounded-xl border px-3 py-2 text-xs font-semibold transition ${isActive
-                              ? 'border-brand/60 bg-brand/20 text-white shadow-brand'
-                              : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/30'
+                            ? 'border-brand/60 bg-brand/20 text-white shadow-brand'
+                            : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/30'
                             }`}
                         >
                           {perm.label}
