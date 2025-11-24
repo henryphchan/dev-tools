@@ -23,6 +23,7 @@ import {
   ArrowPathRoundedSquareIcon,
   ClipboardDocumentCheckIcon,
   CursorArrowRaysIcon,
+  ChevronDownIcon,
 } from './icons';
 
 const timeZones = [
@@ -188,6 +189,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [photoName, setPhotoName] = useState('');
   const [photoDate, setPhotoDate] = useState('');
   const [photoZone, setPhotoZone] = useState('UTC');
+  const [timezoneQuery, setTimezoneQuery] = useState('');
   const [showTimezoneSuggestions, setShowTimezoneSuggestions] = useState(false);
   const [photoLatitude, setPhotoLatitude] = useState('');
   const [photoLongitude, setPhotoLongitude] = useState('');
@@ -220,8 +222,8 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [sourceZone, setSourceZone] = useState('UTC');
   const [targetZone, setTargetZone] = useState('America/New_York');
   const filteredTimeZones = useMemo(
-    () => timeZones.filter((zone) => zone.toLowerCase().includes(photoZone.toLowerCase())),
-    [photoZone]
+    () => timeZones.filter((zone) => zone.toLowerCase().includes(timezoneQuery.toLowerCase())),
+    [timezoneQuery]
   );
   const [convertedTime, setConvertedTime] = useState('');
   const [timeError, setTimeError] = useState('');
@@ -1546,42 +1548,74 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs text-slate-400">Timezone or offset</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={photoZone}
-                          onChange={(e) => {
-                            setPhotoZone(e.target.value);
-                            setShowTimezoneSuggestions(true);
-                          }}
-                          onFocus={() => setShowTimezoneSuggestions(true)}
-                          onBlur={() => setTimeout(() => setShowTimezoneSuggestions(false), 120)}
-                          placeholder="UTC or America/New_York"
-                          className="w-full px-3 py-2"
+                      <div
+                        className="relative"
+                        onBlur={() => setTimeout(() => setShowTimezoneSuggestions(false), 120)}
+                      >
+                        <button
+                          type="button"
+                          className="flex w-full items-center justify-between rounded-lg border border-white/10 bg-slate-900/40 px-3 py-2 text-left text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
                           role="combobox"
-                          aria-expanded={showTimezoneSuggestions && filteredTimeZones.length > 0}
+                          aria-expanded={showTimezoneSuggestions}
                           aria-controls="timezone-suggestion-list"
-                          autoComplete="off"
-                        />
-                        {showTimezoneSuggestions && filteredTimeZones.length > 0 && (
+                          onClick={() => {
+                            setTimezoneQuery(photoZone);
+                            setShowTimezoneSuggestions((prev) => !prev);
+                          }}
+                        >
+                          <span className={photoZone ? 'text-slate-100' : 'text-slate-500'}>
+                            {photoZone || 'Select timezone'}
+                          </span>
+                          <ChevronDownIcon
+                            className={`h-4 w-4 transition-transform ${showTimezoneSuggestions ? 'rotate-180' : ''}`}
+                            aria-hidden
+                          />
+                        </button>
+                        {showTimezoneSuggestions && (
                           <div
                             id="timezone-suggestion-list"
-                            className="absolute z-20 mt-1 w-full rounded-lg border border-white/10 bg-slate-900/90 backdrop-blur shadow-xl max-h-48 overflow-y-auto custom-scrollbar"
+                            className="absolute z-20 mt-2 w-full overflow-hidden rounded-lg border border-white/10 bg-slate-900/95 backdrop-blur shadow-xl"
                           >
-                            {filteredTimeZones.map((zone) => (
-                              <button
-                                key={zone}
-                                type="button"
-                                className="block w-full px-3 py-2 text-left text-sm text-slate-100 hover:bg-white/10"
+                            <div className="border-b border-white/10 p-2">
+                              <input
+                                type="text"
+                                value={timezoneQuery}
+                                onChange={(e) => setTimezoneQuery(e.target.value)}
+                                placeholder="Search timezone or type offset"
+                                className="w-full rounded-md border border-white/10 bg-slate-800/80 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
                                 onMouseDown={(e) => e.preventDefault()}
-                                onClick={() => {
-                                  setPhotoZone(zone);
-                                  setShowTimezoneSuggestions(false);
-                                }}
-                              >
-                                {zone}
-                              </button>
-                            ))}
+                              />
+                            </div>
+                            <div className="max-h-48 overflow-y-auto custom-scrollbar">
+                              {filteredTimeZones.map((zone) => (
+                                <button
+                                  key={zone}
+                                  type="button"
+                                  className="block w-full px-3 py-2 text-left text-sm text-slate-100 hover:bg-white/10"
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  onClick={() => {
+                                    setPhotoZone(zone);
+                                    setShowTimezoneSuggestions(false);
+                                  }}
+                                >
+                                  {zone}
+                                </button>
+                              ))}
+                              {timezoneQuery &&
+                                !timeZones.some((zone) => zone.toLowerCase() === timezoneQuery.trim().toLowerCase()) && (
+                                  <button
+                                    type="button"
+                                    className="block w-full px-3 py-2 text-left text-sm text-indigo-200 hover:bg-white/10"
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    onClick={() => {
+                                      setPhotoZone(timezoneQuery.trim());
+                                      setShowTimezoneSuggestions(false);
+                                    }}
+                                  >
+                                    Use “{timezoneQuery.trim()}”
+                                  </button>
+                                )}
+                            </div>
                           </div>
                         )}
                       </div>
