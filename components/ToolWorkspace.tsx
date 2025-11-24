@@ -17,6 +17,8 @@ import CryptoJS from 'crypto-js';
 import * as blake from 'blakejs';
 import exifr from 'exifr';
 import piexif from 'piexifjs';
+import 'leaflet/dist/leaflet.css';
+import type * as Leaflet from 'leaflet';
 import {
   ArrowPathRoundedSquareIcon,
   ClipboardDocumentCheckIcon,
@@ -192,8 +194,15 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [photoMake, setPhotoMake] = useState('');
   const [photoModel, setPhotoModel] = useState('');
   const [photoOrientation, setPhotoOrientation] = useState('1');
+  const [photoMetadataJson, setPhotoMetadataJson] = useState('');
+  const [photoMetadataJsonError, setPhotoMetadataJsonError] = useState('');
   const [photoError, setPhotoError] = useState('');
   const [photoMessage, setPhotoMessage] = useState('');
+  const [leafletLoaded, setLeafletLoaded] = useState(false);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<Leaflet.Map | null>(null);
+  const mapMarkerRef = useRef<Leaflet.Marker | null>(null);
+  const leafletRef = useRef<typeof Leaflet>();
 
   const [diffLeftText, setDiffLeftText] = useState('');
   const [diffRightText, setDiffRightText] = useState('');
@@ -313,6 +322,33 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     return String(value);
   };
 
+  const setMetadataJsonFromObject = (metadata: Record<string, unknown> | undefined) => {
+    if (!metadata) {
+      setPhotoMetadataJson('');
+      return;
+    }
+
+    try {
+      setPhotoMetadataJson(JSON.stringify(metadata, null, 2));
+      setPhotoMetadataJsonError('');
+    } catch (error) {
+      console.error('Unable to serialize EXIF metadata', error);
+      setPhotoMetadataJson('');
+      setPhotoMetadataJsonError('Could not serialize EXIF metadata to JSON.');
+    }
+  };
+
+  const normalizeExifSection = (section: Record<string, unknown> | undefined) => {
+    if (!section) return {};
+
+    return Object.entries(section).reduce<Record<string | number, unknown>>((acc, [key, value]) => {
+      const numericKey = Number(key);
+      const resolvedKey = Number.isNaN(numericKey) ? key : numericKey;
+      acc[resolvedKey] = value;
+      return acc;
+    }, {});
+  };
+
   const populatePhotoForm = (metadata: Record<string, unknown>) => {
     const captureDate = metadata.DateTimeOriginal as Date | undefined;
     const offset = (metadata as { OffsetTimeOriginal?: string }).OffsetTimeOriginal;
@@ -363,8 +399,16 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         const metadata = (await exifr.parse(file, { gps: true })) as Record<string, unknown> | undefined;
         if (metadata) {
           populatePhotoForm(metadata);
+          setMetadataJsonFromObject(metadata);
           if (!file.type.includes('jpeg')) {
             setPhotoMessage('Metadata can be inspected for any image, but EXIF updates are saved as JPEG.');
+          } else {
+            try {
+              const rawExif = piexif.load(dataUrl) as Record<string, unknown>;
+              setMetadataJsonFromObject(rawExif);
+            } catch (error) {
+              console.error('Unable to load EXIF JSON from JPEG', error);
+            }
           }
         } else {
           setPhotoMetadata([]);
@@ -398,6 +442,12 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       const metadata = (await exifr.parse(buffer, { gps: true })) as Record<string, unknown> | undefined;
       if (metadata) {
         populatePhotoForm(metadata);
+        try {
+          const rawExif = piexif.load(dataUrl) as Record<string, unknown>;
+          setMetadataJsonFromObject(rawExif);
+        } catch (error) {
+          console.error('Unable to reload EXIF JSON after update', error);
+        }
       }
     } catch (error) {
       console.error('Failed to refresh EXIF metadata', error);
@@ -419,10 +469,21 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     }
 
     try {
-      const exifData = piexif.load(photoDataUrl);
-      exifData.Exif = exifData.Exif || {};
-      exifData.GPS = exifData.GPS || {};
-      exifData.Image = exifData.Image || {};
+      let exifData: Record<string, any>;
+
+      try {
+        exifData = photoMetadataJson ? JSON.parse(photoMetadataJson) : piexif.load(photoDataUrl);
+        setPhotoMetadataJsonError('');
+      } catch (error) {
+        console.error('Metadata JSON is invalid', error);
+        setPhotoMetadataJsonError('Metadata JSON is invalid. Please fix formatting or clear the field.');
+        setPhotoError('Metadata JSON is invalid. Fix it before saving.');
+        return;
+      }
+
+      exifData.Exif = normalizeExifSection(exifData.Exif as Record<string, unknown>);
+      exifData.GPS = normalizeExifSection(exifData.GPS as Record<string, unknown>);
+      exifData.Image = normalizeExifSection(exifData.Image as Record<string, unknown>);
 
       if (photoDate) {
         const captureDate = DateTime.fromISO(photoDate, { zone: photoZone || 'UTC' });
@@ -1309,6 +1370,85 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const initMap = async () => {
+      if (!mapContainerRef.current || mapInstanceRef.current || leafletRef.current || !isMounted) return;
+
+      try {
+        const L = await import('leaflet');
+        leafletRef.current = L;
+
+        const defaultIcon = L.icon({
+          iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+          iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+        });
+
+        L.Marker.prototype.options.icon = defaultIcon;
+
+        const map = L.map(mapContainerRef.current).setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 19,
+        }).addTo(map);
+
+        map.on('click', (event) => {
+          const lat = event.latlng.lat;
+          const lng = event.latlng.lng;
+          setPhotoLatitude(lat.toFixed(6));
+          setPhotoLongitude(lng.toFixed(6));
+
+          if (!leafletRef.current) return;
+
+          if (!mapMarkerRef.current) {
+            mapMarkerRef.current = L.marker([lat, lng]).addTo(map);
+          } else {
+            mapMarkerRef.current.setLatLng([lat, lng]);
+          }
+        });
+
+        mapInstanceRef.current = map;
+        setLeafletLoaded(true);
+      } catch (error) {
+        console.error('Failed to initialize map', error);
+      }
+    };
+
+    initMap();
+
+    return () => {
+      isMounted = false;
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!leafletLoaded || !leafletRef.current || !mapInstanceRef.current) return;
+
+    const lat = Number(photoLatitude);
+    const lng = Number(photoLongitude);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+    const L = leafletRef.current;
+    const position = L.latLng(lat, lng);
+
+    if (!mapMarkerRef.current) {
+      mapMarkerRef.current = L.marker(position).addTo(mapInstanceRef.current);
+    } else {
+      mapMarkerRef.current.setLatLng(position);
+    }
+
+    mapInstanceRef.current.setView(position, Math.max(mapInstanceRef.current.getZoom(), 5));
+  }, [leafletLoaded, photoLatitude, photoLongitude]);
+
   return (
     <main className="w-full mx-auto px-4 py-6 space-y-6">
       <nav className="flex items-center gap-2 text-sm text-slate-300" aria-label="Breadcrumb">
@@ -1455,6 +1595,16 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                       />
                     </div>
                   </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <p>Pin location on map</p>
+                      <p>Click anywhere to set latitude/longitude</p>
+                    </div>
+                    <div
+                      ref={mapContainerRef}
+                      className="h-64 rounded-2xl border border-white/10 bg-slate-950/60 overflow-hidden"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1482,7 +1632,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
                 <div className="space-y-2">
                   <label className="text-xs text-slate-400">Orientation</label>
-                  <select value={photoOrientation} onChange={(e) => setPhotoOrientation(e.target.value)} className="w-full px-3 py-2">
+                  <select
+                    value={photoOrientation}
+                    onChange={(e) => setPhotoOrientation(e.target.value)}
+                    className="w-full px-3 py-2"
+                  >
                     <option value="1">Horizontal (normal)</option>
                     <option value="3">Upside down</option>
                     <option value="6">Rotate 90° CW</option>
@@ -1490,8 +1644,29 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                   </select>
                 </div>
 
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 text-sm text-slate-300">
+                    <p className="font-semibold text-white">Raw EXIF metadata JSON</p>
+                    <span className="text-xs text-slate-400">Edit any tag before saving</span>
+                  </div>
+                  <textarea
+                    value={photoMetadataJson}
+                    onChange={(e) => setPhotoMetadataJson(e.target.value)}
+                    rows={10}
+                    className="w-full font-mono text-xs"
+                    placeholder={'{ "Exif": { ... }, "GPS": { ... } }'}
+                  />
+                  <p className="text-xs text-slate-400">
+                    Paste or edit all EXIF sections (Exif, GPS, Image). Invalid JSON will block saving.
+                  </p>
+                  {photoMetadataJsonError && <p className="text-xs text-rose-400">{photoMetadataJsonError}</p>}
+                </div>
+
                 <div className="flex flex-wrap items-center gap-3">
-                  <button onClick={handlePhotoSave} className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand">
+                  <button
+                    onClick={handlePhotoSave}
+                    className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand"
+                  >
                     <CursorArrowRaysIcon className="h-4 w-4" />
                     Update EXIF & download
                   </button>
