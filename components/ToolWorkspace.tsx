@@ -269,6 +269,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     | null
   >(null);
   const [diffSummary, setDiffSummary] = useState('');
+  const [diffFormattedDetails, setDiffFormattedDetails] = useState('');
   const [diffError, setDiffError] = useState('');
 
   const [bitwiseA, setBitwiseA] = useState('5');
@@ -1369,10 +1370,21 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       setDiffError('Please provide two valid dates/times.');
       setDiffResults(null);
       setDiffSummary('');
+      setDiffFormattedDetails('');
       return;
     }
 
     const diff = end.diff(start);
+
+    const detailedDiff = end.diff(start, [
+      'years',
+      'months',
+      'days',
+      'hours',
+      'minutes',
+      'seconds',
+    ]);
+    const diffParts = detailedDiff.toObject();
 
     setDiffResults({
       seconds: diff.as('seconds'),
@@ -1388,8 +1400,23 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
     if (millisDelta === 0) {
       setDiffSummary('Both datetimes are identical.');
+      setDiffFormattedDetails(
+        `Start time: ${start.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+          `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+          'Difference:\n0 Year 0 Month 0 Day 0 Hour 0 Minute 0 Second'
+      );
     } else {
       setDiffSummary(`End occurs ${relative ?? 'relative to the start time'}.`);
+      setDiffFormattedDetails(
+        `Start time: ${start.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+          `End time: ${end.toFormat('yyyy-LL-dd HH:mm:ss')}\n` +
+          'Difference:\n' +
+          `${Math.trunc(diffParts.years ?? 0)} Year ${Math.trunc(diffParts.months ?? 0)} Month ${Math.trunc(
+            diffParts.days ?? 0
+          )} Day ${Math.trunc(diffParts.hours ?? 0)} Hour ${Math.trunc(diffParts.minutes ?? 0)} Minute ${Math.trunc(
+            diffParts.seconds ?? 0
+          )} Second`
+      );
     }
 
     setDiffError('');
@@ -2703,7 +2730,16 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
             {diffError && <p className="text-sm text-rose-400">{diffError}</p>}
           </div>
 
-          {diffSummary && <p className="text-sm text-slate-200 mt-2">{diffSummary}</p>}
+          {(diffFormattedDetails || diffSummary) && (
+            <div className="mt-3 space-y-2">
+              {diffFormattedDetails && (
+                <pre className="code-output whitespace-pre-wrap" aria-label="Datetime difference formatted">
+                  {diffFormattedDetails}
+                </pre>
+              )}
+              {diffSummary && <p className="text-sm text-slate-200">{diffSummary}</p>}
+            </div>
+          )}
 
           {diffResults && (
             <div className="mt-4 space-y-3">
