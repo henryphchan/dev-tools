@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { tools } from '../lib/tools';
-import { CursorArrowRaysIcon, SparklesIcon } from '../components/icons';
+import { CursorArrowRaysIcon, Logo } from '../components/icons';
 
 export default function Home() {
   return (
     <div className="max-w-6xl mx-auto space-y-12">
       <header className="space-y-6">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
-          <SparklesIcon className="w-4 h-4 text-brand" />
+          <Logo className="w-4 h-4 text-brand" />
           Developer utilities you can bookmark and trust
         </div>
         <div className="space-y-3">

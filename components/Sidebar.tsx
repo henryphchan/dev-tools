@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { tools } from '../lib/tools';
-import { SparklesIcon, XMarkIcon, GitHubIcon, LinkedInIcon } from './icons';
+import { Logo, XMarkIcon, GitHubIcon, LinkedInIcon } from './icons';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -45,7 +45,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       <div className="p-6 border-b border-white/10 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-slate-100 font-bold text-xl" onClick={onClose}>
           <div className="p-1.5 bg-brand/20 rounded-lg text-brand">
-            <SparklesIcon className="w-5 h-5" />
+            <Logo className="w-5 h-5" />
           </div>
           Dev Tools
         </Link>

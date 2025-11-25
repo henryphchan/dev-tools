@@ -14,6 +14,16 @@ export function SparklesIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function Logo(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8 10l3 3-3 3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h3" />
+    </svg>
+  );
+}
+
 export function CursorArrowRaysIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
