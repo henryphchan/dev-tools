@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import NextImage from 'next/image';
 import Link from 'next/link';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { DateTime } from 'luxon';
@@ -358,7 +358,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const convertImageToWebp = (file: File, quality: number, index: number): Promise<WebpConversion> => {
     return new Promise((resolve, reject) => {
       const objectUrl = URL.createObjectURL(file);
-      const image = new Image();
+      const image = new window.Image();
 
       image.onload = () => {
         const canvas = document.createElement('canvas');
@@ -2000,7 +2000,13 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                 </div>
                 <div className="relative aspect-video rounded-xl bg-slate-900/60 border border-white/10 overflow-hidden">
                   {photoPreview ? (
-                    <Image src={photoPreview} alt="Uploaded photo preview" fill className="object-contain" sizes="(min-width: 1280px) 640px, 100vw" />
+                    <NextImage
+                      src={photoPreview}
+                      alt="Uploaded photo preview"
+                      fill
+                      className="object-contain"
+                      sizes="(min-width: 1280px) 640px, 100vw"
+                    />
                   ) : (
                     <div className="absolute inset-0 grid place-items-center text-sm text-slate-500">
                       Upload a photo to preview and inspect EXIF metadata.
@@ -2416,7 +2422,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                 <p className="text-sm text-slate-300 mb-2">Preview</p>
                 <div className="flex items-center justify-center rounded-xl border border-white/5 bg-slate-950/40 p-6 min-h-[280px]">
                   {qrDataUrl ? (
-                    <Image
+                    <NextImage
                       src={qrDataUrl}
                       alt="Generated QR code"
                       width={clampedQrSize}
