@@ -17,6 +17,7 @@ import CryptoJS from 'crypto-js';
 import * as blake from 'blakejs';
 import exifr from 'exifr';
 import piexif from 'piexifjs';
+import JSZip from 'jszip';
 import { getTimeZones } from '@vvo/tzdb';
 import 'leaflet/dist/leaflet.css';
 import type * as Leaflet from 'leaflet';
@@ -84,11 +85,35 @@ type RegexMatch = {
   groups: Record<string, string | undefined>;
 };
 
+type WebpConversion = {
+  name: string;
+  originalSize: number;
+  convertedSize: number;
+  url: string;
+  blob: Blob;
+};
+
 function formatDateTimeValue(value: string) {
   const dt = DateTime.fromISO(value, { setZone: true });
   if (!dt.isValid) return '';
   return dt.toFormat('fff ZZZZ');
 }
+
+const formatBytes = (bytes: number) => {
+  if (!Number.isFinite(bytes)) return '0 B';
+
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let value = bytes;
+  let unitIndex = 0;
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+
+  const decimals = value >= 10 || unitIndex === 0 ? 0 : 1;
+  return `${value.toFixed(decimals)} ${units[unitIndex]}`;
+};
 
 export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [jsonInput, setJsonInput] = useState('');
@@ -157,6 +182,12 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [wifiPassword, setWifiPassword] = useState('');
   const [wifiSecurity, setWifiSecurity] = useState<'WPA' | 'WEP' | 'nopass'>('WPA');
   const [wifiHidden, setWifiHidden] = useState(false);
+
+  const [webpFiles, setWebpFiles] = useState<File[]>([]);
+  const [webpConversions, setWebpConversions] = useState<WebpConversion[]>([]);
+  const [webpQuality, setWebpQuality] = useState(80);
+  const [webpProcessing, setWebpProcessing] = useState(false);
+  const [webpError, setWebpError] = useState('');
 
   const clampedQrSize = useMemo(() => Math.min(1024, Math.max(120, qrSize)), [qrSize]);
 
@@ -303,6 +334,155 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const [regexText, setRegexText] = useState('');
   const [regexMatches, setRegexMatches] = useState<RegexMatch[]>([]);
   const [regexError, setRegexError] = useState('');
+
+  const selectedOriginalBytes = useMemo(() => webpFiles.reduce((sum, file) => sum + file.size, 0), [webpFiles]);
+  const convertedOriginalBytes = useMemo(
+    () => webpConversions.reduce((sum, conversion) => sum + conversion.originalSize, 0),
+    [webpConversions]
+  );
+  const convertedTotalBytes = useMemo(
+    () => webpConversions.reduce((sum, conversion) => sum + conversion.convertedSize, 0),
+    [webpConversions]
+  );
+
+  const activeOriginalBytes = webpConversions.length > 0 ? convertedOriginalBytes : selectedOriginalBytes;
+  const activeConvertedBytes = webpConversions.length > 0 ? convertedTotalBytes : 0;
+  const savingsBytes = activeConvertedBytes > 0 ? Math.max(activeOriginalBytes - activeConvertedBytes, 0) : 0;
+  const savingsPercent =
+    activeConvertedBytes > 0 && activeOriginalBytes > 0 ? (savingsBytes / activeOriginalBytes) * 100 : 0;
+
+  const releaseWebpUrls = (conversions: WebpConversion[]) => {
+    conversions.forEach((conversion) => URL.revokeObjectURL(conversion.url));
+  };
+
+  const convertImageToWebp = (file: File, quality: number, index: number): Promise<WebpConversion> => {
+    return new Promise((resolve, reject) => {
+      const objectUrl = URL.createObjectURL(file);
+      const image = new Image();
+
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.naturalWidth || image.width;
+        canvas.height = image.naturalHeight || image.height;
+
+        const context = canvas.getContext('2d');
+        if (!context) {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error('Canvas not supported in this browser'));
+          return;
+        }
+
+        context.drawImage(image, 0, 0);
+
+        const clampedQuality = Math.min(Math.max(quality, 0), 100) / 100;
+
+        canvas.toBlob(
+          (blob) => {
+            URL.revokeObjectURL(objectUrl);
+
+            if (!blob) {
+              reject(new Error('WebP conversion returned an empty file'));
+              return;
+            }
+
+            const baseName = file.name.replace(/\.[^/.]+$/, '') || 'image';
+            const suffix = index > 0 ? `-${index + 1}` : '';
+            const name = `${baseName}${suffix}.webp`;
+            const url = URL.createObjectURL(blob);
+
+            resolve({ name, originalSize: file.size, convertedSize: blob.size, url, blob });
+          },
+          'image/webp',
+          clampedQuality
+        );
+      };
+
+      image.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('Unable to load image for conversion'));
+      };
+
+      image.decoding = 'async';
+      image.src = objectUrl;
+    });
+  };
+
+  const handleWebpFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    setWebpFiles(files);
+    setWebpConversions((current) => {
+      releaseWebpUrls(current);
+      return [];
+    });
+    setWebpError('');
+  };
+
+  const handleConvertToWebp = async () => {
+    if (webpFiles.length === 0) {
+      setWebpError('Upload one or more images to convert.');
+      return;
+    }
+
+    setWebpProcessing(true);
+    setWebpError('');
+
+    try {
+      const conversions = await Promise.all(
+        webpFiles.map((file, index) => convertImageToWebp(file, webpQuality, index))
+      );
+
+      setWebpConversions((current) => {
+        releaseWebpUrls(current);
+        return conversions;
+      });
+    } catch (error) {
+      console.error('Failed to convert to WebP', error);
+      setWebpError('Conversion failed for one or more files. Try different inputs or quality.');
+    } finally {
+      setWebpProcessing(false);
+    }
+  };
+
+  const handleDownloadWebp = (conversion: WebpConversion) => {
+    const link = document.createElement('a');
+    link.href = conversion.url;
+    link.download = conversion.name;
+    link.click();
+  };
+
+  const handleDownloadAllWebp = async () => {
+    if (webpConversions.length === 0) return;
+
+    setWebpProcessing(true);
+
+    try {
+      const zip = new JSZip();
+      webpConversions.forEach((conversion) => {
+        zip.file(conversion.name, conversion.blob);
+      });
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(zipBlob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'converted-webp-files.zip';
+      link.click();
+
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to package WebP files', error);
+      setWebpError('Unable to package the converted files for download.');
+    } finally {
+      setWebpProcessing(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      releaseWebpUrls(webpConversions);
+    };
+  }, [webpConversions]);
 
   const copyToClipboard = async (value: string) => {
     try {
@@ -1645,6 +1825,156 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
           <span className="badge">Copy-ready outputs</span>
         </div>
       </header>
+
+      {tool.id === 'webp-converter' && (
+        <ToolCard title="WebP Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+          <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_0.95fr] gap-4 items-start">
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-white">What is WebP?</p>
+                  <p className="text-sm text-slate-300">
+                    WebP is a modern image format from Google that delivers lossy and lossless compression while supporting
+                    transparency and animation. Smaller file sizes mean faster page loads and leaner downloads without giving up
+                    visual quality.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-white">Benefits of WebP format</p>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-slate-300">
+                    <li>Typical size reductions of 20–70% compared to JPEG or PNG at similar quality.</li>
+                    <li>Better Core Web Vitals from faster image delivery and fewer bytes over the network.</li>
+                    <li>Supports transparency and animation in a single format, simplifying asset pipelines.</li>
+                    <li>Browser-side conversion keeps your images local—no uploads or external services.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-slate-300">Upload images</label>
+                  <input type="file" accept="image/*" multiple onChange={handleWebpFileChange} className="w-full" />
+                  <p className="text-xs text-slate-400">
+                    Drop in one or many images. Conversion runs entirely in your browser and never leaves this page.
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    Selected files: <span className="font-semibold text-slate-200">{webpFiles.length}</span>
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm text-slate-300">
+                    <label htmlFor="webp-quality">Quality</label>
+                    <span className="badge">{webpQuality}%</span>
+                  </div>
+                  <input
+                    id="webp-quality"
+                    type="range"
+                    min={50}
+                    max={100}
+                    step={1}
+                    value={webpQuality}
+                    onChange={(e) => setWebpQuality(Number(e.target.value))}
+                    className="w-full accent-brand"
+                  />
+                  <p className="text-xs text-slate-400">Default quality is 80%. Lower values favor smaller sizes.</p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={handleConvertToWebp}
+                    className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-brand disabled:opacity-60 disabled:cursor-not-allowed"
+                    disabled={webpProcessing}
+                  >
+                    <CursorArrowRaysIcon className="h-4 w-4" />
+                    Convert to WebP
+                  </button>
+                  <button
+                    onClick={handleDownloadAllWebp}
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-slate-100 border border-white/10 disabled:opacity-60 disabled:cursor-not-allowed"
+                    disabled={webpConversions.length === 0 || webpProcessing}
+                  >
+                    <ArrowPathRoundedSquareIcon className="h-4 w-4" />
+                    Download all WebP files
+                  </button>
+                  {webpProcessing && <p className="text-sm text-slate-300">Working on your images…</p>}
+                  {webpError && <p className="text-sm text-rose-400">{webpError}</p>}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 space-y-1">
+                    <p className="text-xs text-slate-400">Total before conversion</p>
+                    <p className="text-lg font-semibold text-white">{formatBytes(activeOriginalBytes)}</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 space-y-1">
+                    <p className="text-xs text-slate-400">After conversion (WebP)</p>
+                    <p className="text-lg font-semibold text-white">
+                      {webpConversions.length > 0 ? formatBytes(convertedTotalBytes) : '—'}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 space-y-1">
+                    <p className="text-xs text-slate-400">Size reduction</p>
+                    <p className="text-lg font-semibold text-emerald-300">
+                      {webpConversions.length > 0 ? `${formatBytes(savingsBytes)} (${savingsPercent.toFixed(1)}%)` : '—'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-semibold text-white">Converted files</p>
+                    <p className="text-xs text-slate-400">Download individually or all at once.</p>
+                  </div>
+                  <span className="badge">{webpConversions.length} ready</span>
+                </div>
+
+                {webpConversions.length === 0 && (
+                  <p className="text-sm text-slate-400">Upload images and convert them to see your WebP outputs.</p>
+                )}
+
+                {webpConversions.length > 0 && (
+                  <div className="space-y-3">
+                    {webpConversions.map((conversion) => {
+                      const reduction = Math.max(conversion.originalSize - conversion.convertedSize, 0);
+                      const reductionPercent = conversion.originalSize
+                        ? (reduction / conversion.originalSize) * 100
+                        : 0;
+
+                      return (
+                        <div
+                          key={conversion.url}
+                          className="rounded-xl border border-white/10 bg-slate-950/60 p-3 flex items-start justify-between gap-3"
+                        >
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-white break-all">{conversion.name}</p>
+                            <p className="text-xs text-slate-400">
+                              {formatBytes(conversion.originalSize)} → {formatBytes(conversion.convertedSize)} ({
+                                reductionPercent.toFixed(1)
+                              }
+                              % smaller)
+                            </p>
+                            <p className="text-xs text-emerald-300">Saved {formatBytes(reduction)} on this file.</p>
+                          </div>
+                          <button
+                            onClick={() => handleDownloadWebp(conversion)}
+                            className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-slate-100 border border-white/10"
+                          >
+                            Download WebP
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </ToolCard>
+      )}
 
       {tool.id === 'photo-exif' && (
         <ToolCard title="Photo EXIF & Metadata Editor" description={tool.description} badge={tool.badge} accent={tool.accent}>
