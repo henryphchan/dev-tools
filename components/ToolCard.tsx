@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { SparklesIcon } from './icons';
+import { Logo } from './icons';
 
 interface ToolCardProps {
   title: string;
@@ -16,7 +16,7 @@ export default function ToolCard({ title, description, accent = 'brand', childre
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-slate-400 font-semibold">{accent}</p>
           <h2 className="text-xl font-semibold text-slate-50 flex items-center gap-2">
-            <SparklesIcon className="w-5 h-5 text-brand" />
+            <Logo className="w-5 h-5 text-brand" />
             {title}
           </h2>
           <p className="text-sm text-slate-400 mt-1 max-w-2xl">{description}</p>
