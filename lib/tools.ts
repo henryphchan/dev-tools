@@ -20,7 +20,8 @@ export type ToolId =
   | 'digest'
   | 'string-case'
   | 'chmod'
-  | 'photo-exif';
+  | 'photo-exif'
+  | 'webp-converter';
 
 export interface ToolInfo {
   id: ToolId;
@@ -286,6 +287,18 @@ export const tools: ToolInfo[] = [
     badge: 'Development',
     accent: 'Binary',
     keywords: ['bitwise calculator', 'binary', 'and or xor', 'bit shifts', 'debugging'],
+  },
+  {
+    id: 'webp-converter',
+    slug: 'webp-converter',
+    title: 'WebP Converter',
+    seoTitle: 'Convert images to WebP with adjustable quality | Dev Tools',
+    description: 'Batch convert images to WebP, see total savings, and export everything in one click.',
+    longDescription:
+      'Upload single or multiple images, pick a WebP quality, and download optimized files together. Track before/after file sizes to see how much space you save.',
+    badge: 'Converters',
+    accent: 'Images',
+    keywords: ['webp', 'image converter', 'webp converter', 'optimize images', 'webp quality', 'batch conversion'],
   },
   {
     id: 'photo-exif',
