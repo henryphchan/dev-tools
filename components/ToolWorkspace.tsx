@@ -1467,7 +1467,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       .split(/\s+/)
       .filter(Boolean);
 
-    if (fields.length >= 1 && (fields[0] === '*' || fields[0] === '*/1')) {
+    const minuteIndex = fields.length === 5 ? 0 : 1;
+    const minuteField = fields[minuteIndex] ?? '';
+
+    if (minuteField === '*' || minuteField === '*/1') {
       warnings.add('Minute field is unrestricted (every minute). Make sure the workload is light or rate-limited.');
     }
 
@@ -1483,9 +1486,33 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
     return Array.from(warnings);
   };
 
+  const normalizeCronExpression = (expression: string): string => {
+    const fields = expression
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (fields.length < 5 || fields.length > 7) {
+      throw new Error('Unsupported field count');
+    }
+
+    if (fields.length === 7) {
+      fields.pop();
+    }
+
+    const dayOfMonthIndex = fields.length === 6 ? 3 : 2;
+    const dayOfWeekIndex = fields.length === 6 ? 5 : 4;
+
+    fields[dayOfMonthIndex] = fields[dayOfMonthIndex].replace('?', '*');
+    fields[dayOfWeekIndex] = fields[dayOfWeekIndex].replace('?', '*');
+
+    return fields.join(' ');
+  };
+
   const handleCronPreview = () => {
     try {
-      const interval = CronExpressionParser.parse(cronExpression, {
+      const normalizedExpression = normalizeCronExpression(cronExpression);
+      const interval = CronExpressionParser.parse(normalizedExpression, {
         currentDate: DateTime.now().setZone(cronZone).toJSDate(),
         tz: cronZone,
       });
@@ -1498,9 +1525,9 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
       setCronRuns(nextRuns);
       setCronError('');
-      setCronWarnings(computeCronWarnings(cronExpression, nextRuns));
+      setCronWarnings(computeCronWarnings(normalizedExpression, nextRuns));
     } catch (error) {
-      setCronError('Invalid cron expression. Use 5-field syntax like “*/5 * * * *”.');
+      setCronError('Invalid cron expression. Supports 5-field or Quartz-style 6/7-field syntax like “0 0/15 * * * ? *”.');
       setCronRuns([]);
       setCronWarnings([]);
     }
@@ -3270,6 +3297,38 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                 <CursorArrowRaysIcon className="h-4 w-4" />
                 Validate & preview
               </button>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2 text-sm text-slate-200">
+              <p className="font-semibold text-white">Supported syntax</p>
+              <p>
+                Supports classic 5-field cron (<code>minute hour day-of-month month day-of-week</code>) and Quartz-style 6/7-field
+                cron with seconds and optional year (<code>second minute hour day-of-month month day-of-week [year]</code>).
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <p className="font-semibold text-white">Field meanings</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Second: 0-59 (Quartz only)</li>
+                    <li>Minute: 0-59</li>
+                    <li>Hour: 0-23</li>
+                    <li>Day of month: 1-31</li>
+                    <li>Month: 1-12 or JAN-DEC</li>
+                    <li>Day of week: 0-6 or SUN-SAT</li>
+                    <li>Year: four digits (optional for Quartz)</li>
+                  </ul>
+                </div>
+                <div className="space-y-1">
+                  <p className="font-semibold text-white">Special characters</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><code>,</code> list multiple values (e.g., <code>1,15</code>)</li>
+                    <li><code>-</code> specify ranges (e.g., <code>1-5</code>)</li>
+                    <li><code>/</code> step values (e.g., <code>0/15</code> for every 15)</li>
+                    <li><code>*</code> wildcard for all valid values</li>
+                    <li><code>?</code> placeholder in Quartz for day-of-month or day-of-week</li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
             {cronError && <p className="text-sm text-rose-400">{cronError}</p>}
