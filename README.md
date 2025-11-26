@@ -25,7 +25,12 @@ A sleek developer-first utility belt inspired by smallapp.dev. This Next.js App 
    npm run lint
    ```
 
-
+## Deploying to Static Web Apps
+1. Build the production bundle:
+   ```bash
+   npm run build
+   ```
+2. Publish the `.next` output through your Static Web Apps workflow. Use `npm run build` as the build command and `.` as the app location so Next.js can prerender the SPA shell.
 
 ## Features
 - SEO-ready landing page with descriptive copy for indexing
