@@ -1092,10 +1092,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const formatNumericStat = (value: number) =>
     Number.isInteger(value) ? value.toString() : value.toFixed(4).replace(/\.0+$/, '');
 
-  const summarizeNumericStats = (stats: ColumnProfile['numericStats']) =>
-    stats
-      ? `min ${formatNumericStat(stats.min)} · max ${formatNumericStat(stats.max)} · avg ${formatNumericStat(stats.average)} · median ${formatNumericStat(stats.median)} · std dev ${formatNumericStat(stats.stdDev)}`
-      : '';
+  const renderNumericStat = (
+    stats: ColumnProfile['numericStats'],
+    value: keyof NonNullable<ColumnProfile['numericStats']>
+  ) => (stats ? formatNumericStat(stats[value]) : '—');
 
   const handleProfileFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1220,7 +1220,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         'Null or blank values': column.nullCount,
         'Dominant pattern': column.dominantPattern,
         'Pattern coverage (%)': column.patternCoverage,
-        'Numeric stats (if numeric)': summarizeNumericStats(column.numericStats),
+        'Min (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.min) : '',
+        'Max (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.max) : '',
+        'Average (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.average) : '',
+        'Median (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.median) : '',
+        'Std dev (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.stdDev) : '',
         'Sample values': column.samples.join(' | '),
       }))
     );
@@ -2762,7 +2766,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                         <th className="text-left py-2 pr-3">Null/blank</th>
                         <th className="text-left py-2 pr-3">Pattern</th>
                         <th className="text-left py-2 pr-3">Coverage</th>
-                        <th className="text-left py-2 pr-3">Numeric stats</th>
+                        <th className="text-left py-2 pr-3">Min</th>
+                        <th className="text-left py-2 pr-3">Max</th>
+                        <th className="text-left py-2 pr-3">Average</th>
+                        <th className="text-left py-2 pr-3">Median</th>
+                        <th className="text-left py-2 pr-3">Std dev</th>
                         <th className="text-left py-2 pr-3">Samples</th>
                       </tr>
                     </thead>
@@ -2774,21 +2782,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                           <td className="py-3 pr-3">{column.nullCount}</td>
                           <td className="py-3 pr-3 font-mono text-xs text-slate-300">{column.dominantPattern}</td>
                           <td className="py-3 pr-3">{column.patternCoverage}%</td>
-                          <td className="py-3 pr-3 text-slate-300">
-                            {column.numericStats ? (
-                              <div className="space-y-1 text-xs">
-                                <p>
-                                  min {formatNumericStat(column.numericStats.min)} • max {formatNumericStat(column.numericStats.max)}
-                                </p>
-                                <p>
-                                  avg {formatNumericStat(column.numericStats.average)} • median {formatNumericStat(column.numericStats.median)}
-                                </p>
-                                <p>std dev {formatNumericStat(column.numericStats.stdDev)}</p>
-                              </div>
-                            ) : (
-                              '—'
-                            )}
-                          </td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'min')}</td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'max')}</td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'average')}</td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'median')}</td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'stdDev')}</td>
                           <td className="py-3 pr-3 text-slate-300">{column.samples.join(', ') || '—'}</td>
                         </tr>
                       ))}
