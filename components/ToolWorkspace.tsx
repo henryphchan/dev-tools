@@ -77,6 +77,13 @@ type ColumnProfile = {
   dominantPattern: string;
   patternCoverage: number;
   samples: string[];
+  numericStats: {
+    min: number;
+    max: number;
+    average: number;
+    median: number;
+    stdDev: number;
+  } | null;
 };
 
 type RegexMatch = {
@@ -1065,6 +1072,31 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       })
       .join('');
 
+  const computeNumericStats = (values: number[]) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const min = sorted[0];
+    const max = sorted[sorted.length - 1];
+    const sum = values.reduce((total, value) => total + value, 0);
+    const average = sum / values.length;
+    const mid = Math.floor(sorted.length / 2);
+    const median =
+      sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+    const variance =
+      values.reduce((total, value) => total + Math.pow(value - average, 2), 0) /
+      values.length;
+    const stdDev = Math.sqrt(variance);
+
+    return { min, max, average, median, stdDev } as const;
+  };
+
+  const formatNumericStat = (value: number) =>
+    Number.isInteger(value) ? value.toString() : value.toFixed(4).replace(/\.0+$/, '');
+
+  const renderNumericStat = (
+    stats: ColumnProfile['numericStats'],
+    value: keyof NonNullable<ColumnProfile['numericStats']>
+  ) => (stats ? formatNumericStat(stats[value]) : '—');
+
   const handleProfileFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -1116,6 +1148,8 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         const samples: string[] = [];
         let nullCount = 0;
         let populated = 0;
+        let nonNumericCount = 0;
+        const numericValues: number[] = [];
 
         rows.forEach((row) => {
           const rawValue = row[header];
@@ -1129,6 +1163,13 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
 
           populated += 1;
           uniqueValues.add(trimmed);
+
+          const numericValue = Number(trimmed);
+          if (Number.isFinite(numericValue)) {
+            numericValues.push(numericValue);
+          } else {
+            nonNumericCount += 1;
+          }
 
           const pattern = describePattern(trimmed);
           patternCounts.set(pattern, (patternCounts.get(pattern) || 0) + 1);
@@ -1144,6 +1185,10 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         ];
 
         const patternCoverage = populated ? Math.round((patternCount / populated) * 100) : 0;
+        const numericStats =
+          populated > 0 && nonNumericCount === 0 && numericValues.length
+            ? computeNumericStats(numericValues)
+            : null;
 
         return {
           name: header,
@@ -1152,6 +1197,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
           dominantPattern,
           patternCoverage,
           samples,
+          numericStats,
         } satisfies ColumnProfile;
       });
 
@@ -1174,6 +1220,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         'Null or blank values': column.nullCount,
         'Dominant pattern': column.dominantPattern,
         'Pattern coverage (%)': column.patternCoverage,
+        'Min (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.min) : '',
+        'Max (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.max) : '',
+        'Average (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.average) : '',
+        'Median (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.median) : '',
+        'Std dev (numeric only)': column.numericStats ? formatNumericStat(column.numericStats.stdDev) : '',
         'Sample values': column.samples.join(' | '),
       }))
     );
@@ -2686,6 +2737,25 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                 <p className="text-sm text-slate-400">Run the profiler to validate the CSV structure and inspect each column.</p>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400 font-semibold">Pattern notation</p>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    Each character is classified: digits → <span className="font-mono text-xs">N</span>, letters →{' '}
+                    <span className="font-mono text-xs">L</span>, whitespace → <span className="font-mono text-xs">·</span>, and
+                    punctuation/symbols stay as-is. Example: <span className="font-mono text-xs">123-AB</span> becomes{' '}
+                    <span className="font-mono text-xs">NNN-LL</span>.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400 font-semibold">Coverage</p>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    Coverage shows what percentage of populated rows match the dominant pattern for a column. It is calculated as
+                    <span className="font-mono text-xs"> (rows matching pattern ÷ populated rows) × 100</span>.
+                  </p>
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
                 {profileResults.length ? (
                   <table className="min-w-full text-sm text-slate-200">
@@ -2696,6 +2766,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                         <th className="text-left py-2 pr-3">Null/blank</th>
                         <th className="text-left py-2 pr-3">Pattern</th>
                         <th className="text-left py-2 pr-3">Coverage</th>
+                        <th className="text-left py-2 pr-3">Min</th>
+                        <th className="text-left py-2 pr-3">Max</th>
+                        <th className="text-left py-2 pr-3">Average</th>
+                        <th className="text-left py-2 pr-3">Median</th>
+                        <th className="text-left py-2 pr-3">Std dev</th>
                         <th className="text-left py-2 pr-3">Samples</th>
                       </tr>
                     </thead>
@@ -2707,6 +2782,11 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
                           <td className="py-3 pr-3">{column.nullCount}</td>
                           <td className="py-3 pr-3 font-mono text-xs text-slate-300">{column.dominantPattern}</td>
                           <td className="py-3 pr-3">{column.patternCoverage}%</td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'min')}</td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'max')}</td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'average')}</td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'median')}</td>
+                          <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'stdDev')}</td>
                           <td className="py-3 pr-3 text-slate-300">{column.samples.join(', ') || '—'}</td>
                         </tr>
                       ))}
