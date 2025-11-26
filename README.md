@@ -1,5 +1,7 @@
 # Dev Tools
 
+Demo: https://devtools.henrychan.tech/ (hosted by GitHub Pages)
+
 A sleek developer-first utility belt inspired by smallapp.dev. This Next.js App Router experience ships JSON/XML/SQL formatters, encoders/decoders, a timezone converter, and a bitwise calculator with a Tailwind CSS-driven UI that feels at home in dark mode. Each tool now has an SEO-friendly URL so you can bookmark or share deep links.
 
 ## Tech stack
