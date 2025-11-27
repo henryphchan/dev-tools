@@ -10,7 +10,8 @@ const CHARSETS = {
   lowercase: 'abcdefghijklmnopqrstuvwxyz',
   uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   numbers: '0123456789',
-  symbols: "!@#$%^&*()_-+=[]{}|:;'<>,.?/",
+  basicSymbols: '!@#$',
+  extendedSymbols: "!@#$%^&*()_-+=[]{}|:;'<>,.?/",
 };
 
 const GUESS_RATE_PER_SECOND = 1e10; // 10 billion guesses/sec (modern GPU rigs)
@@ -20,7 +21,8 @@ interface SettingsState {
   includeLowercase: boolean;
   includeUppercase: boolean;
   includeNumbers: boolean;
-  includeSymbols: boolean;
+  includeBasicSymbols: boolean;
+  includeExtendedSymbols: boolean;
 }
 
 const defaultSettings: SettingsState = {
@@ -28,7 +30,8 @@ const defaultSettings: SettingsState = {
   includeLowercase: true,
   includeUppercase: true,
   includeNumbers: true,
-  includeSymbols: true,
+  includeBasicSymbols: true,
+  includeExtendedSymbols: false,
 };
 
 function buildCharacterPool(settings: SettingsState) {
@@ -36,8 +39,10 @@ function buildCharacterPool(settings: SettingsState) {
   if (settings.includeLowercase) pool += CHARSETS.lowercase;
   if (settings.includeUppercase) pool += CHARSETS.uppercase;
   if (settings.includeNumbers) pool += CHARSETS.numbers;
-  if (settings.includeSymbols) pool += CHARSETS.symbols;
-  return pool;
+  if (settings.includeBasicSymbols) pool += CHARSETS.basicSymbols;
+  if (settings.includeExtendedSymbols) pool += CHARSETS.extendedSymbols;
+
+  return Array.from(new Set(pool)).join('');
 }
 
 function generatePassword(settings: SettingsState) {
@@ -56,6 +61,10 @@ function calculateStrength(password: string) {
   const hasNumber = /[0-9]/.test(password);
   const hasSymbol = /[^A-Za-z0-9\s]/.test(password);
 
+  const usesExtendedSymbol = hasSymbol && Array.from(password).some((char) => CHARSETS.extendedSymbols.includes(char));
+  const usesBasicOnly =
+    hasSymbol && !usesExtendedSymbol && Array.from(password).every((char) => !CHARSETS.extendedSymbols.includes(char) || CHARSETS.basicSymbols.includes(char));
+
   const extras = new Set<string>();
   for (const char of password) {
     if (/^[A-Za-z0-9]$/.test(char)) continue;
@@ -63,11 +72,17 @@ function calculateStrength(password: string) {
     extras.add(char);
   }
 
+  const symbolSetSize = usesExtendedSymbol
+    ? CHARSETS.extendedSymbols.length
+    : usesBasicOnly
+      ? CHARSETS.basicSymbols.length
+      : 0;
+
   const charsetSize =
     (hasLower ? CHARSETS.lowercase.length : 0) +
     (hasUpper ? CHARSETS.uppercase.length : 0) +
     (hasNumber ? CHARSETS.numbers.length : 0) +
-    (hasSymbol ? CHARSETS.symbols.length : 0) +
+    symbolSetSize +
     extras.size;
 
   const entropyBits = password.length && charsetSize ? password.length * Math.log2(charsetSize) : 0;
@@ -170,7 +185,12 @@ export function PasswordGeneratorWorkspace({ tool }: { tool: ToolInfo }) {
               { key: 'includeLowercase' as const, label: 'Lowercase (a-z)', description: 'Adds 26 characters' },
               { key: 'includeUppercase' as const, label: 'Uppercase (A-Z)', description: 'Adds 26 characters' },
               { key: 'includeNumbers' as const, label: 'Numbers (0-9)', description: 'Adds 10 characters' },
-              { key: 'includeSymbols' as const, label: 'Symbols (!@#$)', description: 'Adds punctuation and operators' },
+              { key: 'includeBasicSymbols' as const, label: 'Symbols (!@#$)', description: 'Safe for stricter systems' },
+              {
+                key: 'includeExtendedSymbols' as const,
+                label: 'Symbols (all keyboard)',
+                description: 'Adds punctuation, operators, and brackets',
+              },
             ].map((option) => (
               <label
                 key={option.key}
