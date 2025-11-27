@@ -41,3 +41,8 @@ A sleek developer-first utility belt inspired by smallapp.dev. This Next.js App 
 - Dedicated tool routes for sharing and documentation
 
 Contributions and additional tools are welcome!
+
+## Tool architecture
+- **Metadata registry:** Every tool advertises its title, descriptions, colors, and SEO keywords via a standalone definition file in `lib/tools/definitions/`. Drop in a new `.ts` file exporting a `ToolInfo` object to register a tool without touching a central list.
+- **Workspace logic:** `components/ToolWorkspace.tsx` now routes tool IDs to dedicated workspace components under `components/workspaces/`. New or refactored tool logic can live in its own `.tsx` file (for example, the UUID and bitwise tools) while the legacy workspace remains available as a fallback for tools that have not been migrated yet.
+- **Routing:** `app/tools/[slug]/page.tsx` uses the registry to generate static params and to select the matching tool for the workspace render, keeping URLs stable while allowing the registry to grow automatically.
