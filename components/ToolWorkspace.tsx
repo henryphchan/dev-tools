@@ -3,14 +3,16 @@
 import { ComponentType } from 'react';
 import { ToolInfo } from '../lib/tools';
 import { BitwiseWorkspace } from './workspaces/BitwiseWorkspace';
+import { CsvProfilerWorkspace } from './workspaces/CsvProfilerWorkspace';
 import { LegacyToolWorkspace } from './workspaces/LegacyToolWorkspace';
 import { UuidWorkspace } from './workspaces/UuidWorkspace';
 
 // Map tool IDs to dedicated workspace components. Tools not listed here fall back to the
 // legacy monolithic workspace so we can migrate incrementally without breaking routes.
 const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: ToolInfo }>>> = {
-  uuid: UuidWorkspace,
   bitwise: BitwiseWorkspace,
+  'csv-profiler': CsvProfilerWorkspace,
+  uuid: UuidWorkspace,
 };
 
 export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
