@@ -19,6 +19,7 @@ export type ToolId =
   | 'regex-tester'
   | 'digest'
   | 'string-case'
+  | 'slugify'
   | 'chmod'
   | 'photo-exif'
   | 'webp-converter';
@@ -59,6 +60,18 @@ export const tools: ToolInfo[] = [
     badge: 'Text & Analysis',
     accent: 'Casing',
     keywords: ['case converter', 'camelCase', 'snake_case', 'PascalCase', 'kebab-case', 'naming'],
+  },
+  {
+    id: 'slugify',
+    slug: 'slugify-string',
+    title: 'Slugify String',
+    seoTitle: 'Create URL-friendly slugs from text | Dev Tools',
+    description: 'Turn titles or labels into clean slugs with custom delimiters.',
+    longDescription:
+      'Paste any text to generate a URL-ready slug. Strip punctuation, collapse spaces, and pick your delimiter while keeping output lowercase for consistent links.',
+    badge: 'Text & Analysis',
+    accent: 'URLs',
+    keywords: ['slugify', 'url slug', 'kebab-case', 'seo', 'permalink'],
   },
   {
     id: 'cron',
