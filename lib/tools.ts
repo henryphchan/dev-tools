@@ -14,6 +14,7 @@ export type ToolId =
   | 'datetime-diff'
   | 'jwt'
   | 'uuid'
+  | 'password-generator'
   | 'qr-generator'
   | 'word-cloud'
   | 'regex-tester'
@@ -180,6 +181,18 @@ export const tools: ToolInfo[] = [
     badge: 'Generators',
     accent: 'Identity',
     keywords: ['uuid', 'generator', 'random uuid', 'identifier', 'guid'],
+  },
+  {
+    id: 'password-generator',
+    slug: 'password-generator',
+    title: 'Password Generator & Strength Checker',
+    seoTitle: 'Generate strong passwords and estimate crack time | Dev Tools',
+    description: 'Create random passwords with custom character sets and see entropy-based strength.',
+    longDescription:
+      'Build complex passwords with adjustable length, casing, numbers, and symbols. Gauge strength with entropy and estimated brute-force crack times—computed entirely in your browser.',
+    badge: 'Security',
+    accent: 'Passwords',
+    keywords: ['password generator', 'strong password', 'entropy', 'brute force time', 'password strength'],
   },
   {
     id: 'qr-generator',
