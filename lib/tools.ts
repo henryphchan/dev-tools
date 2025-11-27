@@ -10,15 +10,18 @@ export type ToolId =
   | 'csv-profiler'
   | 'csv-json'
   | 'yaml-json'
+  | 'json-toon'
   | 'timestamp'
   | 'datetime-diff'
   | 'jwt'
   | 'uuid'
+  | 'password-generator'
   | 'qr-generator'
   | 'word-cloud'
   | 'regex-tester'
   | 'digest'
   | 'string-case'
+  | 'slugify'
   | 'chmod'
   | 'photo-exif'
   | 'webp-converter';
@@ -59,6 +62,18 @@ export const tools: ToolInfo[] = [
     badge: 'Text & Analysis',
     accent: 'Casing',
     keywords: ['case converter', 'camelCase', 'snake_case', 'PascalCase', 'kebab-case', 'naming'],
+  },
+  {
+    id: 'slugify',
+    slug: 'slugify-string',
+    title: 'Slugify String',
+    seoTitle: 'Create URL-friendly slugs from text | Dev Tools',
+    description: 'Turn titles or labels into clean slugs with custom delimiters.',
+    longDescription:
+      'Paste any text to generate a URL-ready slug. Strip punctuation, collapse spaces, and pick your delimiter while keeping output lowercase for consistent links.',
+    badge: 'Text & Analysis',
+    accent: 'URLs',
+    keywords: ['slugify', 'url slug', 'kebab-case', 'seo', 'permalink'],
   },
   {
     id: 'cron',
@@ -121,6 +136,18 @@ export const tools: ToolInfo[] = [
     keywords: ['yaml', 'json', 'converter', 'yaml to json', 'json to yaml', 'kubernetes', 'config'],
   },
   {
+    id: 'json-toon',
+    slug: 'json-toon-converter',
+    title: 'JSON ↔ TOON Converter',
+    seoTitle: 'JSON to TOON Converter & TOON back to JSON | Dev Tools',
+    description: 'Round-trip JSON into TOON outline notation with a single click and keep prompts token-lean.',
+    longDescription:
+      'Convert structured JSON into TOON, a token-efficient outline notation favored by LLM teams, and reverse it back without losing type safety.',
+    badge: 'Converters',
+    accent: 'LLM',
+    keywords: ['json', 'toon', 'converter', 'llm', 'prompt format', 'outline notation'],
+  },
+  {
     id: 'timestamp',
     slug: 'timestamp-to-date',
     title: 'Timestamp to Date Converter',
@@ -167,6 +194,18 @@ export const tools: ToolInfo[] = [
     badge: 'Generators',
     accent: 'Identity',
     keywords: ['uuid', 'generator', 'random uuid', 'identifier', 'guid'],
+  },
+  {
+    id: 'password-generator',
+    slug: 'password-generator',
+    title: 'Password Generator & Strength Checker',
+    seoTitle: 'Generate strong passwords and estimate crack time | Dev Tools',
+    description: 'Create random passwords with custom character sets and see entropy-based strength.',
+    longDescription:
+      'Build complex passwords with adjustable length, casing, numbers, and symbols. Gauge strength with entropy and estimated brute-force crack times—computed entirely in your browser.',
+    badge: 'Security',
+    accent: 'Passwords',
+    keywords: ['password generator', 'strong password', 'entropy', 'brute force time', 'password strength'],
   },
   {
     id: 'qr-generator',
