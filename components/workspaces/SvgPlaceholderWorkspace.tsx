@@ -13,6 +13,8 @@ const escapeHtml = (value: string) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
+const MAX_PREVIEW_DIMENSION = 420;
+
 export function SvgPlaceholderWorkspace({ tool }: { tool: ToolInfo }) {
   const [width, setWidth] = useState(300);
   const [height, setHeight] = useState(200);
@@ -52,6 +54,19 @@ export function SvgPlaceholderWorkspace({ tool }: { tool: ToolInfo }) {
   }, [svgMarkup]);
 
   const dataUri = base64Svg ? `data:image/svg+xml;base64,${base64Svg}` : '';
+
+  const { previewScale, previewWidth, previewHeight } = useMemo(() => {
+    const maxDimension = Math.max(width, height) || 1;
+    const scale = Math.min(1, MAX_PREVIEW_DIMENSION / maxDimension);
+    const scaledWidth = Math.max(1, Math.round(width * scale));
+    const scaledHeight = Math.max(1, Math.round(height * scale));
+
+    return {
+      previewScale: scale,
+      previewWidth: scaledWidth,
+      previewHeight: scaledHeight,
+    };
+  }, [height, width]);
 
   return (
     <ToolCard
@@ -169,30 +184,40 @@ export function SvgPlaceholderWorkspace({ tool }: { tool: ToolInfo }) {
               <p className="text-sm font-semibold text-white">Live preview</p>
               <p className="text-xs text-slate-400">SVG rendered with your current settings.</p>
             </div>
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-slate-300">
-              {width} × {height}
-            </span>
+            <div className="flex items-center gap-2 text-xs text-slate-300">
+              <span className="rounded-full bg-white/10 px-3 py-1">
+                {width} × {height}
+              </span>
+              {previewScale < 1 && (
+                <span className="rounded-full bg-slate-800 px-3 py-1 text-[11px] text-slate-200">
+                  Preview scaled to {Math.round(previewScale * 100)}%
+                </span>
+              )}
+            </div>
           </div>
           <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-950/40">
-            <svg
-              role="img"
-              width="100%"
-              viewBox={`0 0 ${width} ${height}`}
-              preserveAspectRatio="xMidYMid slice"
-            >
-              <rect width="100%" height="100%" fill={backgroundColor} />
-              <text
-                x="50%"
-                y="50%"
-                fill={textColor}
-                fontSize={fontSize}
-                fontFamily="Inter, system-ui, -apple-system, sans-serif"
-                dominantBaseline="middle"
-                textAnchor="middle"
+            <div className="flex items-center justify-center p-4">
+              <svg
+                role="img"
+                width={previewWidth}
+                height={previewHeight}
+                viewBox={`0 0 ${width} ${height}`}
+                preserveAspectRatio="xMidYMid slice"
               >
-                {label}
-              </text>
-            </svg>
+                <rect width="100%" height="100%" fill={backgroundColor} />
+                <text
+                  x="50%"
+                  y="50%"
+                  fill={textColor}
+                  fontSize={fontSize}
+                  fontFamily="Inter, system-ui, -apple-system, sans-serif"
+                  dominantBaseline="middle"
+                  textAnchor="middle"
+                >
+                  {label}
+                </text>
+              </svg>
+            </div>
           </div>
         </div>
 
