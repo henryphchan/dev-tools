@@ -18,7 +18,7 @@ const MAX_PREVIEW_DIMENSION = 420;
 export function SvgPlaceholderWorkspace({ tool }: { tool: ToolInfo }) {
   const [width, setWidth] = useState(300);
   const [height, setHeight] = useState(200);
-  const [backgroundColor, setBackgroundColor] = useState('#0ea5e9');
+  const [backgroundColor, setBackgroundColor] = useState('#0f172a');
   const [textColor, setTextColor] = useState('#ffffff');
   const [fontSize, setFontSize] = useState(32);
   const [text, setText] = useState('300 x 200');
