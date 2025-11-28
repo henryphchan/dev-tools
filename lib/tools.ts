@@ -16,6 +16,7 @@ export type ToolId =
   | 'jwt'
   | 'uuid'
   | 'password-generator'
+  | 'svg-placeholder-generator'
   | 'qr-generator'
   | 'word-cloud'
   | 'regex-tester'
@@ -206,6 +207,18 @@ export const tools: ToolInfo[] = [
     badge: 'Security',
     accent: 'Passwords',
     keywords: ['password generator', 'strong password', 'entropy', 'brute force time', 'password strength'],
+  },
+  {
+    id: 'svg-placeholder-generator',
+    slug: 'svg-placeholder-generator',
+    title: 'SVG Placeholder Generator',
+    seoTitle: 'Generate SVG placeholders with custom text and colors | Dev Tools',
+    description: 'Create on-the-fly SVG placeholders with custom text, colors, and dimensions.',
+    longDescription:
+      'Quickly craft shareable placeholder images for mocks or social previews. Set width, height, background/text colors, font size, and a custom label while copying inline SVG markup or Base64 data URIs instantly.',
+    badge: 'Generators',
+    accent: 'Images',
+    keywords: ['svg placeholder', 'placeholder generator', 'base64 svg', 'placeholder image', 'mock image'],
   },
   {
     id: 'qr-generator',
