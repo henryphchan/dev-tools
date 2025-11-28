@@ -7,6 +7,7 @@ import { CsvProfilerWorkspace } from './workspaces/CsvProfilerWorkspace';
 import { LegacyToolWorkspace } from './workspaces/LegacyToolWorkspace';
 import { JsonToonWorkspace } from './workspaces/JsonToonWorkspace';
 import { PasswordGeneratorWorkspace } from './workspaces/PasswordGeneratorWorkspace';
+import { SvgPlaceholderWorkspace } from './workspaces/SvgPlaceholderWorkspace';
 import { SlugifyWorkspace } from './workspaces/SlugifyWorkspace';
 import { UuidWorkspace } from './workspaces/UuidWorkspace';
 
@@ -17,6 +18,7 @@ const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: To
   'csv-profiler': CsvProfilerWorkspace,
   'json-toon': JsonToonWorkspace,
   'password-generator': PasswordGeneratorWorkspace,
+  'svg-placeholder-generator': SvgPlaceholderWorkspace,
   slugify: SlugifyWorkspace,
   uuid: UuidWorkspace,
 };
