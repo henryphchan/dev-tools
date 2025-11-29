@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { tools } from '../lib/tools';
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://dev-tools.example.com').replace(/\/$/, '');
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://devtools.henrychan.tech').replace(/\/$/, '');
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
