@@ -121,102 +121,6 @@ function WhatsappPreview({ data }: { data: MetaPreviewResult }) {
   );
 }
 
-function LinkedInPreview({ data }: { data: MetaPreviewResult }) {
-  return (
-    <div className="overflow-hidden rounded-xl border border-slate-300/80 bg-white text-slate-900 shadow-sm">
-      {data.image ? (
-        <div className="h-40 w-full overflow-hidden bg-slate-200">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={data.image} alt="LinkedIn preview" className="h-full w-full object-cover" />
-        </div>
-      ) : (
-        <div className="flex h-32 items-center justify-center bg-slate-100 text-xs text-slate-500">Add og:image for visual card</div>
-      )}
-      <div className="space-y-1 border-t border-slate-200 px-4 py-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{data.siteName ?? 'LinkedIn'}</p>
-        <p className="text-base font-semibold text-slate-900 line-clamp-2">{data.title || 'LinkedIn headline'}</p>
-        <p className="text-sm text-slate-600 leading-snug line-clamp-2">
-          {data.description || 'Add Open Graph tags for richer LinkedIn link previews.'}
-        </p>
-        <p className="text-[11px] text-slate-500">{data.url}</p>
-      </div>
-    </div>
-  );
-}
-
-function TwitterPreview({ data }: { data: MetaPreviewResult }) {
-  const cardType = data.twitterCard || 'summary_large_image';
-  const title = data.twitterTitle || data.title || 'Twitter card title';
-  const description =
-    data.twitterDescription || data.description || 'Add twitter:title and twitter:description to control card copy.';
-  const image = data.twitterImage || data.image;
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-[#0f1419] text-slate-100 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-      <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-[0.18em] text-slate-400">
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-slate-500" aria-hidden />
-          Twitter / X
-        </span>
-        <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[10px] font-semibold text-slate-200">
-          {cardType}
-        </span>
-      </div>
-      {image && (
-        <div className="overflow-hidden border-y border-slate-800 bg-black">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt="Twitter preview" className="h-44 w-full object-cover" />
-        </div>
-      )}
-      {!image && (
-        <div className="flex h-28 items-center justify-center border-y border-dashed border-slate-800 bg-[#0b0e12] text-xs text-slate-500">
-          Provide twitter:image for a large summary card
-        </div>
-      )}
-      <div className="space-y-1 px-3 py-3">
-        <p className="text-[11px] font-medium text-slate-400">{data.twitterSite || data.siteName || 'Example account'}</p>
-        <p className="text-base font-semibold leading-snug line-clamp-2">{title}</p>
-        <p className="text-sm text-slate-200/90 leading-snug line-clamp-3">{description}</p>
-        <p className="text-[11px] text-slate-500">{data.url}</p>
-        {data.twitterCreator && (
-          <p className="text-[11px] text-slate-500">Creator: {data.twitterCreator}</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ThreadsPreview({ data }: { data: MetaPreviewResult }) {
-  const title = data.title || data.twitterTitle || 'Threads headline';
-  const description = data.description || data.twitterDescription || 'Threads relies on Open Graph tags for link cards.';
-  const image = data.image || data.twitterImage;
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-[#262626] bg-[#0a0a0a] text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
-      <div className="flex items-center gap-2 border-b border-[#262626] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-        <span className="h-1.5 w-1.5 rounded-full bg-white" aria-hidden />
-        Threads preview
-      </div>
-      <div className="flex gap-3 px-4 py-3">
-        <div className="flex flex-1 flex-col gap-1">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-slate-400">{data.siteName || 'threads.net'}</p>
-          <p className="text-base font-semibold leading-snug text-white line-clamp-2">{title}</p>
-          <p className="text-sm text-slate-300 leading-snug line-clamp-3">{description}</p>
-          <p className="text-[11px] text-slate-500">{data.url}</p>
-        </div>
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#262626] bg-[#111]">
-          {image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="Threads preview" className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-[11px] text-slate-500">No image</span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
   const [targetUrl, setTargetUrl] = useState('https://');
   const [loading, setLoading] = useState(false);
@@ -324,16 +228,7 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
             <PreviewCard title="WhatsApp">
               <WhatsappPreview data={result} />
             </PreviewCard>
-            <PreviewCard title="LinkedIn">
-              <LinkedInPreview data={result} />
-            </PreviewCard>
-            <PreviewCard title="Twitter / X">
-              <TwitterPreview data={result} />
-            </PreviewCard>
-            <PreviewCard title="Threads">
-              <ThreadsPreview data={result} />
-            </PreviewCard>
-          </div>
+        </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <PreviewCard title="Actionable suggestions">
