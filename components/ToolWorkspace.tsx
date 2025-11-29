@@ -6,6 +6,7 @@ import { BitwiseWorkspace } from './workspaces/BitwiseWorkspace';
 import { CsvProfilerWorkspace } from './workspaces/CsvProfilerWorkspace';
 import { LegacyToolWorkspace } from './workspaces/LegacyToolWorkspace';
 import { JsonToonWorkspace } from './workspaces/JsonToonWorkspace';
+import { LoremIpsumWorkspace } from './workspaces/LoremIpsumWorkspace';
 import { PasswordGeneratorWorkspace } from './workspaces/PasswordGeneratorWorkspace';
 import { SvgPlaceholderWorkspace } from './workspaces/SvgPlaceholderWorkspace';
 import { SlugifyWorkspace } from './workspaces/SlugifyWorkspace';
@@ -17,6 +18,7 @@ const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: To
   bitwise: BitwiseWorkspace,
   'csv-profiler': CsvProfilerWorkspace,
   'json-toon': JsonToonWorkspace,
+  'lorem-ipsum': LoremIpsumWorkspace,
   'password-generator': PasswordGeneratorWorkspace,
   'svg-placeholder-generator': SvgPlaceholderWorkspace,
   slugify: SlugifyWorkspace,
