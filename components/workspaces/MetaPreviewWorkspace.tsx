@@ -192,31 +192,26 @@ function ThreadsPreview({ data }: { data: MetaPreviewResult }) {
   const image = data.image || data.twitterImage;
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-black/90 px-4 py-3 text-slate-50 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
-      <div className="flex items-center justify-between text-xs text-slate-300">
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-white" aria-hidden />
-          Threads link card
-        </span>
-        <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
-          Preview
-        </span>
+    <div className="overflow-hidden rounded-2xl border border-[#262626] bg-[#0a0a0a] text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+      <div className="flex items-center gap-2 border-b border-[#262626] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+        <span className="h-1.5 w-1.5 rounded-full bg-white" aria-hidden />
+        Threads preview
       </div>
-      <div className="mt-3 space-y-2">
-        <p className="text-sm text-slate-400">{data.siteName || 'threads.net'}</p>
-        <p className="text-base font-semibold leading-snug line-clamp-2">{title}</p>
-        <p className="text-sm text-slate-200/90 leading-snug line-clamp-3">{description}</p>
-        {image ? (
-          <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt="Threads preview" className="h-36 w-full object-cover" />
-          </div>
-        ) : (
-          <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-slate-700 text-xs text-slate-300/80">
-            Add og:image or twitter:image for a visual card
-          </div>
-        )}
-        <p className="text-[11px] text-slate-500">{data.url}</p>
+      <div className="flex gap-3 px-4 py-3">
+        <div className="flex flex-1 flex-col gap-1">
+          <p className="text-[11px] uppercase tracking-[0.12em] text-slate-400">{data.siteName || 'threads.net'}</p>
+          <p className="text-base font-semibold leading-snug text-white line-clamp-2">{title}</p>
+          <p className="text-sm text-slate-300 leading-snug line-clamp-3">{description}</p>
+          <p className="text-[11px] text-slate-500">{data.url}</p>
+        </div>
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#262626] bg-[#111]">
+          {image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={image} alt="Threads preview" className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-[11px] text-slate-500">No image</span>
+          )}
+        </div>
       </div>
     </div>
   );
