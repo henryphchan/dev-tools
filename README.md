@@ -8,7 +8,6 @@ A sleek developer-first utility belt inspired by smallapp.dev. This Next.js App 
 - Next.js 14 (App Router)
 - React 18
 - Tailwind CSS
-- Luxon, sql-formatter, xml-formatter for focused tooling
 
 ## Getting started
 1. Install dependencies:
