@@ -15,6 +15,12 @@ interface ParsedMetadata {
   siteName?: string;
   favicon?: string;
   metaTags: MetaTag[];
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  twitterSite?: string;
+  twitterCreator?: string;
 }
 
 function resolveUrl(value: string | undefined, baseUrl: URL) {
@@ -68,6 +74,10 @@ function extractMetadata(html: string, baseUrl: URL): ParsedMetadata {
     })
     .filter(Boolean) as MetaTag[];
 
+  const twitterImage = findMeta('meta[name="twitter:image"]') || findMeta('meta[name="twitter:image:src"]');
+  const twitterTitle = findMeta('meta[name="twitter:title"]');
+  const twitterDescription = findMeta('meta[name="twitter:description"]');
+
   return {
     title,
     description,
@@ -76,6 +86,12 @@ function extractMetadata(html: string, baseUrl: URL): ParsedMetadata {
     siteName: findMeta('meta[property="og:site_name"]') || baseUrl.hostname,
     favicon: resolveUrl(favicon, baseUrl),
     metaTags,
+    twitterCard: findMeta('meta[name="twitter:card"]'),
+    twitterTitle: twitterTitle || undefined,
+    twitterDescription: twitterDescription || undefined,
+    twitterImage: resolveUrl(twitterImage, baseUrl),
+    twitterSite: findMeta('meta[name="twitter:site"]') || undefined,
+    twitterCreator: findMeta('meta[name="twitter:creator"]') || undefined,
   };
 }
 

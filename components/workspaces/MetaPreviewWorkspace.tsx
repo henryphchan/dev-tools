@@ -22,6 +22,12 @@ interface MetaPreviewResult {
   sourceUrl?: string;
   responseStatus?: number;
   contentType?: string;
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  twitterSite?: string;
+  twitterCreator?: string;
 }
 
 const RECOMMENDED_TAGS: { attribute: MetaTag['attribute']; key: string; label: string }[] = [
@@ -136,6 +142,85 @@ function LinkedInPreview({ data }: { data: MetaPreviewResult }) {
   );
 }
 
+function TwitterPreview({ data }: { data: MetaPreviewResult }) {
+  const cardType = data.twitterCard || 'summary_large_image';
+  const title = data.twitterTitle || data.title || 'Twitter card title';
+  const description =
+    data.twitterDescription || data.description || 'Add twitter:title and twitter:description to control card copy.';
+  const image = data.twitterImage || data.image;
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-sky-800/60 bg-gradient-to-br from-sky-950 via-slate-950 to-slate-950">
+      <div className="flex items-center justify-between border-b border-white/10 px-3 py-2 text-xs text-sky-100/80">
+        <span className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-sky-400" aria-hidden />
+          Twitter / X
+        </span>
+        <span className="rounded-full border border-sky-500/60 px-2 py-0.5 text-[11px] uppercase tracking-[0.18em] text-sky-100">
+          {cardType}
+        </span>
+      </div>
+      <div className="p-3 space-y-3">
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sky-200/80">
+          {data.twitterSite || data.siteName || 'Account'}
+          {data.twitterCreator && <span className="text-slate-500">•</span>}
+          {data.twitterCreator}
+        </div>
+        {image ? (
+          <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-900">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={image} alt="Twitter preview" className="h-40 w-full object-cover" />
+          </div>
+        ) : (
+          <div className="flex h-24 items-center justify-center rounded-lg border border-dashed border-slate-800 text-xs text-slate-400">
+            Provide twitter:image for a rich card
+          </div>
+        )}
+        <div className="space-y-1 text-slate-50">
+          <p className="text-base font-semibold line-clamp-2">{title}</p>
+          <p className="text-sm text-slate-200/90 line-clamp-3">{description}</p>
+          <p className="text-[11px] text-slate-400">{data.url}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ThreadsPreview({ data }: { data: MetaPreviewResult }) {
+  const title = data.title || data.twitterTitle || 'Threads headline';
+  const description = data.description || data.twitterDescription || 'Threads relies on Open Graph tags for link cards.';
+  const image = data.image || data.twitterImage;
+
+  return (
+    <div className="rounded-xl border border-purple-700/50 bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 p-4 text-purple-50">
+      <div className="flex items-center justify-between text-xs text-purple-200/80">
+        <span className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-purple-400" aria-hidden />
+          Threads
+        </span>
+        <span className="rounded-full border border-purple-600/60 px-2 py-0.5 text-[11px] uppercase tracking-[0.18em] text-purple-50">
+          OG preview
+        </span>
+      </div>
+      <div className="mt-3 space-y-2">
+        <p className="text-base font-semibold line-clamp-2">{title}</p>
+        <p className="text-sm text-purple-100/90 line-clamp-3">{description}</p>
+        {image ? (
+          <div className="overflow-hidden rounded-lg border border-purple-800/70 bg-slate-900">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={image} alt="Threads preview" className="h-32 w-full object-cover" />
+          </div>
+        ) : (
+          <div className="flex h-20 items-center justify-center rounded-lg border border-dashed border-purple-800 text-xs text-purple-200/70">
+            Add og:image or twitter:image for a visual card
+          </div>
+        )}
+        <p className="text-[11px] text-purple-300/80">{data.url}</p>
+      </div>
+    </div>
+  );
+}
+
 export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
   const [targetUrl, setTargetUrl] = useState('https://');
   const [loading, setLoading] = useState(false);
@@ -233,7 +318,7 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
 
       {result && (
         <div className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <PreviewCard title="Google Search">
               <GooglePreview data={result} />
             </PreviewCard>
@@ -245,6 +330,12 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
             </PreviewCard>
             <PreviewCard title="LinkedIn">
               <LinkedInPreview data={result} />
+            </PreviewCard>
+            <PreviewCard title="Twitter / X">
+              <TwitterPreview data={result} />
+            </PreviewCard>
+            <PreviewCard title="Threads">
+              <ThreadsPreview data={result} />
             </PreviewCard>
           </div>
 
