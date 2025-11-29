@@ -117,7 +117,12 @@ export async function GET(request: Request) {
     const finalUrl = new URL(response.url || parsedUrl.toString());
     const metadata = extractMetadata(html, finalUrl);
 
-    return NextResponse.json({ ...metadata, sourceUrl: finalUrl.toString() });
+    return NextResponse.json({
+      ...metadata,
+      sourceUrl: finalUrl.toString(),
+      responseStatus: response.status,
+      contentType: response.headers.get('content-type') ?? undefined,
+    });
   } catch (error) {
     console.error('Metadata fetch failed', error);
     return NextResponse.json({ error: 'Unable to fetch metadata for that URL.' }, { status: 500 });

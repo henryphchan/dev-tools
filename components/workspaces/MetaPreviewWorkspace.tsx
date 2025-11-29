@@ -19,7 +19,23 @@ interface MetaPreviewResult {
   siteName?: string;
   favicon?: string;
   metaTags: MetaTag[];
+  sourceUrl?: string;
+  responseStatus?: number;
+  contentType?: string;
 }
+
+const RECOMMENDED_TAGS: { attribute: MetaTag['attribute']; key: string; label: string }[] = [
+  { attribute: 'property', key: 'og:title', label: 'Open Graph title' },
+  { attribute: 'property', key: 'og:description', label: 'Open Graph description' },
+  { attribute: 'property', key: 'og:image', label: 'Open Graph image' },
+  { attribute: 'property', key: 'og:url', label: 'Open Graph URL' },
+  { attribute: 'property', key: 'og:site_name', label: 'Open Graph site name' },
+  { attribute: 'name', key: 'description', label: 'Meta description' },
+  { attribute: 'name', key: 'twitter:card', label: 'Twitter card' },
+  { attribute: 'name', key: 'twitter:title', label: 'Twitter title' },
+  { attribute: 'name', key: 'twitter:description', label: 'Twitter description' },
+  { attribute: 'name', key: 'twitter:image', label: 'Twitter image' },
+];
 
 function PreviewCard({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -125,6 +141,7 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<MetaPreviewResult | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -140,6 +157,7 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
       }
 
       setResult(data);
+      setCopied(false);
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : 'Something went wrong.');
@@ -148,6 +166,41 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
       setLoading(false);
     }
   };
+
+  const copyMetaTags = async () => {
+    if (!result) return;
+    await navigator.clipboard.writeText(JSON.stringify(result.metaTags, null, 2));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const missingTags = useMemo(() => {
+    if (!result) return [] as typeof RECOMMENDED_TAGS;
+    const hasTag = (tag: (typeof RECOMMENDED_TAGS)[number]) =>
+      result.metaTags.some((meta) => meta.attribute === tag.attribute && meta.key.toLowerCase() === tag.key.toLowerCase());
+
+    return RECOMMENDED_TAGS.filter((tag) => !hasTag(tag));
+  }, [result]);
+
+  const additionalSuggestions = useMemo(() => {
+    if (!result) return [] as string[];
+    const suggestions: string[] = [];
+
+    if (!result.image) {
+      suggestions.push('Add an Open Graph or Twitter image for rich previews.');
+    }
+    if (!result.description || result.description.length < 50) {
+      suggestions.push('Write a descriptive meta description (50-160 characters).');
+    }
+    if (result.description && result.description.length > 200) {
+      suggestions.push('Consider shortening the meta description to avoid truncation.');
+    }
+    if (!result.url?.includes('https://')) {
+      suggestions.push('Prefer HTTPS URLs for better trust and sharing.');
+    }
+
+    return suggestions;
+  }, [result]);
 
   return (
     <ToolCard title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
@@ -195,6 +248,61 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
             </PreviewCard>
           </div>
 
+          <div className="grid gap-4 md:grid-cols-2">
+            <PreviewCard title="Actionable suggestions">
+              <div className="space-y-2 text-sm">
+                {missingTags.length === 0 && additionalSuggestions.length === 0 && (
+                  <p className="text-slate-300">Your page already advertises the most common social and search tags.</p>
+                )}
+                {missingTags.length > 0 && (
+                  <div>
+                    <p className="font-semibold text-slate-100">Recommended tags to add</p>
+                    <ul className="mt-1 space-y-1">
+                      {missingTags.map((tag) => (
+                        <li key={`${tag.attribute}-${tag.key}`} className="flex items-start gap-2 text-slate-200">
+                          <span aria-hidden>⚠️</span>
+                          <span>
+                            <span className="font-semibold">{tag.key}</span> — {tag.label}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {additionalSuggestions.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="font-semibold text-slate-100">Quality checks</p>
+                    <ul className="space-y-1">
+                      {additionalSuggestions.map((suggestion, index) => (
+                        <li key={index} className="flex items-start gap-2 text-slate-200">
+                          <span aria-hidden>💡</span>
+                          <span>{suggestion}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </PreviewCard>
+
+            <PreviewCard title="Fetch diagnostics">
+              <dl className="grid grid-cols-3 gap-3 text-sm text-slate-200">
+                <div className="col-span-3 sm:col-span-1">
+                  <dt className="text-xs uppercase tracking-[0.18em] text-slate-400">Resolved URL</dt>
+                  <dd className="break-all text-slate-100">{result.sourceUrl || result.url}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.18em] text-slate-400">Status</dt>
+                  <dd className="text-slate-100">{result.responseStatus ?? 'Unknown'}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.18em] text-slate-400">Content-Type</dt>
+                  <dd className="text-slate-100">{result.contentType ?? 'Unavailable'}</dd>
+                </div>
+              </dl>
+            </PreviewCard>
+          </div>
+
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-slate-100">Detected meta tags</h3>
             <div className="max-h-72 overflow-auto rounded-xl border border-white/10 bg-slate-900/50">
@@ -221,6 +329,18 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
                 </table>
               )}
             </div>
+            {result.metaTags.length > 0 && (
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                <button
+                  type="button"
+                  onClick={copyMetaTags}
+                  className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-slate-100 transition hover:border-white/20"
+                >
+                  {copied ? 'Copied JSON to clipboard' : 'Copy meta tags as JSON'}
+                </button>
+                <p className="text-xs text-slate-400">Useful for debugging or sharing with teammates.</p>
+              </div>
+            )}
           </div>
         </div>
       )}
