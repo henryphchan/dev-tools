@@ -63,8 +63,18 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             placeholder="Search tools..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/50 transition-all"
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 pr-10 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/50 transition-all"
           />
+          {filter && (
+            <button
+              type="button"
+              onClick={() => setFilter('')}
+              className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-200"
+              aria-label="Clear search"
+            >
+              <XMarkIcon className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
