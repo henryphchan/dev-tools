@@ -197,8 +197,6 @@ export function CsvProfilerWorkspace({ tool }: { tool: ToolInfo }) {
         Column: column.name,
         Unique: column.uniqueCount,
         'Null/blank': column.nullCount,
-        Pattern: column.dominantPattern,
-        Coverage: column.patternCoverage,
         'Min length': column.minLength ?? '',
         'Max length': column.maxLength ?? '',
         Min: column.numericStats ? formatNumericStat(column.numericStats.min) : '',
@@ -206,6 +204,8 @@ export function CsvProfilerWorkspace({ tool }: { tool: ToolInfo }) {
         Average: column.numericStats ? formatNumericStat(column.numericStats.average) : '',
         Median: column.numericStats ? formatNumericStat(column.numericStats.median) : '',
         'Std dev': column.numericStats ? formatNumericStat(column.numericStats.stdDev) : '',
+        Pattern: column.dominantPattern,
+        Coverage: column.patternCoverage,
         Samples: column.samples.join(' | '),
       }))
     );
@@ -304,8 +304,6 @@ export function CsvProfilerWorkspace({ tool }: { tool: ToolInfo }) {
                     <th className="text-left py-2 pr-3">Column</th>
                     <th className="text-left py-2 pr-3">Unique</th>
                     <th className="text-left py-2 pr-3">Null/blank</th>
-                    <th className="text-left py-2 pr-3">Pattern</th>
-                    <th className="text-left py-2 pr-3">Coverage</th>
                     <th className="text-left py-2 pr-3">Min length</th>
                     <th className="text-left py-2 pr-3">Max length</th>
                     <th className="text-left py-2 pr-3">Min</th>
@@ -313,6 +311,8 @@ export function CsvProfilerWorkspace({ tool }: { tool: ToolInfo }) {
                     <th className="text-left py-2 pr-3">Average</th>
                     <th className="text-left py-2 pr-3">Median</th>
                     <th className="text-left py-2 pr-3">Std dev</th>
+                    <th className="text-left py-2 pr-3">Pattern</th>
+                    <th className="text-left py-2 pr-3">Coverage</th>
                     <th className="text-left py-2 pr-3">Samples</th>
                   </tr>
                 </thead>
@@ -322,8 +322,6 @@ export function CsvProfilerWorkspace({ tool }: { tool: ToolInfo }) {
                       <td className="py-3 pr-3 font-semibold text-white">{column.name}</td>
                       <td className="py-3 pr-3">{column.uniqueCount}</td>
                       <td className="py-3 pr-3">{column.nullCount}</td>
-                      <td className="py-3 pr-3 font-mono text-xs text-slate-300">{column.dominantPattern}</td>
-                      <td className="py-3 pr-3">{column.patternCoverage}%</td>
                       <td className="py-3 pr-3 text-slate-300">{renderLengthStat(column, 'minLength')}</td>
                       <td className="py-3 pr-3 text-slate-300">{renderLengthStat(column, 'maxLength')}</td>
                       <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'min')}</td>
@@ -331,6 +329,8 @@ export function CsvProfilerWorkspace({ tool }: { tool: ToolInfo }) {
                       <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'average')}</td>
                       <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'median')}</td>
                       <td className="py-3 pr-3 text-slate-300">{renderNumericStat(column.numericStats, 'stdDev')}</td>
+                      <td className="py-3 pr-3 font-mono text-xs text-slate-300">{column.dominantPattern}</td>
+                      <td className="py-3 pr-3">{column.patternCoverage}%</td>
                       <td className="py-3 pr-3 text-slate-300">{column.samples.join(', ') || '—'}</td>
                     </tr>
                   ))}

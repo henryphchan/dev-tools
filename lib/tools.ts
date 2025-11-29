@@ -15,7 +15,9 @@ export type ToolId =
   | 'datetime-diff'
   | 'jwt'
   | 'uuid'
+  | 'lorem-ipsum'
   | 'password-generator'
+  | 'svg-placeholder-generator'
   | 'qr-generator'
   | 'word-cloud'
   | 'regex-tester'
@@ -196,6 +198,18 @@ export const tools: ToolInfo[] = [
     keywords: ['uuid', 'generator', 'random uuid', 'identifier', 'guid'],
   },
   {
+    id: 'lorem-ipsum',
+    slug: 'lorem-ipsum-generator',
+    title: 'Lorem Ipsum Generator',
+    seoTitle: 'Generate Lorem Ipsum sentences or paragraphs | Dev Tools',
+    description: 'Create placeholder sentences or paragraphs with adjustable lengths.',
+    longDescription:
+      'Produce classic lorem ipsum filler tailored to your layout. Choose between sentences or paragraphs, control how long each item is, and export the text for mockups or documentation.',
+    badge: 'Generators',
+    accent: 'Content',
+    keywords: ['lorem ipsum', 'placeholder text', 'dummy text', 'filler content', 'content generator'],
+  },
+  {
     id: 'password-generator',
     slug: 'password-generator',
     title: 'Password Generator & Strength Checker',
@@ -206,6 +220,18 @@ export const tools: ToolInfo[] = [
     badge: 'Security',
     accent: 'Passwords',
     keywords: ['password generator', 'strong password', 'entropy', 'brute force time', 'password strength'],
+  },
+  {
+    id: 'svg-placeholder-generator',
+    slug: 'svg-placeholder-generator',
+    title: 'SVG Placeholder Generator',
+    seoTitle: 'Generate SVG placeholders with custom text and colors | Dev Tools',
+    description: 'Create on-the-fly SVG placeholders with custom text, colors, and dimensions.',
+    longDescription:
+      'Quickly craft shareable placeholder images for mocks or social previews. Set width, height, background/text colors, font size, and a custom label while copying inline SVG markup or Base64 data URIs instantly.',
+    badge: 'Generators',
+    accent: 'Images',
+    keywords: ['svg placeholder', 'placeholder generator', 'base64 svg', 'placeholder image', 'mock image'],
   },
   {
     id: 'qr-generator',
