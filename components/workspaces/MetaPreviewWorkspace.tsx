@@ -134,7 +134,17 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
     setError(null);
 
     try {
-      const response = await fetch(`/api/meta-preview?url=${encodeURIComponent(targetUrl)}`);
+      const normalizedUrl = (() => {
+        const trimmed = targetUrl.trim();
+        if (!trimmed) return trimmed;
+        return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+      })();
+
+      if (normalizedUrl !== targetUrl) {
+        setTargetUrl(normalizedUrl);
+      }
+
+      const response = await fetch(`/api/meta-preview?url=${encodeURIComponent(normalizedUrl)}`);
       const data = await response.json();
 
       if (!response.ok) {
