@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title: 'Dev Tools | Free online formatters, converters, and calculators',
     description:
       'Curated utilities for developers: format JSON/XML/SQL, handle URL & Base64 encoding, convert timezones, and evaluate bitwise logic in one place.',
-    url: 'https://dev-tools.example.com',
+    url: 'https://devtools.henrychan.tech',
     siteName: 'Dev Tools',
     locale: 'en_US',
     type: 'website',
