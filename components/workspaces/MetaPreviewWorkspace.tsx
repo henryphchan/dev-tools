@@ -152,37 +152,35 @@ function TwitterPreview({ data }: { data: MetaPreviewResult }) {
   const image = data.twitterImage || data.image;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-sky-800/60 bg-gradient-to-br from-sky-950 via-slate-950 to-slate-950">
-      <div className="flex items-center justify-between border-b border-white/10 px-3 py-2 text-xs text-sky-100/80">
+    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-[#0f1419] text-slate-100 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+      <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-[0.18em] text-slate-400">
         <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-sky-400" aria-hidden />
+          <span className="h-2 w-2 rounded-full bg-slate-500" aria-hidden />
           Twitter / X
         </span>
-        <span className="rounded-full border border-sky-500/60 px-2 py-0.5 text-[11px] uppercase tracking-[0.18em] text-sky-100">
+        <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[10px] font-semibold text-slate-200">
           {cardType}
         </span>
       </div>
-      <div className="p-3 space-y-3">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sky-200/80">
-          {data.twitterSite || data.siteName || 'Account'}
-          {data.twitterCreator && <span className="text-slate-500">•</span>}
-          {data.twitterCreator}
+      {image && (
+        <div className="overflow-hidden border-y border-slate-800 bg-black">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={image} alt="Twitter preview" className="h-44 w-full object-cover" />
         </div>
-        {image ? (
-          <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-900">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt="Twitter preview" className="h-40 w-full object-cover" />
-          </div>
-        ) : (
-          <div className="flex h-24 items-center justify-center rounded-lg border border-dashed border-slate-800 text-xs text-slate-400">
-            Provide twitter:image for a rich card
-          </div>
+      )}
+      {!image && (
+        <div className="flex h-28 items-center justify-center border-y border-dashed border-slate-800 bg-[#0b0e12] text-xs text-slate-500">
+          Provide twitter:image for a large summary card
+        </div>
+      )}
+      <div className="space-y-1 px-3 py-3">
+        <p className="text-[11px] font-medium text-slate-400">{data.twitterSite || data.siteName || 'Example account'}</p>
+        <p className="text-base font-semibold leading-snug line-clamp-2">{title}</p>
+        <p className="text-sm text-slate-200/90 leading-snug line-clamp-3">{description}</p>
+        <p className="text-[11px] text-slate-500">{data.url}</p>
+        {data.twitterCreator && (
+          <p className="text-[11px] text-slate-500">Creator: {data.twitterCreator}</p>
         )}
-        <div className="space-y-1 text-slate-50">
-          <p className="text-base font-semibold line-clamp-2">{title}</p>
-          <p className="text-sm text-slate-200/90 line-clamp-3">{description}</p>
-          <p className="text-[11px] text-slate-400">{data.url}</p>
-        </div>
       </div>
     </div>
   );
@@ -194,30 +192,31 @@ function ThreadsPreview({ data }: { data: MetaPreviewResult }) {
   const image = data.image || data.twitterImage;
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-black px-4 py-3 text-slate-50 shadow-lg">
-      <div className="flex items-center justify-between text-xs text-slate-200/80">
+    <div className="rounded-2xl border border-slate-800 bg-black/90 px-4 py-3 text-slate-50 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+      <div className="flex items-center justify-between text-xs text-slate-300">
         <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-slate-200" aria-hidden />
-          Threads
+          <span className="h-2 w-2 rounded-full bg-white" aria-hidden />
+          Threads link card
         </span>
-        <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] uppercase tracking-[0.18em] text-slate-100">
-          OG preview
+        <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+          Preview
         </span>
       </div>
       <div className="mt-3 space-y-2">
-        <p className="text-base font-semibold line-clamp-2">{title}</p>
-        <p className="text-sm text-slate-200/90 line-clamp-3">{description}</p>
+        <p className="text-sm text-slate-400">{data.siteName || 'threads.net'}</p>
+        <p className="text-base font-semibold leading-snug line-clamp-2">{title}</p>
+        <p className="text-sm text-slate-200/90 leading-snug line-clamp-3">{description}</p>
         {image ? (
-          <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-900">
+          <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt="Threads preview" className="h-32 w-full object-cover" />
+            <img src={image} alt="Threads preview" className="h-36 w-full object-cover" />
           </div>
         ) : (
-          <div className="flex h-20 items-center justify-center rounded-lg border border-dashed border-slate-700 text-xs text-slate-300/80">
+          <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-slate-700 text-xs text-slate-300/80">
             Add og:image or twitter:image for a visual card
           </div>
         )}
-        <p className="text-[11px] text-slate-400">{data.url}</p>
+        <p className="text-[11px] text-slate-500">{data.url}</p>
       </div>
     </div>
   );
