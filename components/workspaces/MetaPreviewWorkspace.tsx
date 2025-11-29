@@ -79,21 +79,21 @@ function GooglePreview({ data }: { data: MetaPreviewResult }) {
 
 function FacebookPreview({ data }: { data: MetaPreviewResult }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+    <div className="overflow-hidden rounded-xl border border-slate-300/70 bg-white shadow-sm text-slate-900">
       {data.image ? (
-        <div className="h-40 w-full overflow-hidden bg-slate-800">
+        <div className="h-44 w-full overflow-hidden bg-slate-200">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={data.image} alt="Facebook preview" className="h-full w-full object-cover" />
         </div>
       ) : (
-        <div className="flex h-40 items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 text-xs text-slate-400">
+        <div className="flex h-44 items-center justify-center bg-slate-200 text-xs text-slate-500">
           No social image found
         </div>
       )}
-      <div className="space-y-1 p-3">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">{data.siteName ?? 'Your Site'}</p>
-        <p className="text-base font-semibold text-slate-50 line-clamp-2">{data.title || 'Page title'}</p>
-        <p className="text-sm text-slate-200 line-clamp-2">
+      <div className="space-y-1 border-t border-slate-200 px-4 py-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{data.siteName ?? 'Example.com'}</p>
+        <p className="text-base font-semibold leading-snug line-clamp-2">{data.title || 'Page title'}</p>
+        <p className="text-sm text-slate-600 leading-snug line-clamp-2">
           {data.description || 'Meta description text is recommended for social sharing.'}
         </p>
       </div>
@@ -123,20 +123,22 @@ function WhatsappPreview({ data }: { data: MetaPreviewResult }) {
 
 function LinkedInPreview({ data }: { data: MetaPreviewResult }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-950">
-      {data.image && (
-        <div className="h-32 w-full overflow-hidden border-b border-slate-800 bg-slate-800">
+    <div className="overflow-hidden rounded-xl border border-slate-300/80 bg-white text-slate-900 shadow-sm">
+      {data.image ? (
+        <div className="h-40 w-full overflow-hidden bg-slate-200">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={data.image} alt="LinkedIn preview" className="h-full w-full object-cover" />
         </div>
+      ) : (
+        <div className="flex h-32 items-center justify-center bg-slate-100 text-xs text-slate-500">Add og:image for visual card</div>
       )}
-      <div className="space-y-1 p-3">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">{data.siteName ?? 'LinkedIn'}</p>
-        <p className="font-semibold text-slate-50 line-clamp-2">{data.title || 'LinkedIn headline'}</p>
-        <p className="text-sm text-slate-200 line-clamp-2">
+      <div className="space-y-1 border-t border-slate-200 px-4 py-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{data.siteName ?? 'LinkedIn'}</p>
+        <p className="text-base font-semibold text-slate-900 line-clamp-2">{data.title || 'LinkedIn headline'}</p>
+        <p className="text-sm text-slate-600 leading-snug line-clamp-2">
           {data.description || 'Add Open Graph tags for richer LinkedIn link previews.'}
         </p>
-        <p className="text-[11px] text-slate-400">{data.url}</p>
+        <p className="text-[11px] text-slate-500">{data.url}</p>
       </div>
     </div>
   );
@@ -192,30 +194,30 @@ function ThreadsPreview({ data }: { data: MetaPreviewResult }) {
   const image = data.image || data.twitterImage;
 
   return (
-    <div className="rounded-xl border border-purple-700/50 bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 p-4 text-purple-50">
-      <div className="flex items-center justify-between text-xs text-purple-200/80">
+    <div className="rounded-xl border border-slate-800 bg-black px-4 py-3 text-slate-50 shadow-lg">
+      <div className="flex items-center justify-between text-xs text-slate-200/80">
         <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-purple-400" aria-hidden />
+          <span className="h-2 w-2 rounded-full bg-slate-200" aria-hidden />
           Threads
         </span>
-        <span className="rounded-full border border-purple-600/60 px-2 py-0.5 text-[11px] uppercase tracking-[0.18em] text-purple-50">
+        <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] uppercase tracking-[0.18em] text-slate-100">
           OG preview
         </span>
       </div>
       <div className="mt-3 space-y-2">
         <p className="text-base font-semibold line-clamp-2">{title}</p>
-        <p className="text-sm text-purple-100/90 line-clamp-3">{description}</p>
+        <p className="text-sm text-slate-200/90 line-clamp-3">{description}</p>
         {image ? (
-          <div className="overflow-hidden rounded-lg border border-purple-800/70 bg-slate-900">
+          <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-900">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={image} alt="Threads preview" className="h-32 w-full object-cover" />
           </div>
         ) : (
-          <div className="flex h-20 items-center justify-center rounded-lg border border-dashed border-purple-800 text-xs text-purple-200/70">
+          <div className="flex h-20 items-center justify-center rounded-lg border border-dashed border-slate-700 text-xs text-slate-300/80">
             Add og:image or twitter:image for a visual card
           </div>
         )}
-        <p className="text-[11px] text-purple-300/80">{data.url}</p>
+        <p className="text-[11px] text-slate-400">{data.url}</p>
       </div>
     </div>
   );
