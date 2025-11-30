@@ -140,6 +140,11 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
         return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
       })();
 
+      if (!normalizedUrl) {
+        setError('Please enter a URL.');
+        return;
+      }
+
       if (normalizedUrl !== targetUrl) {
         setTargetUrl(normalizedUrl);
       }
@@ -206,8 +211,8 @@ export function MetaPreviewWorkspace({ tool }: { tool: ToolInfo }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
             id="target-url"
-            type="url"
-            required
+            type="text"
+            inputMode="url"
             value={targetUrl}
             onChange={(e) => setTargetUrl(e.target.value)}
             placeholder="https://example.com"
