@@ -46,11 +46,6 @@ export default function RootLayout({
           name="google-site-verification"
           content="On_l8LHQhbQ5SlZ0hBafctEapVfOTrwfzjAgDgzu-DU"
         />
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3237862192285184"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
         {/* Google tag (gtag.js) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-Q1WT8Q9QYE"

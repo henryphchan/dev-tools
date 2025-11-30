@@ -23,7 +23,6 @@ export type ToolId =
   | 'regex-tester'
   | 'digest'
   | 'string-case'
-  | 'meta-preview'
   | 'slugify'
   | 'chmod'
   | 'photo-exif'
@@ -281,18 +280,6 @@ export const tools: ToolInfo[] = [
     badge: 'Security',
     accent: 'Integrity',
     keywords: ['hash', 'checksum', 'md5', 'sha256', 'blake2'],
-  },
-  {
-    id: 'meta-preview',
-    slug: 'web-meta-tags-preview',
-    title: 'Web Meta Tags Preview',
-    seoTitle: 'Preview Open Graph & search snippets from any URL | Dev Tools',
-    description: 'Fetch a page and preview how its meta tags render on search and social platforms.',
-    longDescription:
-      'Enter any URL to inspect meta tags and see simulated previews for Google, Facebook, WhatsApp, and LinkedIn. Spot missing Open Graph fields early and tighten up your SEO snippets.',
-    badge: 'SEO',
-    accent: 'Metadata',
-    keywords: ['meta tags', 'open graph', 'seo preview', 'link preview', 'social share'],
   },
   {
     id: 'json',
