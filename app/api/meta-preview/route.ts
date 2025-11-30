@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { load } from 'cheerio';
 
+export const dynamic = 'force-dynamic';
+
 interface MetaTag {
   attribute: 'name' | 'property';
   key: string;
