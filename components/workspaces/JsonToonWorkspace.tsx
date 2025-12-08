@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import yaml from 'js-yaml';
+import { encode, decode } from '../../lib/toon';
 import { ToolInfo } from '../../lib/tools';
 import { ArrowPathRoundedSquareIcon, ClipboardDocumentCheckIcon, CursorArrowRaysIcon } from '../icons';
 import ToolCard from '../ToolCard';
@@ -35,11 +35,7 @@ function convertJsonToToon(jsonText: string): ConversionResult {
 
   try {
     const parsed = JSON.parse(jsonText);
-    const toon = yaml.dump(parsed, {
-      noRefs: true,
-      lineWidth: 100,
-      sortKeys: true,
-    });
+    const toon = encode(parsed);
 
     return { output: toon.trimEnd(), error: '' };
   } catch (error) {
@@ -54,7 +50,7 @@ function convertToonToJson(toonText: string): ConversionResult {
   if (!toonText.trim()) return { output: '', error: '' };
 
   try {
-    const parsed = yaml.load(toonText, { json: true });
+    const parsed = decode(toonText);
     const normalized = JSON.stringify(parsed, null, 2);
     if (typeof normalized !== 'string') {
       return { output: '', error: 'Result could not be stringified' };
