@@ -13,21 +13,22 @@ type ConversionResult = {
 };
 
 const exampleJson = {
-  title: 'TOON launch packet',
-  owner: {
-    name: 'A. Lovelace',
-    role: 'Prompt engineer',
-  },
-  checkpoints: [
-    { name: 'Sketch schema', status: 'done' },
-    { name: 'Ship converter', status: 'in-progress' },
-    { name: 'Collect feedback', status: 'todo' },
+  products: [
+    {
+      id: 101,
+      in_stock: true,
+      price: 299.99,
+      product_name: 'Wireless Noise Cancelling Headphones',
+      tags: ['audio', 'bluetooth', 'premium'],
+    },
+    {
+      id: 102,
+      in_stock: true,
+      price: 145.5,
+      product_name: 'Ergonomic Mechanical Keyboard',
+      tags: ['peripherals', 'office', 'typing'],
+    },
   ],
-  metadata: {
-    lastUpdated: '2025-02-22T10:15:00Z',
-    tags: ['llm', 'formats', 'handoff'],
-    approvals: 2,
-  },
 };
 
 function convertJsonToToon(jsonText: string): ConversionResult {
@@ -151,7 +152,7 @@ export function JsonToonWorkspace({ tool }: { tool: ToolInfo }) {
               </div>
             </div>
             <pre className="code-output min-h-[160px]" aria-label="TOON output">
-{toonOutput || 'Converted TOON will appear here'}
+              {toonOutput || 'Converted TOON will appear here'}
             </pre>
           </div>
         </div>
@@ -202,7 +203,7 @@ export function JsonToonWorkspace({ tool }: { tool: ToolInfo }) {
               </button>
             </div>
             <pre className="code-output min-h-[160px]" aria-label="JSON output">
-{jsonOutput || 'Converted JSON will appear here'}
+              {jsonOutput || 'Converted JSON will appear here'}
             </pre>
           </div>
         </div>

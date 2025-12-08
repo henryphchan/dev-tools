@@ -21,6 +21,12 @@ function isArrayOfPrimitives(arr: any[]): boolean {
   return arr.every(isPrimitive);
 }
 
+function isCellCompatible(value: any): boolean {
+  if (isPrimitive(value)) return true;
+  if (Array.isArray(value) && isArrayOfPrimitives(value)) return true;
+  return false;
+}
+
 export function encode(data: any, indentLevel = 0): string {
   const indent = '  '.repeat(indentLevel);
 
@@ -45,12 +51,18 @@ export function encode(data: any, indentLevel = 0): string {
         lines.push(`${indent}${key}[${value.length}]: ${value.join(',')}`);
       } else {
         const commonKeys = getCommonKeys(value);
-        const allValuesPrimitive = value.every(obj => Object.values(obj).every(v => isPrimitive(v) || v === null));
+        const allValuesCompatible = value.every(obj => Object.values(obj).every(v => isCellCompatible(v)));
 
-        if (commonKeys && allValuesPrimitive) {
+        if (commonKeys && allValuesCompatible) {
           lines.push(`${indent}${key}[${value.length}]{${commonKeys.join(',')}}:`);
           for (const item of value) {
-            const row = commonKeys.map(k => item[k]).join(',');
+            const row = commonKeys.map(k => {
+              const val = item[k];
+              if (Array.isArray(val)) {
+                return `[${val.join(', ')}]`;
+              }
+              return val;
+            }).join(',');
             lines.push(`${indent}  ${row}`);
           }
         } else {
@@ -59,10 +71,10 @@ export function encode(data: any, indentLevel = 0): string {
             const itemEncoded = encode(item, 0);
             const itemLines = itemEncoded.split('\n');
             if (itemLines.length > 0) {
-                lines.push(`${indent}  - ${itemLines[0]}`);
-                for (let i = 1; i < itemLines.length; i++) {
-                    lines.push(`${indent}    ${itemLines[i]}`);
-                }
+              lines.push(`${indent}  - ${itemLines[0]}`);
+              for (let i = 1; i < itemLines.length; i++) {
+                lines.push(`${indent}    ${itemLines[i]}`);
+              }
             }
           }
         }
@@ -83,6 +95,30 @@ export function decode(toon: string): any {
 
   let lineIdx = 0;
 
+  function splitByComma(str: string): string[] {
+    const result: string[] = [];
+    let current = '';
+    let depth = 0; // [], {}, ()
+
+    for (let i = 0; i < str.length; i++) {
+      const char = str[i];
+      if (['[', '{', '('].includes(char)) {
+        depth++;
+        current += char;
+      } else if ([']', '}', ')'].includes(char)) {
+        depth--;
+        current += char;
+      } else if (char === ',' && depth === 0) {
+        result.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    result.push(current);
+    return result;
+  }
+
   function parseBlock(minIndent: number): any {
     const result: any = {};
 
@@ -102,60 +138,64 @@ export function decode(toon: string): any {
 
       const tableMatch = content.match(/^([^\[]+)\[(\d+)\]\{([^}]+)\}:$/);
       if (tableMatch) {
-          const key = tableMatch[1];
-          const cols = tableMatch[3].split(',');
+        const key = tableMatch[1];
+        // Determine column names
+        const colsStr = tableMatch[3];
+        const cols = splitByComma(colsStr).map(s => s.trim());
 
-          const arr: any[] = [];
+        const arr: any[] = [];
+        lineIdx++;
+
+        while (lineIdx < lines.length) {
+          const nextLine = lines[lineIdx];
+          const nextIndent = nextLine.search(/\S|$/);
+          if (nextIndent <= indent) break;
+
+          // Use splitByComma instead of split(',')
+          const vals = splitByComma(nextLine.trim());
+          const obj: any = {};
+          cols.forEach((col, i) => {
+            obj[col] = parseValue(vals[i]);
+          });
+          arr.push(obj);
           lineIdx++;
+        }
 
-          while (lineIdx < lines.length) {
-              const nextLine = lines[lineIdx];
-              const nextIndent = nextLine.search(/\S|$/);
-              if (nextIndent <= indent) break;
-
-              const vals = nextLine.trim().split(',');
-              const obj: any = {};
-              cols.forEach((col, i) => {
-                  obj[col] = parseValue(vals[i]);
-              });
-              arr.push(obj);
-              lineIdx++;
-          }
-
-          result[key] = arr;
-          continue;
+        result[key] = arr;
+        continue;
       }
 
       const arrayMatch = content.match(/^([^\[]+)\[(\d+)\]:\s*(.*)$/);
       if (arrayMatch) {
-          const key = arrayMatch[1];
-          const trail = arrayMatch[3];
+        const key = arrayMatch[1];
+        const trail = arrayMatch[3];
 
-          if (trail) {
-              const vals = trail.split(',').map(parseValue);
-              result[key] = vals;
-              lineIdx++;
-          } else {
-              lineIdx++;
-              const items = parseList(indent + 1);
-              result[key] = items;
-          }
-          continue;
+        if (trail) {
+          // Parse inline list
+          const vals = splitByComma(trail).map(parseValue);
+          result[key] = vals;
+          lineIdx++;
+        } else {
+          lineIdx++;
+          const items = parseList(indent + 1);
+          result[key] = items;
+        }
+        continue;
       }
 
       const keyMatch = content.match(/^([^:]+):\s*(.*)$/);
       if (keyMatch) {
-          const key = keyMatch[1];
-          const valStr = keyMatch[2];
+        const key = keyMatch[1];
+        const valStr = keyMatch[2];
 
-          if (valStr) {
-              result[key] = parseValue(valStr);
-              lineIdx++;
-          } else {
-              lineIdx++;
-              result[key] = parseBlock(indent + 1);
-          }
-          continue;
+        if (valStr) {
+          result[key] = parseValue(valStr);
+          lineIdx++;
+        } else {
+          lineIdx++;
+          result[key] = parseBlock(indent + 1);
+        }
+        continue;
       }
 
       lineIdx++;
@@ -165,53 +205,61 @@ export function decode(toon: string): any {
   }
 
   function parseList(minIndent: number): any[] {
-      const arr: any[] = [];
+    const arr: any[] = [];
 
-      while (lineIdx < lines.length) {
-          const line = lines[lineIdx];
-          if (!line.trim()) {
-              lineIdx++;
-              continue;
-          }
-
-          const indent = line.search(/\S|$/);
-          if (indent < minIndent) break;
-
-          const content = line.trim();
-          if (content.startsWith('- ')) {
-              const itemIndent = indent + 2;
-              const rest = content.substring(2);
-              const firstKV = parseLineKV(rest);
-
-              lineIdx++;
-              const restObj = parseBlock(itemIndent);
-
-              const fullObj = { ...firstKV, ...restObj };
-              arr.push(fullObj);
-          } else {
-              break;
-          }
+    while (lineIdx < lines.length) {
+      const line = lines[lineIdx];
+      if (!line.trim()) {
+        lineIdx++;
+        continue;
       }
-      return arr;
+
+      const indent = line.search(/\S|$/);
+      if (indent < minIndent) break;
+
+      const content = line.trim();
+      if (content.startsWith('- ')) {
+        const itemIndent = indent + 2;
+        const rest = content.substring(2);
+        const firstKV = parseLineKV(rest);
+
+        lineIdx++;
+        const restObj = parseBlock(itemIndent);
+
+        const fullObj = { ...firstKV, ...restObj };
+        arr.push(fullObj);
+      } else {
+        break;
+      }
+    }
+    return arr;
   }
 
   function parseLineKV(str: string): any {
-      const match = str.match(/^([^:]+):\s*(.*)$/);
-      if (match) {
-          const k = match[1];
-          const v = match[2];
-          if (v) return { [k]: parseValue(v) };
-      }
-      return {};
+    const match = str.match(/^([^:]+):\s*(.*)$/);
+    if (match) {
+      const k = match[1];
+      const v = match[2];
+      if (v) return { [k]: parseValue(v) };
+    }
+    return {};
   }
 
   function parseValue(val: string): any {
-      if (val === undefined || val === null) return null;
-      val = val.trim();
-      if (val === 'true') return true;
-      if (val === 'false') return false;
-      if (!isNaN(Number(val)) && val !== '') return Number(val);
-      return val;
+    if (val === undefined || val === null) return null;
+    val = val.trim();
+
+    // Handle inline arrays
+    if (val.startsWith('[') && val.endsWith(']')) {
+      const inner = val.substring(1, val.length - 1);
+      if (!inner.trim()) return [];
+      return splitByComma(inner).map(parseValue);
+    }
+
+    if (val === 'true') return true;
+    if (val === 'false') return false;
+    if (!isNaN(Number(val)) && val !== '') return Number(val);
+    return val;
   }
 
   return parseBlock(0);
