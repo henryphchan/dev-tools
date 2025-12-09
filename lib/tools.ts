@@ -27,7 +27,8 @@ export type ToolId =
   | 'slugify'
   | 'chmod'
   | 'photo-exif'
-  | 'webp-converter';
+  | 'webp-converter'
+  | 'keycode-visualizer';
 
 export interface ToolInfo {
   id: ToolId;
@@ -389,6 +390,18 @@ export const tools: ToolInfo[] = [
     badge: 'Text & Analysis',
     accent: 'Writing',
     keywords: ['markdown', 'preview', 'editor', 'live preview', 'md', 'html preview'],
+  },
+  {
+    id: 'keycode-visualizer',
+    slug: 'keycode-visualizer',
+    title: 'Keycode Event Visualizer',
+    seoTitle: 'Online Javascript Keycode Event Visualizer | Dev Tools',
+    description: 'Captures keyboard events and displays the event.key, event.code, event.which, and modifier keys.',
+    longDescription:
+      'The user presses any key, and a large display shows the JS event codes. Essential for developers building keyboard navigation, games, or accessibility features.',
+    badge: 'Development',
+    accent: 'Keyboard',
+    keywords: ['keycode', 'event', 'visualizer', 'keyboard', 'navigation', 'accessibility'],
   },
 ];
 
