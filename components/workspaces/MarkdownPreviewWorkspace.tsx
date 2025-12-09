@@ -5,10 +5,28 @@ import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ToolInfo } from '../../lib/tools';
 import ToolCard from '../ToolCard';
+import { ClipboardDocumentCheckIcon, XMarkIcon } from '../icons';
+import { copyToClipboard } from './utils';
+
+const CHEATSHEET_ITEMS = [
+    { label: 'Heading 1', code: '# Header 1' },
+    { label: 'Heading 2', code: '## Header 2' },
+    { label: 'Bold', code: '**bold text**' },
+    { label: 'Italic', code: '_italic text_' },
+    { label: 'Blockquote', code: '> quote' },
+    { label: 'Unordered List', code: '- Item 1\n- Item 2' },
+    { label: 'Ordered List', code: '1. Item 1\n2. Item 2' },
+    { label: 'Code', code: '`inline code`' },
+    { label: 'Code Block', code: '```\ncode block\n```' },
+    { label: 'Link', code: '[link text](url)' },
+    { label: 'Image', code: '![alt text](url)' },
+    { label: 'Horizontal Rule', code: '---' },
+];
 
 export function MarkdownPreviewWorkspace({ tool }: { tool: ToolInfo }) {
     const [markdown, setMarkdown] = useState<string>('# Hello World\n\nStart typing **markdown** on the left to see the _preview_ on the right!');
     const [activeLine, setActiveLine] = useState<number | null>(null);
+    const [showCheatsheet, setShowCheatsheet] = useState(false);
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
@@ -120,17 +138,51 @@ export function MarkdownPreviewWorkspace({ tool }: { tool: ToolInfo }) {
 
     return (
         <ToolCard title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
+            {showCheatsheet && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowCheatsheet(false)}>
+                    <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl animate-fade-in" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                            <h3 className="text-xl font-bold text-white">Markdown Cheatsheet</h3>
+                            <button
+                                onClick={() => setShowCheatsheet(false)}
+                                className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-lg"
+                            >
+                                <XMarkIcon className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {CHEATSHEET_ITEMS.map((item) => (
+                                <div key={item.label} className="bg-white/5 rounded-xl p-3 border border-white/5 hover:border-white/10 transition-colors">
+                                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{item.label}</p>
+                                    <code className="block bg-black/30 rounded-lg p-2 text-sm font-mono text-brand-200 break-words whitespace-pre-wrap">
+                                        {item.code}
+                                    </code>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[600px] min-h-0">
                 {/* Input Area */}
                 <div className="flex flex-col gap-2 min-h-0">
                     <div className="flex justify-between items-center text-sm text-slate-400">
                         <span>Markdown Input</span>
-                        <button
-                            onClick={() => setMarkdown('')}
-                            className="hover:text-white transition-colors"
-                        >
-                            Clear
-                        </button>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowCheatsheet(true)}
+                                className="hover:text-brand transition-colors font-medium"
+                            >
+                                Cheatsheet
+                            </button>
+                            <button
+                                onClick={() => setMarkdown('')}
+                                className="hover:text-white transition-colors"
+                            >
+                                Clear
+                            </button>
+                        </div>
                     </div>
                     <textarea
                         ref={textareaRef}
