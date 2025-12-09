@@ -26,7 +26,8 @@ export type ToolId =
   | 'slugify'
   | 'chmod'
   | 'photo-exif'
-  | 'webp-converter';
+  | 'webp-converter'
+  | 'tailwind-palette-generator';
 
 export interface ToolInfo {
   id: ToolId;
@@ -376,6 +377,18 @@ export const tools: ToolInfo[] = [
     badge: 'Media',
     accent: 'Imaging',
     keywords: ['exif', 'photo metadata', 'gps tags', 'timezone', 'image editing'],
+  },
+  {
+    id: 'tailwind-palette-generator',
+    slug: 'tailwind-palette-generator',
+    title: 'Tailwind Palette Generator',
+    seoTitle: 'Generate Tailwind CSS Color Palette (50-950) | Dev Tools',
+    description: 'Generate a Tailwind CSS color palette (50-950) from a single base color.',
+    longDescription:
+      'Enter a base hex color to generate a complete Tailwind CSS palette including shades 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, and 950. Copy the entire object for your tailwind.config.js or individual hex codes.',
+    badge: 'Generators',
+    accent: 'Colors',
+    keywords: ['tailwind', 'color palette', 'generator', 'design', 'css', 'hex'],
   },
 ];
 
