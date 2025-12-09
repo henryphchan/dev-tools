@@ -1,5 +1,6 @@
 export type ToolId =
   | 'json'
+  | 'markdown-preview'
   | 'xml'
   | 'sql'
   | 'encode'
@@ -376,6 +377,18 @@ export const tools: ToolInfo[] = [
     badge: 'Media',
     accent: 'Imaging',
     keywords: ['exif', 'photo metadata', 'gps tags', 'timezone', 'image editing'],
+  },
+  {
+    id: 'markdown-preview',
+    slug: 'markdown-live-preview',
+    title: 'Markdown Live Preview',
+    seoTitle: 'Online Markdown Editor with Live Preview | Dev Tools',
+    description: 'Real-time split-pane Markdown editor and previewer.',
+    longDescription:
+      'Write Markdown on the left and see the rendered HTML on the right instantly. Perfect for drafting content, checking syntax, or previewing README files.',
+    badge: 'Text & Analysis',
+    accent: 'Writing',
+    keywords: ['markdown', 'preview', 'editor', 'live preview', 'md', 'html preview'],
   },
 ];
 

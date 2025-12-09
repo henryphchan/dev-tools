@@ -11,6 +11,7 @@ import { PasswordGeneratorWorkspace } from './workspaces/PasswordGeneratorWorksp
 import { SvgPlaceholderWorkspace } from './workspaces/SvgPlaceholderWorkspace';
 import { SlugifyWorkspace } from './workspaces/SlugifyWorkspace';
 import { UuidWorkspace } from './workspaces/UuidWorkspace';
+import { MarkdownPreviewWorkspace } from './workspaces/MarkdownPreviewWorkspace';
 
 // Map tool IDs to dedicated workspace components. Tools not listed here fall back to the
 // legacy monolithic workspace so we can migrate incrementally without breaking routes.
@@ -23,6 +24,7 @@ const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: To
   'svg-placeholder-generator': SvgPlaceholderWorkspace,
   slugify: SlugifyWorkspace,
   uuid: UuidWorkspace,
+  'markdown-preview': MarkdownPreviewWorkspace,
 };
 
 export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
