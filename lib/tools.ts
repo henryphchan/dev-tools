@@ -1,5 +1,6 @@
 export type ToolId =
   | 'json'
+  | 'markdown-preview'
   | 'xml'
   | 'sql'
   | 'encode'
@@ -28,6 +29,7 @@ export type ToolId =
   | 'photo-exif'
   | 'webp-converter'
   | 'tailwind-palette-generator';
+  | 'keycode-visualizer';
 
 export interface ToolInfo {
   id: ToolId;
@@ -389,6 +391,28 @@ export const tools: ToolInfo[] = [
     badge: 'Generators',
     accent: 'Colors',
     keywords: ['tailwind', 'color palette', 'generator', 'design', 'css', 'hex'],
+    id: 'markdown-preview',
+    slug: 'markdown-live-preview',
+    title: 'Markdown Live Preview',
+    seoTitle: 'Online Markdown Editor with Live Preview | Dev Tools',
+    description: 'Real-time split-pane Markdown editor and previewer.',
+    longDescription:
+      'Write Markdown on the left and see the rendered HTML on the right instantly. Perfect for drafting content, checking syntax, or previewing README files.',
+    badge: 'Text & Analysis',
+    accent: 'Writing',
+    keywords: ['markdown', 'preview', 'editor', 'live preview', 'md', 'html preview'],
+  },
+  {
+    id: 'keycode-visualizer',
+    slug: 'keycode-visualizer',
+    title: 'Keycode Event Visualizer',
+    seoTitle: 'Online Javascript Keycode Event Visualizer | Dev Tools',
+    description: 'Captures keyboard events and displays the event.key, event.code, event.which, and modifier keys.',
+    longDescription:
+      'The user presses any key, and a large display shows the JS event codes. Essential for developers building keyboard navigation, games, or accessibility features.',
+    badge: 'Development',
+    accent: 'Keyboard',
+    keywords: ['keycode', 'event', 'visualizer', 'keyboard', 'navigation', 'accessibility'],
   },
 ];
 

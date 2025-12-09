@@ -11,6 +11,8 @@ import { PasswordGeneratorWorkspace } from './workspaces/PasswordGeneratorWorksp
 import { SvgPlaceholderWorkspace } from './workspaces/SvgPlaceholderWorkspace';
 import { SlugifyWorkspace } from './workspaces/SlugifyWorkspace';
 import { UuidWorkspace } from './workspaces/UuidWorkspace';
+import { MarkdownPreviewWorkspace } from './workspaces/MarkdownPreviewWorkspace';
+import { KeycodeVisualizerWorkspace } from './workspaces/KeycodeVisualizerWorkspace';
 
 import { ColorPaletteWorkspace } from './workspaces/ColorPaletteWorkspace';
 
@@ -26,6 +28,8 @@ const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: To
   slugify: SlugifyWorkspace,
   uuid: UuidWorkspace,
   'tailwind-palette-generator': ColorPaletteWorkspace,
+  'markdown-preview': MarkdownPreviewWorkspace,
+  'keycode-visualizer': KeycodeVisualizerWorkspace,
 };
 
 export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
