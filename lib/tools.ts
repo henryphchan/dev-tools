@@ -28,7 +28,7 @@ export type ToolId =
   | 'chmod'
   | 'photo-exif'
   | 'webp-converter'
-  | 'tailwind-palette-generator';
+  | 'tailwind-palette-generator'
   | 'keycode-visualizer';
 
 export interface ToolInfo {
@@ -391,6 +391,8 @@ export const tools: ToolInfo[] = [
     badge: 'Generators',
     accent: 'Colors',
     keywords: ['tailwind', 'color palette', 'generator', 'design', 'css', 'hex'],
+  },
+  {
     id: 'markdown-preview',
     slug: 'markdown-live-preview',
     title: 'Markdown Live Preview',
