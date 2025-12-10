@@ -65,7 +65,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             onChange={(e) => setFilter(e.target.value)}
             className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 pr-10 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/50 transition-all"
           />
-          {filter && (
+          {filter ? (
             <button
               type="button"
               onClick={() => setFilter('')}
@@ -74,6 +74,12 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             >
               <XMarkIcon className="w-4 h-4" />
             </button>
+          ) : (
+            <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+              <kbd className="hidden lg:inline-flex items-center h-5 px-1.5 text-[10px] font-medium text-slate-500 bg-white/5 border border-white/10 rounded">
+                ⌘K
+              </kbd>
+            </div>
           )}
         </div>
       </div>

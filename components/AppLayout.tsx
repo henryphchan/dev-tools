@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { Bars3Icon } from './icons';
+import { CommandPalette } from './CommandPalette';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
         <div className="min-h-screen bg-[#0b1224] text-slate-200">
+            <CommandPalette />
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
             <div className="lg:pl-72 flex flex-col min-h-screen transition-all duration-300">

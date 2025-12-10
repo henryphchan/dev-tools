@@ -12,6 +12,7 @@
     "@types/jszip": "^3.4.0",
     "@vvo/tzdb": "^6.196.0",
     "blakejs": "^1.2.1",
+    "cmdk": "^1.1.1",
     "cron-parser": "^5.4.0",
     "crypto-js": "^4.2.0",
     "diff": "^5.2.0",
