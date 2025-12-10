@@ -1,5 +1,6 @@
 export type ToolId =
   | 'json'
+  | 'markdown-preview'
   | 'xml'
   | 'sql'
   | 'encode'
@@ -26,7 +27,9 @@ export type ToolId =
   | 'slugify'
   | 'chmod'
   | 'photo-exif'
-  | 'webp-converter';
+  | 'webp-converter'
+  | 'tailwind-palette-generator';
+  | 'keycode-visualizer';
 
 export interface ToolInfo {
   id: ToolId;
@@ -376,6 +379,40 @@ export const tools: ToolInfo[] = [
     badge: 'Media',
     accent: 'Imaging',
     keywords: ['exif', 'photo metadata', 'gps tags', 'timezone', 'image editing'],
+  },
+  {
+    id: 'tailwind-palette-generator',
+    slug: 'tailwind-palette-generator',
+    title: 'Tailwind Palette Generator',
+    seoTitle: 'Generate Tailwind CSS Color Palette (50-950) | Dev Tools',
+    description: 'Generate a Tailwind CSS color palette (50-950) from a single base color.',
+    longDescription:
+      'Enter a base hex color to generate a complete Tailwind CSS palette including shades 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, and 950. Copy the entire object for your tailwind.config.js or individual hex codes.',
+    badge: 'Generators',
+    accent: 'Colors',
+    keywords: ['tailwind', 'color palette', 'generator', 'design', 'css', 'hex'],
+    id: 'markdown-preview',
+    slug: 'markdown-live-preview',
+    title: 'Markdown Live Preview',
+    seoTitle: 'Online Markdown Editor with Live Preview | Dev Tools',
+    description: 'Real-time split-pane Markdown editor and previewer.',
+    longDescription:
+      'Write Markdown on the left and see the rendered HTML on the right instantly. Perfect for drafting content, checking syntax, or previewing README files.',
+    badge: 'Text & Analysis',
+    accent: 'Writing',
+    keywords: ['markdown', 'preview', 'editor', 'live preview', 'md', 'html preview'],
+  },
+  {
+    id: 'keycode-visualizer',
+    slug: 'keycode-visualizer',
+    title: 'Keycode Event Visualizer',
+    seoTitle: 'Online Javascript Keycode Event Visualizer | Dev Tools',
+    description: 'Captures keyboard events and displays the event.key, event.code, event.which, and modifier keys.',
+    longDescription:
+      'The user presses any key, and a large display shows the JS event codes. Essential for developers building keyboard navigation, games, or accessibility features.',
+    badge: 'Development',
+    accent: 'Keyboard',
+    keywords: ['keycode', 'event', 'visualizer', 'keyboard', 'navigation', 'accessibility'],
   },
 ];
 
