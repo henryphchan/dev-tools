@@ -2,6 +2,7 @@
 
 import { ComponentType } from 'react';
 import { ToolInfo } from '../lib/tools';
+import { Breadcrumb } from './Breadcrumb';
 import { BitwiseWorkspace } from './workspaces/BitwiseWorkspace';
 import { CsvProfilerWorkspace } from './workspaces/CsvProfilerWorkspace';
 import { LegacyToolWorkspace } from './workspaces/LegacyToolWorkspace';
@@ -34,5 +35,11 @@ const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: To
 
 export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   const Workspace = workspaceRegistry[tool.id] ?? LegacyToolWorkspace;
-  return <Workspace tool={tool} />;
+
+  return (
+    <main className="w-full mx-auto px-4 py-6 space-y-6">
+      <Breadcrumb tool={tool} />
+      <Workspace tool={tool} />
+    </main>
+  );
 }
