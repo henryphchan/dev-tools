@@ -262,7 +262,7 @@ export function ParquetViewerWorkspace({ tool }: ParquetViewerWorkspaceProps) {
                         <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
                             <div className="overflow-auto max-h-[600px]">
                                 <table className="min-w-full text-sm text-slate-300">
-                                    <thead className="bg-black/20 sticky top-0 backdrop-blur-sm z-10">
+                                    <thead className="bg-slate-900 sticky top-0 z-10">
                                         <tr>
                                             {schema.map((col: any) => (
                                                 <th
