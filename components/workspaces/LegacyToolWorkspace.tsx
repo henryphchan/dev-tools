@@ -1661,12 +1661,7 @@ export function LegacyToolWorkspace({ tool }: { tool: ToolInfo }) {
   }, [leafletLoaded, photoLatitude, photoLongitude]);
 
   return (
-    <main className="w-full mx-auto px-4 py-6 space-y-6">
-      <nav className="flex items-center gap-2 text-sm text-slate-300" aria-label="Breadcrumb">
-        <Link href="/" className="hover:text-white">Home</Link>
-        <span aria-hidden>/</span>
-        <span className="text-white font-semibold">{tool.title}</span>
-      </nav>
+    <>
 
       <header className="section-card gradient-border space-y-4">
         <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -3504,6 +3499,6 @@ export function LegacyToolWorkspace({ tool }: { tool: ToolInfo }) {
           </div>
         </ToolCard>
       )}
-    </main>
+    </>
   );
 }

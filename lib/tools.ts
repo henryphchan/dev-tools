@@ -9,6 +9,7 @@ export type ToolId =
   | 'cron'
   | 'diff'
   | 'csv-profiler'
+  | 'parquet-profiler'
   | 'csv-json'
   | 'yaml-json'
   | 'json-toon'
@@ -29,7 +30,8 @@ export type ToolId =
   | 'photo-exif'
   | 'webp-converter'
   | 'tailwind-palette-generator'
-  | 'keycode-visualizer';
+  | 'keycode-visualizer'
+  | 'parquet-viewer';
 
 export interface ToolInfo {
   id: ToolId;
@@ -115,6 +117,18 @@ export const tools: ToolInfo[] = [
     badge: 'Text & Analysis',
     accent: 'Data Quality',
     keywords: ['csv profiling', 'data quality', 'unique count', 'null count', 'pattern analysis', 'data profiler'],
+  },
+  {
+    id: 'parquet-profiler',
+    slug: 'parquet-data-profiler',
+    title: 'Parquet Data Profiler',
+    seoTitle: 'Profile Parquet files for patterns, uniques, and nulls | Dev Tools',
+    description: 'Inspect Parquet schema, stats, unique values, and patterns.',
+    longDescription:
+      'Validate Parquet structure by uploading a file. Review schema, row count, unique counts, nulls, and sample values per column. Runs entirely in your browser.',
+    badge: 'Text & Analysis',
+    accent: 'Data Quality',
+    keywords: ['parquet', 'profiling', 'data quality', 'big data', 'schema', 'arrow'],
   },
   {
     id: 'csv-json',
@@ -415,6 +429,18 @@ export const tools: ToolInfo[] = [
     badge: 'Development',
     accent: 'Keyboard',
     keywords: ['keycode', 'event', 'visualizer', 'keyboard', 'navigation', 'accessibility'],
+  },
+  {
+    id: 'parquet-viewer',
+    slug: 'parquet-viewer',
+    title: 'Parquet Viewer',
+    seoTitle: 'Online Apache Parquet File Viewer | Dev Tools',
+    description: 'Visualize and inspect Apache Parquet files directly in your browser.',
+    longDescription:
+      'Drag and drop .parquet files to view them instantly. Inspect schema details, browse data in a grid, and analyze file metadata locally—no server upload required.',
+    badge: 'Development',
+    accent: 'Data',
+    keywords: ['parquet', 'viewer', 'apache parquet', 'data analysis', 'local viewer'],
   },
 ];
 
