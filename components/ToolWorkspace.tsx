@@ -14,6 +14,7 @@ import { SlugifyWorkspace } from './workspaces/SlugifyWorkspace';
 import { UuidWorkspace } from './workspaces/UuidWorkspace';
 import { MarkdownPreviewWorkspace } from './workspaces/MarkdownPreviewWorkspace';
 import { KeycodeVisualizerWorkspace } from './workspaces/KeycodeVisualizerWorkspace';
+import { ParquetViewerWorkspace } from './workspaces/ParquetViewerWorkspace';
 
 import { ColorPaletteWorkspace } from './workspaces/ColorPaletteWorkspace';
 
@@ -31,6 +32,7 @@ const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: To
   'tailwind-palette-generator': ColorPaletteWorkspace,
   'markdown-preview': MarkdownPreviewWorkspace,
   'keycode-visualizer': KeycodeVisualizerWorkspace,
+  'parquet-viewer': ParquetViewerWorkspace,
 };
 
 export function ToolWorkspace({ tool }: { tool: ToolInfo }) {

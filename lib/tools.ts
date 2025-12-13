@@ -29,7 +29,8 @@ export type ToolId =
   | 'photo-exif'
   | 'webp-converter'
   | 'tailwind-palette-generator'
-  | 'keycode-visualizer';
+  | 'keycode-visualizer'
+  | 'parquet-viewer';
 
 export interface ToolInfo {
   id: ToolId;
@@ -415,6 +416,18 @@ export const tools: ToolInfo[] = [
     badge: 'Development',
     accent: 'Keyboard',
     keywords: ['keycode', 'event', 'visualizer', 'keyboard', 'navigation', 'accessibility'],
+  },
+  {
+    id: 'parquet-viewer',
+    slug: 'parquet-viewer',
+    title: 'Parquet Viewer',
+    seoTitle: 'Online Apache Parquet File Viewer | Dev Tools',
+    description: 'Visualize and inspect Apache Parquet files directly in your browser.',
+    longDescription:
+      'Drag and drop .parquet files to view them instantly. Inspect schema details, browse data in a grid, and analyze file metadata locally—no server upload required.',
+    badge: 'Development',
+    accent: 'Data',
+    keywords: ['parquet', 'viewer', 'apache parquet', 'data analysis', 'local viewer'],
   },
 ];
 

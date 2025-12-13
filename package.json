@@ -9,8 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.30.0",
     "@types/jszip": "^3.4.0",
     "@vvo/tzdb": "^6.196.0",
+    "apache-arrow": "^21.1.0",
     "blakejs": "^1.2.1",
     "cron-parser": "^5.4.0",
     "crypto-js": "^4.2.0",
