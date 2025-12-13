@@ -15,6 +15,7 @@ import { UuidWorkspace } from './workspaces/UuidWorkspace';
 import { MarkdownPreviewWorkspace } from './workspaces/MarkdownPreviewWorkspace';
 import { KeycodeVisualizerWorkspace } from './workspaces/KeycodeVisualizerWorkspace';
 
+import { ParquetProfilerWorkspace } from './workspaces/ParquetProfilerWorkspace';
 import { ColorPaletteWorkspace } from './workspaces/ColorPaletteWorkspace';
 
 // Map tool IDs to dedicated workspace components. Tools not listed here fall back to the
@@ -22,6 +23,7 @@ import { ColorPaletteWorkspace } from './workspaces/ColorPaletteWorkspace';
 const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: ToolInfo }>>> = {
   bitwise: BitwiseWorkspace,
   'csv-profiler': CsvProfilerWorkspace,
+  'parquet-profiler': ParquetProfilerWorkspace,
   'json-toon': JsonToonWorkspace,
   'lorem-ipsum': LoremIpsumWorkspace,
   'password-generator': PasswordGeneratorWorkspace,
