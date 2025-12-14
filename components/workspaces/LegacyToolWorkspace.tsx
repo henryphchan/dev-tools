@@ -1663,21 +1663,7 @@ export function LegacyToolWorkspace({ tool }: { tool: ToolInfo }) {
   return (
     <>
 
-      <header className="section-card gradient-border space-y-4">
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.24em] text-slate-400 font-semibold">{tool.accent}</p>
-            <h1 className="text-3xl font-bold text-white leading-tight">{tool.seoTitle}</h1>
-            <p className="text-sm text-slate-300 max-w-3xl">{tool.longDescription}</p>
-          </div>
-          <span className="badge bg-brand/15 text-brand border-brand/30">{tool.badge}</span>
-        </div>
-        <div className="flex flex-wrap gap-2 text-xs text-slate-300">
-          <span className="badge">SEO-friendly URL</span>
-          <span className="badge">Shareable metadata</span>
-          <span className="badge">Copy-ready outputs</span>
-        </div>
-      </header>
+
 
       {tool.id === 'webp-converter' && (
         <ToolCard title="WebP Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
