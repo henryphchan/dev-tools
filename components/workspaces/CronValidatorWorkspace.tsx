@@ -134,9 +134,13 @@ export function CronValidatorWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     useEffect(() => {
-        handleCronPreview();
+        const timer = setTimeout(() => {
+            handleCronPreview();
+        }, 500); // 500ms debounce to prevent flashing/errors while typing
+
+        return () => clearTimeout(timer);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [cronExpression, cronZone]);
 
     return (
         <ToolCard title="Cron Expression Validator" description={tool.description} badge={tool.badge} accent={tool.accent}>
@@ -264,9 +268,9 @@ export function CronValidatorWorkspace({ tool }: { tool: ToolInfo }) {
                                                         >
                                                             {/* Label (Top) */}
                                                             {isTop && (
-                                                                <div className="absolute bottom-4 flex flex-col items-center transition-transform hover:scale-110">
-                                                                    <span className="text-xs font-mono font-medium text-slate-300 bg-slate-900/80 px-1.5 py-0.5 rounded border border-white/10 whitespace-nowrap">
-                                                                        {run.toFormat('HH:mm')}
+                                                                <div className="absolute bottom-4 flex flex-col items-center transition-transform hover:scale-110 z-20">
+                                                                    <span className="text-[10px] font-mono font-medium text-slate-300 bg-slate-900/90 px-1.5 py-0.5 rounded border border-white/10 whitespace-nowrap shadow-xl">
+                                                                        {run.toFormat('MMM d, HH:mm')}
                                                                     </span>
                                                                     <div className="h-2 w-px bg-white/20 mt-1" />
                                                                 </div>
@@ -277,10 +281,10 @@ export function CronValidatorWorkspace({ tool }: { tool: ToolInfo }) {
 
                                                             {/* Label (Bottom) */}
                                                             {!isTop && (
-                                                                <div className="absolute top-4 flex flex-col items-center transition-transform hover:scale-110">
+                                                                <div className="absolute top-4 flex flex-col items-center transition-transform hover:scale-110 z-20">
                                                                     <div className="h-2 w-px bg-white/20 mb-1" />
-                                                                    <span className="text-xs font-mono font-medium text-slate-300 bg-slate-900/80 px-1.5 py-0.5 rounded border border-white/10 whitespace-nowrap">
-                                                                        {run.toFormat('HH:mm')}
+                                                                    <span className="text-[10px] font-mono font-medium text-slate-300 bg-slate-900/90 px-1.5 py-0.5 rounded border border-white/10 whitespace-nowrap shadow-xl">
+                                                                        {run.toFormat('MMM d, HH:mm')}
                                                                     </span>
                                                                 </div>
                                                             )}
