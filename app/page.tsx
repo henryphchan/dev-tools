@@ -1,7 +1,7 @@
 'use client';
 
 import { tools } from '../lib/tools';
-import { Logo } from '../components/icons';
+import { Logo, GitHubIcon } from '../components/icons';
 import { LandingToolCard } from '../components/LandingToolCard';
 import { useFavorites } from '../hooks/useFavorites';
 
@@ -49,6 +49,35 @@ export default function Home() {
           ))}
         </div>
       </section>
-    </div>
+
+      <section className="space-y-6 pt-6 border-t border-white/10">
+        <h2 className="text-2xl font-semibold text-white">Open Source</h2>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <p className="text-slate-300 mb-6">
+            This project is open source and we welcome contributions from the community.
+            If you find a bug or have a suggestion, please create an issue on GitHub.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <a
+              href="https://github.com/henryphchan/dev-tools/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-slate-200 rounded-lg transition-colors font-medium"
+            >
+              <GitHubIcon className="w-5 h-5" />
+              View on GitHub
+            </a>
+            <a
+              href="https://github.com/henryphchan/dev-tools/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-brand/10 hover:bg-brand/20 text-brand rounded-lg transition-colors font-medium border border-brand/20"
+            >
+              Report an Issue
+            </a>
+          </div>
+        </div>
+      </section>
+    </div >
   );
 }
