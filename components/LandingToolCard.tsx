@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ToolInfo } from '../lib/tools';
-import { CursorArrowRaysIcon, HeartIcon, HeartSolidIcon } from './icons';
+import { HeartIcon, HeartSolidIcon } from './icons';
 import { useFavorites } from '../hooks/useFavorites';
 
 interface LandingToolCardProps {
@@ -41,10 +41,7 @@ export function LandingToolCard({ tool }: LandingToolCardProps) {
                     <h3 className="text-lg font-semibold text-white group-hover:text-brand transition-colors">{tool.title}</h3>
                     <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{tool.description}</p>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-400 group-hover:text-brand font-medium transition-colors">
-                    <CursorArrowRaysIcon className="w-4 h-4" />
-                    Open Tool
-                </div>
+
             </div>
         </div>
     );
