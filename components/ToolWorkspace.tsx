@@ -2,6 +2,7 @@
 
 import { ComponentType } from 'react';
 import { ToolInfo } from '../lib/tools';
+import { AdUnit } from './AdUnit';
 import { Breadcrumb } from './Breadcrumb';
 import { BitwiseWorkspace } from './workspaces/BitwiseWorkspace';
 import { CsvProfilerWorkspace } from './workspaces/CsvProfilerWorkspace';
@@ -112,6 +113,8 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
           </div>
         )}
       </section>
+
+      <AdUnit />
     </main>
   );
 }
