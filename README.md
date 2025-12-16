@@ -24,35 +24,39 @@ A sleek developer-first utility belt inspired by smallapp.dev. This Next.js App 
    npm run lint
    ```
 
-## Deploying to Static Web Apps
+## Deployment
+This project includes a GitHub Actions workflow for **GitHub Pages** in `.github/workflows/nextjs.yml`.
+
+To deploy manually or to other static hosts:
 1. Build the production bundle:
    ```bash
    npm run build
    ```
-2. Publish the `.next` output through your Static Web Apps workflow. Use `npm run build` as the build command and `.` as the app location so Next.js can prerender the SPA shell.
+   *Note: For static hosting (like GitHub Pages), ensure `output: "export"` is set in `next.config.mjs` to generate an `out` directory.*
+2. Publish the output directory (default `.next` for server-based or `out` for static exports).
 
 ## Features
-- SEO-ready landing page with descriptive copy for indexing
-- JSON, XML, and SQL formatters with copy-friendly outputs
-- URL/Base64 encoders & decoders
-- Timezone conversion powered by Luxon
-- Bitwise operations with binary previews
-- Dedicated tool routes for sharing and documentation
+- **Converters**: JSON/XML/SQL formatters, URL/Base64, Timezone, String Case, CSV to JSON, YAML to JSON, and more.
+- **Generators**: UUID, Hash (MD5/SHA), QR Code, Lorem Ipsum, Password, SVG Placeholder, Color Palette.
+- **Analyzers**: CSV/Parquet Profiler, Regex Tester, Text Diff, Privacy-aware EXIF Viewer.
+- **Web Tools**: Live Markdown Preview, Keycode Visualizer, WebP Converter.
+- **Architecture**: dedicated workspaces for each tool, SEO-friendly URLs, and a clean Tailwind CSS UI.
 
 Contributions and additional tools are welcome!
 
 ## Adding a new tool
-1. **Create a metadata definition** in `lib/tools/definitions/`.
-   - Copy an existing file (for example `json-formatter.ts`) and export a `ToolInfo` object.
-   - Set a unique `id` (used internally) and `slug` (used for the URL at `/tools/[slug]`).
-   - Populate titles, descriptions, accent colors, badge text, and SEO keywords using the fields defined in `lib/tools/types.ts`.
-   - The registry auto-loads every definition in this folder, so no central list needs to be edited.
-2. **Add a dedicated workspace (optional but recommended)** in `components/workspaces/` when the tool’s UI or logic differs from the legacy workspace.
-   - Export a component that accepts `{ tool: ToolInfo }` props. See `UuidWorkspace.tsx` or `BitwiseWorkspace.tsx` for patterns.
-   - Register the component in `components/ToolWorkspace.tsx` by mapping the tool `id` to your workspace in `workspaceRegistry`. Tools not listed here automatically fall back to `LegacyToolWorkspace`.
-3. **Verify the experience** by running `npm run lint` and loading the tool at `/tools/[slug]`.
+1. **Create a metadata definition** in `lib/tools.ts`.
+   - Add a new `ToolInfo` object to the `tools` array.
+   - Define the `id`, `slug`, `title`, `description`, `badge`, `accent`, and `keywords`.
+2. **Add a dedicated workspace** in `components/workspaces/`.
+   - Create a new component (e.g., `MyNewToolWorkspace.tsx`) that accepts `{ tool: ToolInfo }` props.
+   - Implement the tool's UI and logic here.
+3. **Register the workspace** in `components/ToolWorkspace.tsx`.
+   - Import your new workspace component.
+   - Add it to the `workspaceRegistry` object, mapping your tool `id` to the component.
+4. **Verify the experience** by running `npm run lint` and loading the tool at `/tools/[slug]`.
 
 ## Tool architecture
-- **Metadata registry:** Every tool advertises its title, descriptions, colors, and SEO keywords via a standalone definition file in `lib/tools/definitions/`. Drop in a new `.ts` file exporting a `ToolInfo` object to register a tool without touching a central list.
-- **Workspace logic:** `components/ToolWorkspace.tsx` now routes tool IDs to dedicated workspace components under `components/workspaces/`. New or refactored tool logic can live in its own `.tsx` file (for example, the UUID and bitwise tools) while the legacy workspace remains available as a fallback for tools that have not been migrated yet.
-- **Routing:** `app/tools/[slug]/page.tsx` uses the registry to generate static params and to select the matching tool for the workspace render, keeping URLs stable while allowing the registry to grow automatically.
+- **Metadata registry:** All tools are defined in `lib/tools.ts`. This central registry drives the landing page, search, and routing.
+- **Workspace logic:** `components/ToolWorkspace.tsx` routes tool IDs to dedicated workspace components. Each tool lives in its own isolated component under `components/workspaces/`, keeping the codebase modular and easy to maintain.
+- **Routing:** `app/tools/[slug]/page.tsx` uses the registry to generate static params and select the matching tool for the workspace render.
