@@ -84,7 +84,7 @@ export function WordCloudWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="Word Cloud Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="Word Cloud Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-5">
                 <div className="space-y-3">
                     <div className="space-y-2">

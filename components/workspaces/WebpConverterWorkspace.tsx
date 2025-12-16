@@ -187,7 +187,7 @@ export function WebpConverterWorkspace({ tool }: { tool: ToolInfo }) {
     }, [webpConversions]);
 
     return (
-        <ToolCard title="WebP Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="WebP Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_0.95fr] gap-4 items-start">
                 <div className="space-y-4">
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">

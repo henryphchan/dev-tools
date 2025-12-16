@@ -156,7 +156,7 @@ export function PasswordGeneratorWorkspace({ tool }: { tool: ToolInfo }) {
   };
 
   return (
-    <ToolCard title="Password Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+    <ToolCard headingLevel="h1" title="Password Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-4">
           <div className="space-y-2">

@@ -14,6 +14,7 @@ import { UuidWorkspace } from './workspaces/UuidWorkspace';
 import { MarkdownPreviewWorkspace } from './workspaces/MarkdownPreviewWorkspace';
 import { KeycodeVisualizerWorkspace } from './workspaces/KeycodeVisualizerWorkspace';
 import { ParquetViewerWorkspace } from './workspaces/ParquetViewerWorkspace';
+import { FakeDataGeneratorWorkspace } from './workspaces/FakeDataGeneratorWorkspace';
 
 import { ParquetProfilerWorkspace } from './workspaces/ParquetProfilerWorkspace';
 import { ColorPaletteWorkspace } from './workspaces/ColorPaletteWorkspace';
@@ -73,6 +74,7 @@ const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: To
   timezone: TimezoneConverterWorkspace,
   cron: CronValidatorWorkspace,
   'parquet-viewer': ParquetViewerWorkspace,
+  'fake-data-generator': FakeDataGeneratorWorkspace,
 
   'webp-converter': WebpConverterWorkspace,
 };
@@ -90,9 +92,26 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
   }
 
   return (
-    <main className="w-full mx-auto px-4 py-6 space-y-6">
+    <main className="w-full mx-auto px-4 py-6 space-y-8">
       <Breadcrumb tool={tool} />
       <Workspace tool={tool} />
+
+      {/* SEO Content Injection */}
+      <section className="mx-auto max-w-4xl pt-8 border-t border-white/5 space-y-8">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-200 mb-3">About {tool.title}</h2>
+          <p className="text-slate-400 leading-relaxed">{tool.longDescription}</p>
+        </div>
+
+        {tool.technicalDescription && (
+          <div>
+            <h3 className="text-lg font-semibold text-slate-200 mb-3">Under the Hood</h3>
+            <p className="text-slate-400 leading-relaxed text-sm font-mono bg-black/20 p-4 rounded-lg border border-white/5">
+              {tool.technicalDescription}
+            </p>
+          </div>
+        )}
+      </section>
     </main>
   );
 }

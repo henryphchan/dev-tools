@@ -38,7 +38,7 @@ export function SlugifyWorkspace({ tool }: { tool: ToolInfo }) {
   }, [slugifyResult]);
 
   return (
-    <ToolCard title="Slugify String" description={tool.description} badge={tool.badge} accent={tool.accent}>
+    <ToolCard headingLevel="h1" title="Slugify String" description={tool.description} badge={tool.badge} accent={tool.accent}>
       <div className="space-y-4">
         <div className="space-y-2">
           <label className="text-sm text-slate-300" htmlFor="slugify-input">

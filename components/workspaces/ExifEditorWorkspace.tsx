@@ -452,7 +452,7 @@ export function ExifEditorWorkspace({ tool }: { tool: ToolInfo }) {
     }, [leafletLoaded, photoLatitude, photoLongitude]);
 
     return (
-        <ToolCard title="Photo EXIF & Metadata Editor" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="Photo EXIF & Metadata Editor" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_0.95fr] gap-4 items-start">
                 <div className="space-y-4">
                     <div className="space-y-2">

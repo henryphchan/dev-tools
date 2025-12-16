@@ -113,7 +113,7 @@ export function QrCodeGeneratorWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="QR Code Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="QR Code Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] gap-6 items-start">
                 <div className="space-y-4">
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-4">

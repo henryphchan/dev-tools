@@ -49,7 +49,7 @@ export function JwtDecoderWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="JWT Decoder" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="JWT Decoder" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="space-y-2">
                 <label className="text-sm text-slate-300">JWT</label>
                 <textarea

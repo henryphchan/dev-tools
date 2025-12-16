@@ -95,7 +95,7 @@ export function JsonToonWorkspace({ tool }: { tool: ToolInfo }) {
   };
 
   return (
-    <ToolCard title="JSON ↔ TOON Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+    <ToolCard headingLevel="h1" title="JSON ↔ TOON Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
           <div className="flex items-center justify-between gap-3">

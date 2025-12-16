@@ -75,7 +75,7 @@ export function TimezoneConverterWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="Timezone Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="Timezone Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <label className="text-sm text-slate-300">Source time</label>

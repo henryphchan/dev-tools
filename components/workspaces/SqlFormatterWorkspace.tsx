@@ -30,7 +30,7 @@ export function SqlFormatterWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="SQL Formatter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="SQL Formatter" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <textarea
                 value={sqlInput}
                 onChange={(e) => setSqlInput(e.target.value)}
