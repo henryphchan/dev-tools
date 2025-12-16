@@ -30,7 +30,7 @@ export function XmlFormatterWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="XML Formatter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="XML Formatter" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <textarea
                 value={xmlInput}
                 onChange={(e) => setXmlInput(e.target.value)}

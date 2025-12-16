@@ -51,7 +51,7 @@ export function CsvJsonConverterWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="CSV ↔ JSON Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="CSV ↔ JSON Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="space-y-3">
                     <label className="text-sm text-slate-300">CSV input (expects headers)</label>

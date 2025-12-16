@@ -137,7 +137,7 @@ export function MarkdownPreviewWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
             {showCheatsheet && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowCheatsheet(false)}>
                     <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl animate-fade-in" onClick={(e) => e.stopPropagation()}>

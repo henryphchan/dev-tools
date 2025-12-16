@@ -52,7 +52,7 @@ export function BitwiseWorkspace({ tool }: { tool: ToolInfo }) {
   };
 
   return (
-    <ToolCard title="Bitwise Calculator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+    <ToolCard headingLevel="h1" title="Bitwise Calculator" description={tool.description} badge={tool.badge} accent={tool.accent}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="space-y-2">
           <label className="text-sm text-slate-300">Operand A</label>

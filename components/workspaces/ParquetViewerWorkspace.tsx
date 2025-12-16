@@ -187,7 +187,7 @@ export function ParquetViewerWorkspace({ tool }: ParquetViewerWorkspaceProps) {
     };
 
     return (
-        <ToolCard title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="space-y-4">
 
                 {/* Upload Area */}

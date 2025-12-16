@@ -9,16 +9,18 @@ interface ToolCardProps {
   badge?: string;
 }
 
-export default function ToolCard({ title, description, accent = 'brand', children, badge }: ToolCardProps) {
+export default function ToolCard({ title, description, accent = 'brand', children, badge, headingLevel = 'h2' }: ToolCardProps & { headingLevel?: 'h1' | 'h2' | 'h3' }) {
+  const Heading = headingLevel;
+
   return (
     <section className="section-card gradient-border">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-slate-400 font-semibold">{accent}</p>
-          <h2 className="text-xl font-semibold text-slate-50 flex items-center gap-2">
+          <Heading className="text-xl font-semibold text-slate-50 flex items-center gap-2">
             <Logo className="w-5 h-5 text-brand" />
             {title}
-          </h2>
+          </Heading>
           <p className="text-sm text-slate-400 mt-1 max-w-2xl">{description}</p>
         </div>
         {badge && <span className="badge bg-brand/15 text-brand border-brand/30">{badge}</span>}
