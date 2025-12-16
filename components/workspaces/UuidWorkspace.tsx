@@ -15,7 +15,7 @@ export function UuidWorkspace({ tool }: { tool: ToolInfo }) {
   };
 
   return (
-    <ToolCard title="UUID Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+    <ToolCard headingLevel="h1" title="UUID Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={generateUuid}

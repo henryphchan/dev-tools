@@ -30,7 +30,7 @@ export function JsonFormatterWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="JSON Formatter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="JSON Formatter" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <textarea
                 value={jsonInput}
                 onChange={(e) => setJsonInput(e.target.value)}

@@ -230,7 +230,7 @@ export function FakeDataGeneratorWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="flex flex-col gap-6">
 
                 {/* Controls */}

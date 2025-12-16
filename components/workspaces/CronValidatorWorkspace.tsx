@@ -143,7 +143,7 @@ export function CronValidatorWorkspace({ tool }: { tool: ToolInfo }) {
     }, [cronExpression, cronZone]);
 
     return (
-        <ToolCard title="Cron Expression Validator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="Cron Expression Validator" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_auto] gap-3 items-end">
                     <div className="space-y-1">

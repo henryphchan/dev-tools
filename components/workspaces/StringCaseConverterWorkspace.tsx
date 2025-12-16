@@ -108,7 +108,7 @@ export function StringCaseConverterWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="String Case Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="String Case Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="space-y-4">
                 <div className="space-y-2">
                     <label className="text-sm text-slate-300">Input text</label>

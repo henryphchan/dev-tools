@@ -281,7 +281,7 @@ export function ParquetProfilerWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="Parquet Data Profiler" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="Parquet Data Profiler" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="space-y-4">
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
                     <div className="flex flex-wrap gap-3 items-center justify-between">

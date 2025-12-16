@@ -166,7 +166,7 @@ export function LoremIpsumWorkspace({ tool }: { tool: ToolInfo }) {
   };
 
   return (
-    <ToolCard title="Lorem Ipsum Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+    <ToolCard headingLevel="h1" title="Lorem Ipsum Generator" description={tool.description} badge={tool.badge} accent={tool.accent}>
       <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">

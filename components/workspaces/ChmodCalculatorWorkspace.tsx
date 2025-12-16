@@ -86,7 +86,7 @@ export function ChmodCalculatorWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="Chmod Calculator" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="Chmod Calculator" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {(

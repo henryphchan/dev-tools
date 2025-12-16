@@ -48,7 +48,7 @@ export function KeycodeVisualizerWorkspace({ tool }: { tool: ToolInfo }) {
     }, []);
 
     return (
-        <ToolCard title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title={tool.title} description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Active Key Display */}
                 <div className="relative group min-h-[400px]">

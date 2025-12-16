@@ -38,7 +38,7 @@ export function TimestampConverterWorkspace({ tool }: { tool: ToolInfo }) {
     };
 
     return (
-        <ToolCard title="Timestamp to Date Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
+        <ToolCard headingLevel="h1" title="Timestamp to Date Converter" description={tool.description} badge={tool.badge} accent={tool.accent}>
             <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_auto] gap-3 items-end">
                 <div className="space-y-1">
                     <label className="text-sm text-slate-300">Timestamp</label>
