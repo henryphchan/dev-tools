@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ToolInfo } from '../lib/tools';
-import { CursorArrowRaysIcon, HeartIcon, HeartSolidIcon } from './icons';
+import { HeartIcon, HeartSolidIcon } from './icons';
 import { useFavorites } from '../hooks/useFavorites';
 
 interface LandingToolCardProps {
@@ -14,36 +14,53 @@ export function LandingToolCard({ tool }: LandingToolCardProps) {
     const favorite = isFavorite(tool.id);
 
     return (
-        <div className="group relative block rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-brand/40 hover:bg-brand/5 transition h-full">
-            <Link
-                href={`/tools/${tool.slug}`}
-                className="absolute inset-0 z-0"
-                aria-label={`Open ${tool.title}`}
-            />
-            <div className="relative z-10 flex flex-col h-full justify-between gap-4 pointer-events-none">
-                <div className="space-y-2">
+        <div className="group relative block h-full">
+            {/* Hover gradient background effect */}
+            <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-brand/50 to-indigo-500/50 opacity-0 group-hover:opacity-100 transition duration-500 blur-sm group-hover:blur-md" aria-hidden="true" />
+
+            <div className="relative h-full flex flex-col justify-between rounded-2xl border border-white/5 bg-slate-900/90 p-6 shadow-2xl backdrop-blur-xl transition-colors group-hover:bg-slate-900/80">
+                <Link
+                    href={`/tools/${tool.slug}`}
+                    className="absolute inset-0 z-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2 focus:ring-offset-slate-900"
+                    aria-label={`Open ${tool.title}`}
+                />
+
+                <div className="relative z-10 flex flex-col gap-4 pointer-events-none">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs uppercase tracking-[0.22em] text-slate-400 font-semibold">{tool.accent}</span>
-                        <div className="flex items-center gap-2 pointer-events-auto">
-                            <span className="badge group-hover:bg-brand/20 group-hover:text-brand transition-colors">{tool.badge}</span>
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    toggleFavorite(tool.id, e);
-                                }}
-                                className="text-slate-400 hover:text-brand transition-colors p-1 -mr-1"
-                                type="button"
-                            >
-                                {favorite ? <HeartSolidIcon className="w-5 h-5 text-red-500" /> : <HeartIcon className="w-5 h-5" />}
-                            </button>
+                        <div className="flex items-center gap-2">
+                            {/* Small accent pill */}
+                            <span className="inline-flex items-center rounded-md bg-white/5 px-2 py-1 text-xs font-medium text-indigo-300 ring-1 ring-inset ring-white/10 group-hover:text-indigo-200 transition-colors">
+                                {tool.accent}
+                            </span>
                         </div>
+
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                toggleFavorite(tool.id, e);
+                            }}
+                            className="pointer-events-auto p-2 -mr-2 text-slate-500 hover:text-red-500 transition-colors bg-transparent rounded-full hover:bg-white/5"
+                            type="button"
+                            aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+                        >
+                            {favorite ? <HeartSolidIcon className="w-5 h-5 text-red-500" /> : <HeartIcon className="w-5 h-5" />}
+                        </button>
                     </div>
-                    <h3 className="text-lg font-semibold text-white group-hover:text-brand transition-colors">{tool.title}</h3>
-                    <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{tool.description}</p>
+
+                    <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-white group-hover:text-brand transition-colors tracking-tight">
+                            {tool.title}
+                        </h3>
+                        <p className="text-sm text-slate-400 leading-relaxed line-clamp-3">
+                            {tool.description}
+                        </p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-400 group-hover:text-brand font-medium transition-colors">
-                    <CursorArrowRaysIcon className="w-4 h-4" />
-                    Open Tool
+
+                <div className="relative z-10 mt-6 flex items-center gap-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    <span className="text-brand text-sm font-semibold flex items-center">
+                        Open Tool <span className="ml-1">→</span>
+                    </span>
                 </div>
             </div>
         </div>
