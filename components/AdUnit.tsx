@@ -10,11 +10,49 @@ declare global {
 
 export function AdUnit() {
     useEffect(() => {
-        try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (err) {
-            console.error('AdSense error:', err);
+        const pushAd = () => {
+            try {
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (err) {
+                console.error('AdSense error:', err);
+            }
+        };
+
+        if (typeof window === 'undefined') return;
+
+        // If the library is already available, enqueue the ad immediately.
+        if (window.adsbygoogle && typeof window.adsbygoogle.push === 'function') {
+            pushAd();
+            return;
         }
+
+        // Otherwise, wait for the AdSense script to load or inject it if missing.
+        const existingScript = document.querySelector<HTMLScriptElement>(
+            'script[src^="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]',
+        );
+
+        const handleScriptLoad = () => {
+            pushAd();
+            existingScript?.removeEventListener('load', handleScriptLoad);
+        };
+
+        if (existingScript) {
+            existingScript.addEventListener('load', handleScriptLoad);
+            return () => existingScript.removeEventListener('load', handleScriptLoad);
+        }
+
+        const script = document.createElement('script');
+        script.src =
+            'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3237862192285184';
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        script.addEventListener('load', pushAd);
+
+        document.head.appendChild(script);
+
+        return () => {
+            script.removeEventListener('load', pushAd);
+        };
     }, []);
 
     return (
