@@ -10,6 +10,8 @@ declare global {
 
 export function AdUnit() {
     useEffect(() => {
+        let cleanupLoadListener: (() => void) | undefined;
+
         const pushAd = () => {
             try {
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -18,12 +20,27 @@ export function AdUnit() {
             }
         };
 
+        const pushAfterPageLoad = () => {
+            if (document.readyState === 'complete') {
+                pushAd();
+                return;
+            }
+
+            const onLoad = () => {
+                pushAd();
+                window.removeEventListener('load', onLoad);
+            };
+
+            window.addEventListener('load', onLoad);
+            cleanupLoadListener = () => window.removeEventListener('load', onLoad);
+        };
+
         if (typeof window === 'undefined') return;
 
         // If the library is already available, enqueue the ad immediately.
         if (window.adsbygoogle && typeof window.adsbygoogle.push === 'function') {
-            pushAd();
-            return;
+            pushAfterPageLoad();
+            return cleanupLoadListener;
         }
 
         // Otherwise, wait for the AdSense script to load or inject it if missing.
@@ -32,13 +49,16 @@ export function AdUnit() {
         );
 
         const handleScriptLoad = () => {
-            pushAd();
+            pushAfterPageLoad();
             existingScript?.removeEventListener('load', handleScriptLoad);
         };
 
         if (existingScript) {
             existingScript.addEventListener('load', handleScriptLoad);
-            return () => existingScript.removeEventListener('load', handleScriptLoad);
+            return () => {
+                existingScript.removeEventListener('load', handleScriptLoad);
+                cleanupLoadListener?.();
+            };
         }
 
         const script = document.createElement('script');
@@ -46,12 +66,13 @@ export function AdUnit() {
             'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3237862192285184';
         script.async = true;
         script.crossOrigin = 'anonymous';
-        script.addEventListener('load', pushAd);
+        script.addEventListener('load', pushAfterPageLoad);
 
         document.head.appendChild(script);
 
         return () => {
-            script.removeEventListener('load', pushAd);
+            script.removeEventListener('load', pushAfterPageLoad);
+            cleanupLoadListener?.();
         };
     }, []);
 
