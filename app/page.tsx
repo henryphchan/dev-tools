@@ -37,18 +37,33 @@ export default function Home() {
         </section>
       )}
 
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-white">All Tools</h2>
-          <span className="badge bg-brand/15 text-brand border-brand/30">{tools.length} tools</span>
-        </div>
+      <div className="space-y-16">
+        {Object.entries(
+          tools.reduce((acc, tool) => {
+            const category = tool.badge;
+            if (!acc[category]) {
+              acc[category] = [];
+            }
+            acc[category].push(tool);
+            return acc;
+          }, {} as Record<string, typeof tools>)
+        ).sort((a, b) => a[0].localeCompare(b[0])).map(([category, categoryTools]) => (
+          <section key={category} className="space-y-6">
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-semibold text-white">{category}</h2>
+              <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-xs font-medium text-slate-400 border border-white/10">
+                {categoryTools.length}
+              </span>
+            </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {tools.map((tool) => (
-            <LandingToolCard key={tool.id} tool={tool} />
-          ))}
-        </div>
-      </section>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {categoryTools.map((tool) => (
+                <LandingToolCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
 
       <section className="space-y-6 pt-6 border-t border-white/10">
         <h2 className="text-2xl font-semibold text-white">Open Source</h2>
