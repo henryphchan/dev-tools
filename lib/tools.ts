@@ -31,7 +31,8 @@ export type ToolId =
   | 'webp-converter'
   | 'tailwind-palette-generator'
   | 'keycode-visualizer'
-  | 'parquet-viewer';
+  | 'parquet-viewer'
+  | 'fake-data-generator';
 
 export interface ToolInfo {
   id: ToolId;
@@ -441,6 +442,28 @@ export const tools: ToolInfo[] = [
     badge: 'Data & Analysis',
     accent: 'Data',
     keywords: ['parquet', 'viewer', 'apache parquet', 'data analysis', 'local viewer'],
+  },
+  {
+    id: 'fake-data-generator',
+    slug: 'fake-data-generator',
+    title: 'Fake Data Generator',
+    seoTitle: 'Fake Data Generator - Mock JSON, CSV & SQL for Testing | Dev Tools',
+    description: 'Free online mock data generator. Create realistic random users, addresses, and financial data. Export to JSON, CSV, and SQL.',
+    longDescription:
+      'Generate massive datasets of realistic dummy data for testing and development. Build custom schemas with fields like names, emails, and credit cards. Export up to 5,000 rows instantly as JSON, CSV, or SQL INSERT statements to seed your database.',
+    badge: 'Generators',
+    accent: 'Mock Data',
+    keywords: [
+      'fake data',
+      'mock data',
+      'dummy data',
+      'random user generator',
+      'sql seeder',
+      'json generator',
+      'test data',
+      'faker',
+      'database seed',
+    ],
   },
 ];
 
