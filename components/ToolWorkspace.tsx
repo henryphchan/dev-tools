@@ -14,6 +14,7 @@ import { UuidWorkspace } from './workspaces/UuidWorkspace';
 import { MarkdownPreviewWorkspace } from './workspaces/MarkdownPreviewWorkspace';
 import { KeycodeVisualizerWorkspace } from './workspaces/KeycodeVisualizerWorkspace';
 import { ParquetViewerWorkspace } from './workspaces/ParquetViewerWorkspace';
+import { FakeDataGeneratorWorkspace } from './workspaces/FakeDataGeneratorWorkspace';
 
 import { ParquetProfilerWorkspace } from './workspaces/ParquetProfilerWorkspace';
 import { ColorPaletteWorkspace } from './workspaces/ColorPaletteWorkspace';
@@ -73,6 +74,7 @@ const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: To
   timezone: TimezoneConverterWorkspace,
   cron: CronValidatorWorkspace,
   'parquet-viewer': ParquetViewerWorkspace,
+  'fake-data-generator': FakeDataGeneratorWorkspace,
 
   'webp-converter': WebpConverterWorkspace,
 };
