@@ -64,12 +64,7 @@ export default function RootLayout({
 
       </head>
       <body className={`${inter.className} ${fira.variable}`}>
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3237862192285184"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+
         <AppLayout>{children}</AppLayout>
       </body>
     </html>
