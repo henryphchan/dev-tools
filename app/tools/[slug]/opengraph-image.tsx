@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { findToolBySlug } from '../../../lib/tools';
 
-export const runtime = 'edge';
+
 
 export const alt = 'Dev Tools';
 export const size = {
