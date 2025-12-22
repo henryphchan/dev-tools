@@ -97,6 +97,8 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       <Breadcrumb tool={tool} />
       <Workspace tool={tool} />
 
+      <AdUnit />
+
       {/* SEO Content Injection */}
       <section className="mx-auto max-w-4xl pt-8 border-t border-white/5 space-y-8">
         <div>
@@ -114,7 +116,7 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
         )}
       </section>
 
-      <AdUnit />
+
     </main>
   );
 }
