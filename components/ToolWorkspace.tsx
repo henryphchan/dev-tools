@@ -8,6 +8,7 @@ import { BitwiseWorkspace } from './workspaces/BitwiseWorkspace';
 import { CsvProfilerWorkspace } from './workspaces/CsvProfilerWorkspace';
 import { JsonToonWorkspace } from './workspaces/JsonToonWorkspace';
 import { LoremIpsumWorkspace } from './workspaces/LoremIpsumWorkspace';
+import ReactMarkdown from 'react-markdown';
 import { PasswordGeneratorWorkspace } from './workspaces/PasswordGeneratorWorkspace';
 import { SvgPlaceholderWorkspace } from './workspaces/SvgPlaceholderWorkspace';
 import { SlugifyWorkspace } from './workspaces/SlugifyWorkspace';
@@ -103,7 +104,9 @@ export function ToolWorkspace({ tool }: { tool: ToolInfo }) {
       <section className="mx-auto max-w-4xl pt-8 border-t border-white/5 space-y-8">
         <div>
           <h2 className="text-lg font-semibold text-slate-200 mb-3">About {tool.title}</h2>
-          <p className="text-slate-400 leading-relaxed">{tool.longDescription}</p>
+          <div className="text-slate-400 leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0">
+            <ReactMarkdown>{tool.longDescription}</ReactMarkdown>
+          </div>
         </div>
 
         {tool.technicalDescription && (

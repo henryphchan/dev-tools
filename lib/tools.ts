@@ -55,7 +55,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Text Diff Viewer - Compare Two Files Online | Dev Tools',
     description: 'Compare two text files or strings side-by-side with line numbers and highlighting.',
     longDescription:
-      'Identify differences between two texts quickly. Paste or upload files to see a side-by-side comparison with syntax highlighting, line numbers, and distinct colors for additions and removals.',
+      'Use this online **Text Diff Viewer** to **compare files** and identify every **text difference** instantly. Whether you are debugging code, checking versions, or merging content, our tool highlights exactly what has changed between your two inputs. It identifies added, removed, and modified lines with clear, distinct colors for easy analysis.\n\nSave valuable time during code reviews and document revisions by spotting discrepancies immediately. Instead of manually scanning for errors, you can rely on this automated **file diff** tool to catch even the smallest whitespace changes or typos. It is an essential utility for developers, writers, and data analysts who need to **highlight changes** accurately.\n\nSimply paste your original text into the \'Left\' panel and the modified text into the \'Right\' panel. Alternatively, upload two files from your computer. The comparison will run automatically in your browser. Use the summary view to jump between differences or toggle "Word Wrap" to view long lines comfortably.',
     badge: 'Data & Analysis',
     accent: 'Diffing',
     keywords: ['diff', 'compare files', 'text difference', 'file diff', 'highlight changes'],
@@ -69,7 +69,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'String Case Converter - Camel, Snake, Kebab & Pascal Case | Dev Tools',
     description: 'Convert text between camelCase, snake_case, kebab-case, PascalCase, and more.',
     longDescription:
-      'Paste any text and see it converted across popular casing styles like camelCase, PascalCase, kebab-case, snake_case, and SCREAMING_SNAKE. Great for renaming variables or aligning API fields.',
+      'This **Case Converter** tool effortlessly transforms text into standard programming formats like **camelCase**, **snake_case**, **PascalCase**, and **kebab-case**. It is designed for developers who need to normalize variable names, database fields, or API keys across different coding standards and languages.\n\nEnsure consistency in your codebase and eliminate manual editing errors. By automatically converting phrases into strict programming conventions, you can maintain clean naming schemas for your variables and classes. This tool handles special characters and spaces intelligently, ensuring your **naming** conventions are always respected.\n\nTo use, just paste your text into the input field. The converter will instantly display the text in all supported formats simultaneously. Click on any of the result boxes to copy the converted string directly to your clipboard.',
     badge: 'Converters',
     accent: 'Casing',
     keywords: ['case converter', 'camelCase', 'snake_case', 'PascalCase', 'kebab-case', 'naming'],
@@ -83,7 +83,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'URL Slug Generator - Create SEO Friendly Clean Links | Dev Tools',
     description: 'Generate clean, SEO-friendly URL slugs from any string with custom delimiters.',
     longDescription:
-      'Paste any text to generate a URL-ready slug. Strip punctuation, collapse spaces, and pick your delimiter while keeping output lowercase for consistent links.',
+      'Our **URL Slug Generator** turns any text string into a clean, readable, and **SEO**-friendly URL slug. It automatically removes special characters, transliterates accents, and replaces spaces with hyphens or underscores (kebab-case or snake-case), making it perfect for generating a **permalink** or blog post address.\n\nBoost your website\'s search engine ranking by using descriptive, keyword-rich URLs. A well-formatted **url slug** is easier for users to read and for Google to index. This tool ensures your links follow web standards (RFC 3986) without you needing to manually sanitize every title.\n\nType your article title or text into the input box. Select your preferred delimiter (usually a hyphen for URLs). The tool will instantly generate the sanitized slug string below. Click the copy button to paste it straight into your code or CMS.',
     badge: 'Web & Frontend',
     accent: 'URLs',
     keywords: ['slugify', 'url slug', 'kebab-case', 'seo', 'permalink'],
@@ -97,7 +97,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Crontab Generator & Validator - Schedule Cron Expressions | Dev Tools',
     description: 'Validate and generate cron schedule expressions with next-run previews.',
     longDescription:
-      'Check cron expressions quickly with a visual timeline, upcoming execution preview, and warnings for overly aggressive cadences. Great for CI jobs, maintenance windows, or scheduled alerts.',
+      'This **Cron Validator** helps developers create and verify **crontab** schedules with ease. It parses standard cron expressions to generate a human-readable description and calculates the next upcoming execution dates, ensuring your **scheduled jobs** run exactly when expected.\n\nEliminate the guesswork from **DevOps** scheduling and prevent critical job failures. Visualizing the timeline of your cron tasks helps you spot overlaps or overly frequent runs that could crash your server. It is an indispensable tool for managing backups, system maintenance on Linux, or serverless functions.\n\nEnter a cron expression (e.g., `*/5 * * * *`) into the input field to see its schedule. Alternatively, use the visual interface to point and click your desired minutes, hours, and days. The next run times will update in real-time.',
     badge: 'DevOps',
     accent: 'Automation',
     keywords: ['cron', 'scheduler', 'cron validator', 'crontab', 'scheduled jobs', 'devops'],
@@ -111,7 +111,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Linux Chmod Calculator - Octal & Symbolic Permissions | Dev Tools',
     description: 'Calculate file permissions in octal (755) and symbolic (rwxr-xr-x) formats.',
     longDescription:
-      'Interactively flip read, write, and execute bits for owners, groups, and others. See octal, 4-digit (special bits), and symbolic chmod strings update instantly for server hardening or script generation.',
+      'The **Chmod** Calculator provides a quick way to compute accurate **file permissions** for Linux and Unix systems. It converts between the standard **octal permissions** (like 755 or 644) and the symbolic **rwx** notation, identifying exactly who has read, write, or execute access.\n\nSecure your servers and scripts by ensuring precise access and control lists. Understanding **unix permissions** prevents security vulnerabilities caused by accidental overly-permissive files (like 777). This tool helps systems administrators and developers verify the correct `chmod` commands for their deployment scripts.\n\nCheck or uncheck the boxes for Owner, Group, and Public permissions. The calculator will instantly show the corresponding Octal code (e.g., 755) and Symbolic text (e.g., `drwxr-xr-x`). You can also type an Octal number directly to see what permissions it represents.',
     badge: 'DevOps',
     accent: 'Permissions',
     keywords: ['chmod', 'file permissions', 'octal permissions', 'rwx', 'unix permissions'],
@@ -125,7 +125,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'CSV Data Profiler - Analyze Statistics, Types & Patterns | Dev Tools',
     description: 'Analyze CSV files for column statistics, null types, and data patterns.',
     longDescription:
-      'Validate CSV structure quickly by pasting or uploading a file. Review unique counts, nulls, dominant data patterns, and sample values per column, then export the profiling summary as CSV.',
+      'The **CSV Data Profiler** scans your datasets to provide a comprehensive **data quality** report. It calculates a **unique count**, identifies null values, and detects formatting patterns for every column, essentially serving as an instant **data profiler** in your browser.\n\nUnderstand your data before importing it into a database or analytics tool. By spotting missing values (`null count`) and cardinality issues early, you avoid costly cleanup steps later. It helps data engineers and analysts perform rapid exploratory data analysis (EDA) without writing code.\n\nDrag and drop your CSV file onto the page or paste raw CSV text. The tool applies **pattern analysis** to generate a column-by-column breakdown, showing the data type (string, number, boolean), min/max values, and non-null percentages.',
     badge: 'Data & Analysis',
     accent: 'Data Quality',
     keywords: ['csv profiling', 'data quality', 'unique count', 'null count', 'pattern analysis', 'data profiler'],
@@ -139,7 +139,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Parquet File Profiler - View Schema & Statistics Online | Dev Tools',
     description: 'Inspect Apache Parquet files for schema details, row counts, and column statistics.',
     longDescription:
-      'Validate Parquet structure by uploading a file. Review schema, row count, unique counts, nulls, and sample values per column. Runs entirely in your browser.',
+      'This **Parquet** Profiler allows you to inspect the metadata and statistics of **big data** files without downloading specialized desktop software. It reads the file header to visualize the **schema**, column types, compression codecs, and row counts directly in the browser.\n\nEnsure your data lake files are valid and conform to the expected schema. This tool is vital for data engineers working with **Arrow** or Spark ecosystems who need to check **data quality** and file integrity rapidly. It provides transparency into binary formats that are otherwise unreadable.\n\nUpload a `.parquet` file to the drop zone. The application parses the footer metadata and displays a structural overview, including nested fields and statistical summaries for each column group.',
     badge: 'Data & Analysis',
     accent: 'Data Quality',
     keywords: ['parquet', 'profiling', 'data quality', 'big data', 'schema', 'arrow'],
@@ -153,7 +153,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'CSV to JSON Converter - Transform Data Arrays & Objects | Dev Tools',
     description: 'Convert CSV data into JSON arrays or objects with automatic header detection.',
     longDescription:
-      'Quickly translate CSV rows into JSON arrays or convert JSON back into shareable CSV. Great for API payload prep, data munging, or debugging exports.',
+      'Our **CSV to JSON** Converter transforms flat tabular data into structured JavaScript Objects. It is a robust **converter** that handles complex quoting and delimiters, allowing you to seamlessly swap formats between **CSV** and **JSON** for web APIs or configuration.\n\nModernize your legacy data workflows by converting spreadsheets into web-native JSON. This allows frontend applications and NoSQL databases to consume your data easily. It handles both **json to csv** and vice-versa, making it the ultimate **data tool** for interoperability.\n\nPaste your CSV content on the left or upload a file. Toggle "Header Row" if your first line contains field names. The tool will parse the data and output a clean JSON array on the right, ready for copy-pasting.',
     badge: 'Converters',
     accent: 'Data',
     keywords: ['csv', 'json', 'converter', 'csv to json', 'json to csv', 'data tools'],
@@ -167,7 +167,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'YAML to JSON Converter - Validate & Transform Configs | Dev Tools',
     description: 'Convert YAML configuration files to JSON and vice-versa for easy validation.',
     longDescription:
-      'Convert between YAML and JSON for config files, CI pipelines, or Kubernetes manifests. Validate structure quickly before committing changes.',
+      'The **YAML to JSON** Converter is essential for DevOps professionals managing **Kubernetes** manifests or CI/CD pipelines. It translates human-readable **YAML** into strict **JSON** format, and supports **json to yaml** conversion for generating configuration files.\n\nValidate your **config** files instantly. YAML is prone to indentation errors; converting it to JSON reveals structure flaws immediately. This tool bridges the gap between configuration management (YAML) and data interchange (JSON), streamlining your deployment workflows.\n\nInput your YAML code into the editor. The tool automatically detects the schema and produces the equivalent JSON. You can modify the object in either view and see the changes reflected in the other format instantly.',
     badge: 'Converters',
     accent: 'Config',
     keywords: ['yaml', 'json', 'converter', 'yaml to json', 'json to yaml', 'kubernetes', 'config'],
@@ -181,7 +181,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'JSON to TOON Outline Converter - Token Efficient Format | Dev Tools',
     description: 'Convert JSON to TOON outline notation to save tokens in LLM prompts.',
     longDescription:
-      'Convert structured JSON into TOON, a token-efficient outline notation favored by LLM teams, and reverse it back without losing type safety.',
+      'This **converter** transforms standard **JSON** into **TOON** (Tree Object Outline Notation), a specialized **outline notation** optimized for Large Language Models (**LLM**). It strips away redundant syntax like braces and quotes to create a highly compact **prompt format**.\n\nReduce your API costs and stay within context window limits. By compressing generic data structures into minimal token counts, you can feed more context to models like GPT-4 or Claude without sacrificing structural integrity. It is the perfect pre-processing step for prompt engineering.\n\nPaste your JSON object to generate the TOON representation. Copy the output for your LLM prompt. The tool also supports reverse conversion, allowing you to turn LLM-generated outline text back into valid JSON.',
     badge: 'Converters',
     accent: 'LLM',
     keywords: ['json', 'toon', 'converter', 'llm', 'prompt format', 'outline notation'],
@@ -195,7 +195,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Unix Timestamp Converter - Epoch to Human Readable Date | Dev Tools',
     description: 'Convert Unix timestamps (seconds/millis) to human-readable dates and local times.',
     longDescription:
-      'Paste a Unix timestamp in seconds or milliseconds to see a human-friendly date with ISO and local timezone details. Perfect for log debugging or API payloads.',
+      'The Unix **Timestamp** Converter translates the raw **epoch** time into a human-readable **date**. It supports both **seconds** and **milliseconds** formats, handling the conversion between machine time (integer) and standard ISO 8601 date strings.\n\nDebug time-sensitive issues efficiently. Logs and databases often store time as a plain integer **unix time**, which is unreadable to humans. This **date converter** allows developers to quickly verify exactly when an event occurred in their local timezone or UTC.\n\nPaste a numeric timestamp to see the formatted date relative to your browser\'s local time. Conversely, you can use the date picker to select a specific time and get the corresponding Unix epoch value.',
     badge: 'Converters',
     accent: 'Time',
     keywords: ['timestamp', 'unix time', 'milliseconds', 'seconds', 'date converter', 'epoch'],
@@ -209,7 +209,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Date Time Difference Calculator - Calculate Duration | Dev Tools',
     description: 'Calculate the precise duration between two dates in years, months, days, and seconds.',
     longDescription:
-      'Pick any two date-times to instantly see the difference across units. Defaults to the current moment so you can quickly measure gaps without manual setup.',
+      'The **Datetime Difference** Calculator computes the exact **time delta** or **duration** between two specific dates. It provides a granular breakdown of the **date gap**, showing the total years, months, days, hours, and minutes between the start and end points.\n\nPerform accurate **time math** for project planning, billing cycles, or uptime analysis. Calculating time intervals manually is prone to errors due to leap years and varying month lengths; this tool handles all calendar logic for you.\n\nSelect a Start Date and an End Date. The calculator instantly updates to show the full duration string (e.g., "2 years, 3 months, 4 days") as well as the total count of individual units (e.g., "Total Days: 825").',
     badge: 'Converters',
     accent: 'Time math',
     keywords: ['datetime difference', 'time delta', 'duration calculator', 'date gap', 'time math'],
@@ -223,7 +223,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'JWT Debugger & Decoder - Verify Signatures Online | Dev Tools',
     description: 'Decode, verify, and debug JSON Web Tokens without sending them to a server.',
     longDescription:
-      'Paste a JSON Web Token to view the decoded header and payload instantly. Great for debugging auth flows or validating claims locally.',
+      'This **JWT** Decoder serves as a comprehensive debugger for your **JSON Web Token** implementation. It allows you to **decode jwt** strings to view the header, payload, and signature claims, facilitating rigorous **auth debugging** for your web applications.\n\nInspect your **token** contents securely. Verify that your authentication service is issuing the correct user roles, expiration times, and issuers. Since the decoding happens entirely in your browser, your sensitive tokens never leave your local machine, ensuring privacy.\n\nPaste your Base64Url encoded JWT string into the text area. The tool will parse the three components color-coded for clarity. You can also view the raw JSON payload to check specific claim values.',
     badge: 'Security',
     accent: 'Security',
     keywords: ['jwt', 'json web token', 'decode jwt', 'auth debugging', 'token'],
@@ -237,7 +237,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'UUID Generator - Create Random v4 GUIDs | Dev Tools',
     description: 'Generate random UUIDs (v4) for database keys and unique identifiers.',
     longDescription:
-      'Generate cryptographically strong UUIDs (v4) instantly in your browser. Bulk generate identifiers for database migrations, API keys, or test seed data with a single click.',
+      'The **UUID** Generator creates cryptographically secure Version 4 (random) identifiers. Whether you call it a **GUID** or a **UUID**, this tool produces valid, RFC 4122 compliant strings suitable for database keys and session handling.\n\nEnsure data integrity with a collision-resistant **identifier**. Using a secure **random uuid** **generator** prevents the risks associated with predictable sequences or timestamp-based IDs in distributed systems. It is the standard for uniquely identifying objects in modern software architecture.\n\nClick the "Generate" button to create a single UUID. For bulk needs, switch to Batch mode to generate up to 1000 IDs at once. You can copy the list directly to your clipboard for use in SQL scripts or testing data.',
     badge: 'Generators',
     accent: 'Identity',
     keywords: ['uuid', 'generator', 'random uuid', 'identifier', 'guid'],
@@ -251,7 +251,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Lorem Ipsum Generator - Placeholder Text for Designs | Dev Tools',
     description: 'Generate standard Lorem Ipsum placeholder text for design mockups.',
     longDescription:
-      'Produce classic lorem ipsum filler tailored to your layout. Choose between sentences or paragraphs, control how long each item is, and export the text for mockups or documentation.',
+      'Our **Lorem Ipsum** Generator creates authentic-looking **placeholder text** for your UI designs and wireframes. Generate paragraphs, sentences, or lists of **dummy text** that mimic regular sentence structure without carrying any meaning.\n\nSpeed up your design process with professional **filler content**. Using a **content generator** prevents stakeholders from getting distracted by readable copy during visual reviews. It allows the focus to remain on layout, typography, and spacing.\n\nChoose your desired unit (paragraphs, words, or sentences) and quantity. The generator produces clean text that you can copy instantly. It uses a rich dictionary of Latin roots to ensure variety and avoid repetitive patterns.',
     badge: 'Generators',
     accent: 'Content',
     keywords: ['lorem ipsum', 'placeholder text', 'dummy text', 'filler content', 'content generator'],
@@ -265,7 +265,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Secure Password Generator - Random Strong Passwords | Dev Tools',
     description: 'Create strong, random passwords with custom requirements like symbols and numbers.',
     longDescription:
-      'Build complex passwords with adjustable length, casing, numbers, and symbols. Gauge strength with entropy and estimated brute-force crack times—computed entirely in your browser.',
+      'This **Password Generator** creates high-**entropy** credentials to secure your accounts. It builds a **strong password** by combining uppercase letters, numbers, and symbols, ensuring resilience against dictionary and **brute force** attacks.\n\nProtect your digital identity with a robust **password strength** strategy. Reusing simple passwords allows attackers to compromise multiple accounts easily. Generating a unique, complex password for every service is the most effective defense against credential stuffing.\n\nCustomize the length and character sets (A-Z, 0-9, Symbols). As you adjust settings, the tool provides real-time feedback on the crack time and security score. Copy the secure string to your password manager immediately.',
     badge: 'Security',
     accent: 'Passwords',
     keywords: ['password generator', 'strong password', 'entropy', 'brute force time', 'password strength'],
@@ -279,7 +279,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'SVG Placeholder Image Generator - Custom Dimensions | Dev Tools',
     description: 'Generate SVG placeholder images with custom dimensions, colors, and text.',
     longDescription:
-      'Quickly craft shareable placeholder images for mocks or social previews. Set width, height, background/text colors, font size, and a custom label while copying inline SVG markup or Base64 data URIs instantly.',
+      'The **SVG Placeholder** Generator is a handy tool for frontend developers needing a quick **mock image**. It creates lightweight, scalable vector images with custom dimensions and colors, outputting the result as a **base64 svg** or raw code.\n\nStreamline your prototyping workflow. Instead of searching for stock photos or creating dummy files in design software, use this **placeholder generator** to create a properly sized **placeholder image** in seconds. It allows you to test responsive layouts with precise aspect ratios.\n\nSet the Width and Height, then pick background and text colors. You can add a custom label to identifying area. Copy the `img src` data URI to embed it directly in your HTML or download the .svg file.',
     badge: 'Web & Frontend',
     accent: 'Images',
     keywords: ['svg placeholder', 'placeholder generator', 'base64 svg', 'placeholder image', 'mock image'],
@@ -293,7 +293,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'QR Code Generator - Create Free QR Codes for URLs/WiFi | Dev Tools',
     description: 'Generate QR codes for URLs, text, email, or WiFi connection details.',
     longDescription:
-      'Produce high-quality QR codes without leaving your browser. Generate standard QR images for text or links, or create WiFi QR codes that let devices join your network instantly.',
+      'This **QR Generator** creates high-quality 2D barcodes for URLs, text messages, and **WiFi QR** connection strings. It is a versatile tool to **share links** and data instantly with mobile users, enabling seamless **network onboarding** and information exchange.\n\nBridge the physical and digital worlds. A **QR code** is the standard for contactless interaction, perfect for restaurant menus, business cards, or event ticketing. Ensuring your codes are scannable and high-contrast is critical for user experience.\n\nSelect the data type: URL, Text, or WiFi. Enter the relevant information, such as the SSID and password for networks. The QR code updates instantly. You can save it as a PNG or SVG for print-quality resolution.',
     badge: 'Generators',
     accent: 'Sharing',
     keywords: ['qr code', 'wifi qr', 'qr generator', 'share links', 'network onboarding'],
@@ -307,7 +307,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Word Cloud Generator - Visualize Text Frequency | Dev Tools',
     description: 'Visualize the most frequent words in your text with a customizable cloud.',
     longDescription:
-      'Paste any text to see the most frequent words rendered as an eye-catching cloud. Tweak colors, background, stopwords, and canvas size to match your presentation or report.',
+      'The **Word Cloud** Visualizer turns raw text into a compelling graphic where word size represents **frequency**. It is an effective method for **text visualization**, allowing you to spot dominant themes and keywords in a meaningful visual layout.\n\nAnalyze content at a glance. Whether checking SEO density or summarizing a speech, a word cloud reveals the "weight" of vocabulary instantly. This tool filters out common **stopwords** (like "the" or "and") to focus purely on the significant terms in your **presentation**.\n\nPaste your article or dataset into the text area. The cloud will render automatically. You can customize the color theme and font scale to match your style. Hover over words to see their exact occurrence count.',
     badge: 'Data & Analysis',
     accent: 'Content',
     keywords: ['word cloud', 'text visualization', 'frequency', 'stopwords', 'presentation'],
@@ -321,7 +321,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Regular Expression Tester - Validate & Debug Regex | Dev Tools',
     description: 'Test and debug regular expressions against sample text with real-time matches.',
     longDescription:
-      'Experiment with regular expressions quickly. Try patterns with flags, view matched substrings with positions, and debug capture groups for your text processing tasks.',
+      'This **Regex Tester** provides a real-time environment to validate and debug your **regular expression** patterns. It highlights **pattern matching** results instantly, helping you visualize how your regex interacts with sample text and capture groups.\n\nWrite robust code by testing your expressions before deployment. Regex is powerful but brittle; ensuring you handle edge cases and **regex flags** correctly prevents runtime errors in production. This tool breaks down complex queries into understandable matches.\n\nEnter your regex pattern (e.g., `^\\d{5}$` for zips) and input a test string. The matching substrings are highlighted. You can inspect specific **regex groups** and modify flags (like Global or Case Insensitive) to refine your logic.',
     badge: 'Web & Frontend',
     accent: 'Regex',
     keywords: ['regex tester', 'regular expression', 'pattern matching', 'regex flags', 'regex groups'],
@@ -335,7 +335,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Hash Generator - Calculate MD5, SHA-256, SHA-512 | Dev Tools',
     description: 'Calculate cryptographic hashes for text or files using MD5, SHA-256, and more.',
     longDescription:
-      'Compute MD5, SHA-1, SHA-256, SHA3-256, or BLAKE2b hashes directly in the browser. Paste text or upload a file to verify integrity, fingerprints, or cache keys.',
+      'The **Hash** Generator computes a unique cryptographic **checksum** for any text or file input. It supports standard algorithms like **MD5**, **SHA256**, and **BLAKE2**, enabling you to verify data integrity and generate digital fingerprints securely in the browser.\n\nEnsure that files have not been tampered with or corrupted. By comparing the calculated hash against a known value, you can guarantee the authenticity of downloads or backups. It also serves as a utility for generating non-reversible keys for data indexing.\n\nType your message or upload a file. Select your desired algorithm (e.g., SHA-512). The tool will compute the hexadecimal digest string instantly. For large files, it processes data in chunks to remain responsive.',
     badge: 'Security',
     accent: 'Integrity',
     keywords: ['hash', 'checksum', 'md5', 'sha256', 'blake2'],
@@ -349,7 +349,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'JSON Formatter & Validator - Minify & Beautify | Dev Tools',
     description: 'Format, validate, and minify JSON data with error highlighting.',
     longDescription:
-      'Format, validate, and share JSON snippets in seconds. Use it to prepare clean API payloads, tidy configuration files, or debug malformed responses without leaving your browser.',
+      'The **JSON** Formatter is an all-in-one **validator** and beautifier for JavaScript Object Notation. It helps you **prettify JSON** responses from APIs, making them readable, or minify them for compact storage and transmission.\n\nDebug your **API payload** structures faster. Raw JSON is often single-lined and hard to read; this tool formats it with proper indentation and nesting. It also catches syntax errors, such as missing quotes or trailing commas, which are common sources of application failures.\n\nPaste your raw JSON string into the editor. The tool automatically formats it. If there is an error, it highlights the specific line number. You can toggle between "Pretty" and "Minified" views to suit your needs.',
     badge: 'Data & Analysis',
     accent: 'Structured data',
     keywords: ['json', 'formatter', 'validator', 'api payload', 'prettify JSON'],
@@ -363,7 +363,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'XML Formatter - Beautify & Minify Online | Dev Tools',
     description: 'Format and prettify XML strings with proper indentation.',
     longDescription:
-      'Make XML easy to scan with reliable indentation. Great for SOAP payloads, sitemap debugging, configuration files, or any XML you need to share with teammates.',
+      'This **XML** Formatter organizes standard Extensible Markup Language into a clean, hierarchical tree. It acts as an intelligent **xml editor** and **beautifier**, adding correct indentation to make complex XML documents easy for humans to scan and understand.\n\nSimplify the debugging of SOAP messages, sitemaps, and config files. Unformatted XML is dense and difficult to parse visually. This tool ensures that tags are properly nested and closed, helping you validate the structure of your data interchange format.\n\nInput your XML string. The tool will parse and **indent XML** nodes automatically. You can copy the formatted output or minify it back to a single string for production usage.',
     badge: 'Data & Analysis',
     accent: 'Markup',
     keywords: ['xml', 'formatter', 'beautifier', 'indent XML', 'xml editor'],
@@ -377,7 +377,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'SQL Formatter - Prettify Queries for MySQL, Postgres | Dev Tools',
     description: 'Format and prettify SQL queries into clean, readable code for various dialects.',
     longDescription:
-      'Reformat SQL for faster reviews and fewer mistakes. Ideal for formatting ad-hoc queries, code review snippets, or saved scripts across major databases.',
+      'The **SQL Formatter** standardizes your database queries into clean, professional code. It serves as a universal **query beautifier**, supporting multiple dialects like **MySQL**, **Postgres SQL format**, and Standard SQL to apply the correct syntax highlighting and indentation rules.\n\nEnhance the maintainability of your database scripts. Complex queries with nested JOINs and subqueries can become unreadable over time. This **database tool** reorganizes them into a structured format, making code reviews and debugging significantly clearer.\n\nPaste your SQL statement into the box. Select your target language (e.g., PostgreSQL). The tool will align keywords and clauses. You can copy the result directly into your DB management tool.',
     badge: 'Data & Analysis',
     accent: 'Database',
     keywords: ['sql formatter', 'query beautifier', 'postgres sql format', 'mysql', 'database tools'],
@@ -391,7 +391,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'URL & Base64 Encoder/Decoder - Online String Converter | Dev Tools',
     description: 'Encode or decode text to URL-safe strings or Base64 format.',
     longDescription:
-      'Safely transform strings between URL encoding and Base64. Decode JWT fragments, sanitize query parameters, and copy clean outputs without extra dependencies.',
+      'This dual-purpose **Converter** handles **URL encode** and **Base64** operations in one interface. It allows you to sanitize strings for safe transport via HTTP or encode binary data into text formats, covering the most common encoding tasks for web development.\n\nFix broken links and data transmission errors. **URL decode** logic restores readable text from percent-encoded strings, while Base64 is essential for embedding images or handling **JWT** segments. This tool ensures your data remains intact across different systems.\n\nChoose your mode: Encoder or Decoder. Paste your text. The output updates instantly. It properly handles UTF-8 characters to prevent encoding glitches with emojis or non-Latin scripts.',
     badge: 'Converters',
     accent: 'Transport',
     keywords: ['url encode', 'url decode', 'base64', 'converter', 'jwt'],
@@ -405,7 +405,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Timezone Converter - Meeting Planner & UTC Offset | Dev Tools',
     description: 'Convert between different timezones and plan international meetings.',
     longDescription:
-      'Plan meetings and releases with confidence. Convert between popular time zones, see readable offsets, and copy the converted values for invites or documentation.',
+      'The **Timezone Converter** is a visual **meeting planner** designed for remote teams. It allows you to cross-reference multiple **time zones** simultaneously and calculate the **UTC offset**, making it easy to schedule across borders.\n\nCoordinate global collaboration without the headache of mental math. Finding a slot that works for London, New York, and Tokyo is complex; this **scheduler** visualizes the overlap so you can pick a reasonable hour for everyone.\n\nAdd cities or zones to your list. Drag the time slider to see how the hour shifts for every location. The tool highlights business hours to help you avoid scheduling meetings in the middle of the night.',
     badge: 'DevOps',
     accent: 'Schedule',
     keywords: ['timezone converter', 'utc offset', 'meeting planner', 'time zones', 'scheduler'],
@@ -419,7 +419,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Bitwise Calculator - AND, OR, XOR, Binary Shifts | Dev Tools',
     description: 'Perform low-level bitwise operations and convert between binary and decimal.',
     longDescription:
-      'Test bitwise logic quickly. Inspect how integers respond to AND, OR, XOR, NOT, and shift operators with decimal and binary outputs for debugging low-level code.',
+      'This **Bitwise Calculator** performs low-level logic operations on integers. It visualizes **binary** math including **AND, OR, XOR**, and **bit shifts**, helping developers understand how data is manipulated at the machine level.\n\nMaster the fundamentals of computer science and **debugging**. Whether you are working on embedded systems, permission masks, or network protocols, visualizing the binary representation of your data is crucial for accuracy. It bridges the gap between decimal values and bit patterns.\n\nEnter your operands in decimal or hex. Select the operator (e.g., `&` or `|`). The tool displays the result along with the full 32-bit binary breakdown of inputs and outputs.',
     badge: 'Data & Analysis',
     accent: 'Binary',
     keywords: ['bitwise calculator', 'binary', 'and or xor', 'bit shifts', 'debugging'],
@@ -433,7 +433,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'WebP Image Converter - Compress & Convert to WebP | Dev Tools',
     description: 'Convert images to the modern WebP format for better web performance.',
     longDescription:
-      'Upload single or multiple images, pick a WebP quality, and download optimized files together. Track before/after file sizes to see how much space you save.',
+      'The **WebP Converter** transforms standard images (JPG, PNG) into the highly efficient **WebP** format. This **image converter** allows you to **optimize images** for the web, significantly reducing file sizes while maintaining visual fidelity.\n\nImprove your Core Web Vitals and page load speeds. WebP files are often 30% smaller than their JPEG counterparts. Using this tool for **batch conversion** helps you modernize your asset library quickly without needing server-side processing.\n\nUpload one or many images. Adjust the **WebP quality** slider to find the balance between size and sharpness. Download the converted files individually or as a group.',
     badge: 'Converters',
     accent: 'Images',
     keywords: ['webp', 'image converter', 'webp converter', 'optimize images', 'webp quality', 'batch conversion'],
@@ -447,7 +447,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Photo EXIF Viewer & Editor - View Metadata | Dev Tools',
     description: 'View and edit EXIF metadata, including GPS location and camera settings.',
     longDescription:
-      'Review every EXIF field in your photo, adjust capture times with timezone offsets, and retag GPS coordinates before saving a fresh copy—all in your browser.',
+      'The **EXIF** Data Viewer allows you inspect and modify the hidden **photo metadata** inside JPEG images. It reveals camera details, ISO settings, timestamps, and **GPS tags**, giving you full control over the information embedded in your files.\n\nProtect your privacy before sharing images online. Photos often contain precise location data; this tool lets you review and strip sensitive **image editing** history or location markers. It is also useful for correcting **timezone** errors in travel photography.\n\nUpload your photo to view the full EXIF table. You can edit specific fields or use the "Remove All Metadata" feature. Save the cleaned image back to your device without re-compressing the visual data.',
     badge: 'Data & Analysis',
     accent: 'Imaging',
     keywords: ['exif', 'photo metadata', 'gps tags', 'timezone', 'image editing'],
@@ -461,7 +461,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Tailwind CSS Color Generator - Shades & Tints | Dev Tools',
     description: 'Generate a complete Tailwind CSS color palette from a single hex code.',
     longDescription:
-      'Enter a base hex color to generate a complete Tailwind CSS palette including shades 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, and 950. Copy the entire object for your tailwind.config.js or individual hex codes.',
+      'The **Tailwind** Palette **Generator** creates a complete, consistent **color palette** from a single input color. It calculates the full range of shades (50-950) necessary to extend your **tailwind** **css** configuration file with custom branding.\n\nAccelerate your UI **design** workflow. Manually picking accessible and harmonious shades is time-consuming; this tool automates the process using professional spacing logic. It ensures your custom colors blend perfectly with the utility-first framework.\n\nEnter your brand\'s primary **hex** code. The generator outputs the JSON object for your config file. You can also click to copy individual shade values for quick prototyping.',
     badge: 'Web & Frontend',
     accent: 'Colors',
     keywords: ['tailwind', 'color palette', 'generator', 'design', 'css', 'hex'],
@@ -475,7 +475,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Markdown Editor & Preview - Live HTML conversion | Dev Tools',
     description: 'Write Markdown with a real-time side-by-side HTML preview.',
     longDescription:
-      'Write Markdown on the left and see the rendered HTML on the right instantly. Perfect for drafting content, checking syntax, or previewing README files.',
+      'This **Markdown** **Editor** provides a robust environment for writing and testing **md** syntax. It features a **live preview** panel that renders your content into HTML in real-time, side-by-side with your source text.\n\nPerfect your documentation, blog posts, and READMEs. The tool supports standard formatting as well as GitHub Flavored Markdown (tables, checklists). Seeing the **html preview** instantly helps you catch syntax errors and formatting issues before you commit your code.\n\nType in the left editor pane. The preview updates on every keystroke. You can copy the raw Markdown or the compiled HTML code directly to your clipboard.',
     badge: 'Web & Frontend',
     accent: 'Writing',
     keywords: ['markdown', 'preview', 'editor', 'live preview', 'md', 'html preview'],
@@ -489,7 +489,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'JavaScript Keycode Visualizer - Event Codes & Modifiers | Dev Tools',
     description: 'Visualize JavaScript keyboard events, codes, and modifiers in real-time.',
     longDescription:
-      'Press any key to instantly visualize JavaScript event codes, including `event.key`, `event.code`, and `event.which`. View modifier keys in real-time. Essential for developers building keyboard navigation, games, or accessibility features.',
+      'The **Keycode** **Visualizer** is an interactive debugging tool for web inputs. It listens for **keyboard** activity and displays the precise **event** properties, including `key`, `code`, `which`, and modifier states like Shift or Ctrl.\n\nDebug complex shortcuts and game controls with ease. Understanding how different browsers and operating systems handle **navigation** keys is vital for building accessible web apps. This tool reveals exactly what the browser sees when you press a key.\n\nSimply press any key on your keyboard. The visualizer lights up to show the active code and any modifiers relative to standard **accessibility** mappings.',
     badge: 'Web & Frontend',
     accent: 'Keyboard',
     keywords: ['keycode', 'event', 'visualizer', 'keyboard', 'navigation', 'accessibility'],
@@ -503,7 +503,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Parquet Viewer - Open & Inspect Parquet Files Online | Dev Tools',
     description: 'Open and inspect Apache Parquet files directly in the browser.',
     longDescription:
-      'Drag and drop .parquet files to view them instantly. Inspect schema details, browse data in a grid, and analyze file metadata locally—no server upload required.',
+      'Our **Parquet Viewer** allows you to open and explore **Apache Parquet** files directly in your web browser. It renders the columnar data into a readable grid, acting as a lightweight **local viewer** for heavy data files.\n\nPerform spot checks and **data analysis** on your output files instantly. Loading parquet data often requires complex setups like Jupyter or Pandas; this tool removes that friction, enabling quick verification of data integrity and values on the fly.\n\nDrag and drop your Parquet file. The viewer loads the data using WebAssembly for speed. You can scroll through rows and columns to verify the contents without uploading your private data to any server.',
     badge: 'Data & Analysis',
     accent: 'Data',
     keywords: ['parquet', 'viewer', 'apache parquet', 'data analysis', 'local viewer'],
@@ -517,7 +517,7 @@ export const tools: ToolInfo[] = [
     seoTitle: 'Fake Data Generator - Mock JSON, CSV & SQL for Testing | Dev Tools',
     description: 'Generate realistic mock data for testing and export as JSON, CSV, or SQL.',
     longDescription:
-      'Generate massive datasets of realistic dummy data for testing and development. Build custom schemas with fields like names, emails, and credit cards. Export up to 5,000 rows instantly as JSON, CSV, or SQL INSERT statements to seed your database.',
+      'The **Fake Data** Generator is a versatile tool for creating massive datasets of **mock data**. It acts as a **random user generator**, populating custom fields like names, emails, and addresses to create realistic **test data** for your applications.\n\nSeed your development databases efficiently. Writing a **sql seeder** or **json generator** script manually is tedious; this tool automates the process, allowing you to stress-test your UI or backend with thousands of rows of **dummy data** in seconds.\n\nDefine your schema by adding fields (e.g., First Name, City). Choose how many rows you need. Click download to get the result as a JSON file, CSV, or SQL Insert script using the powerful **faker** library.',
     badge: 'Generators',
     accent: 'Mock Data',
     keywords: [
