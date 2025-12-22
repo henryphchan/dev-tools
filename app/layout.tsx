@@ -8,7 +8,11 @@ const inter = Inter({ subsets: ['latin'] });
 const fira = Fira_Code({ subsets: ['latin'], variable: '--font-fira' });
 
 export const metadata: Metadata = {
-  title: 'Dev Tools | Free online formatters, converters, and calculators',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://devtools.henrychan.tech'),
+  title: {
+    default: 'Dev Tools | Free online formatters, converters, and calculators',
+    template: '%s | Dev Tools',
+  },
   description:
     'Dev Tools is a fast, single-page toolkit for developers. Format JSON, XML, and SQL, convert time zones, encode/decode URLs and Base64, and run bitwise math directly in your browser.',
   keywords: [
@@ -31,6 +35,11 @@ export const metadata: Metadata = {
     siteName: 'Dev Tools',
     locale: 'en_US',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Dev Tools | Free online formatters, converters, and calculators',
+    description: 'Curated utilities for developers. 100% Client-side.',
   },
 };
 
