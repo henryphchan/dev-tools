@@ -1,5 +1,11 @@
 import { ImageResponse } from 'next/og';
-import { findToolBySlug } from '../../../lib/tools';
+import { findToolBySlug, tools } from '../../../lib/tools';
+
+export async function generateStaticParams() {
+    return tools.map((tool) => ({
+        slug: tool.slug,
+    }));
+}
 
 
 
@@ -54,6 +60,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                             fontSize: '24px',
                             fontWeight: 600,
                             border: '1px solid rgba(99, 102, 241, 0.3)',
+                            display: 'flex',
                         }}
                     >
                         {category}
@@ -65,6 +72,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                             fontWeight: 600,
                             textTransform: 'uppercase',
                             letterSpacing: '0.1em',
+                            display: 'flex',
                         }}
                     >
                         • {accent}
@@ -82,6 +90,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                         backgroundClip: 'text',
                         color: 'transparent',
                         maxWidth: '1000px',
+                        display: 'flex',
                     }}
                 >
                     {title}
@@ -94,6 +103,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                         color: '#94a3b8', // slate-400
                         maxWidth: '900px',
                         lineHeight: 1.5,
+                        display: 'flex',
                     }}
                 >
                     {description}
@@ -127,7 +137,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                             strokeLinejoin="round"
                         />
                     </svg>
-                    devtools.henrychan.tech
+                    <div style={{ display: 'flex' }}>devtools.henrychan.tech</div>
                 </div>
             </div>
         ),
