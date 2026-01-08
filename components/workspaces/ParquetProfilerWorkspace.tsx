@@ -1,7 +1,7 @@
 'use client';
 
 import { ChangeEvent, useState } from 'react';
-import { parquetRead } from 'hyparquet';
+import { parquetRead, parquetMetadata, parquetSchema } from 'hyparquet';
 import { ToolInfo } from '../../lib/tools';
 import { ArrowPathRoundedSquareIcon, ClipboardDocumentCheckIcon, CursorArrowRaysIcon } from '../icons';
 import ToolCard from '../ToolCard';
@@ -122,7 +122,7 @@ export function ParquetProfilerWorkspace({ tool }: { tool: ToolInfo }) {
         }
     };
 
-    const processRows = (rows: any[]) => {
+    const processRows = (rows: any[], explicitHeaders?: string[]) => {
         if (!rows || rows.length === 0) {
             setProfileError('Parquet file is empty or could not be read.');
             setIsProcessing(false);
@@ -131,9 +131,8 @@ export function ParquetProfilerWorkspace({ tool }: { tool: ToolInfo }) {
 
         setProfileRowCount(rows.length);
 
-        // Extract headers from first row
-        const firstRow = rows[0];
-        const headers = Object.keys(firstRow);
+        // Headers are now passed explicitly from schema, or fallback to first row keys
+        const headers = explicitHeaders || Object.keys(rows[0]);
 
         const profiles = headers.map((header) => {
             const uniqueValues = new Set<string>();
@@ -220,15 +219,22 @@ export function ParquetProfilerWorkspace({ tool }: { tool: ToolInfo }) {
 
         try {
             const arrayBuffer = await file.arrayBuffer();
-            // hyparquet 0.x usage: parquetRead({ file, onComplete })
+
+            // Extract schema for field names
+            const metadata = parquetMetadata(arrayBuffer);
+            const schema = parquetSchema(metadata);
+            // Extract top-level column names from schema
+            // schema.children is an array of SchemaTree nodes, each has an element property with name
+            const headers = (schema as any).children.map((child: any) => child.element.name);
+
             parquetRead({
                 file: arrayBuffer,
+                rowFormat: 'object',
                 onComplete: (data: any[]) => {
-                    processRows(data);
+                    processRows(data, headers);
                 }
             }).then((data: any) => {
-                // Some versions might implement promise
-                if (data && Array.isArray(data)) processRows(data);
+                if (data && Array.isArray(data)) processRows(data, headers);
             });
         } catch (err: any) {
             console.error(err);
@@ -248,7 +254,7 @@ export function ParquetProfilerWorkspace({ tool }: { tool: ToolInfo }) {
         // To be consistent with CSV Profiler, I will reimplement simple CSV generation or use the one from CSV profiler if I extracted it.
         // I'll just write a simple generator here.
 
-        const headers = ['Column', 'Unique', 'Null/blank', 'Min length', 'Max length', 'Min', 'Max', 'Average', 'Median', 'Std dev', 'Pattern', 'Coverage', 'Samples'];
+        const headers = ['Field Name', 'Unique', 'Null/blank', 'Min length', 'Max length', 'Min', 'Max', 'Average', 'Median', 'Std dev', 'Pattern', 'Coverage', 'Samples'];
 
         const rows = profileResults.map((column) => [
             column.name,
@@ -349,7 +355,7 @@ export function ParquetProfilerWorkspace({ tool }: { tool: ToolInfo }) {
                             <table className="min-w-full text-sm text-slate-200">
                                 <thead className="text-xs uppercase tracking-[0.18em] text-slate-400">
                                     <tr className="border-b border-white/10">
-                                        <th className="text-left py-2 pr-3">Column</th>
+                                        <th className="text-left py-2 pr-3">Field Name</th>
                                         <th className="text-left py-2 pr-3">Unique</th>
                                         <th className="text-left py-2 pr-3">Null/blank</th>
                                         <th className="text-left py-2 pr-3">Min length</th>
