@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { tools } from '../lib/tools';
 import { useFavorites } from '../hooks/useFavorites';
-import { Logo, XMarkIcon, GitHubIcon, LinkedInIcon, HeartIcon } from './icons';
+import { Logo, XMarkIcon, GitHubIcon, LinkedInIcon, HeartIcon, InformationCircleIcon } from './icons';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -168,6 +168,14 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           >
             <LinkedInIcon className="w-5 h-5" />
           </a>
+          <Link
+            href="/about"
+            className="text-slate-400 hover:text-white transition-colors"
+            aria-label="About"
+            onClick={onClose}
+          >
+            <InformationCircleIcon className="w-5 h-5" />
+          </Link>
         </div>
         <p className="text-xs text-slate-600 text-center">
           &copy; {new Date().getFullYear()} Dev Tools
