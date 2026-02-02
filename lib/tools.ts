@@ -33,7 +33,8 @@ export type ToolId =
   | 'keycode-visualizer'
   | 'parquet-viewer'
   | 'fake-data-generator'
-  | 'ip-subnet-calculator';
+  | 'ip-subnet-calculator'
+  | 'image-base64';
 
 export interface ToolInfo {
   id: ToolId;
@@ -548,6 +549,20 @@ export const tools: ToolInfo[] = [
     keywords: ['subnet calculator', 'cidr', 'netmask', 'broadcast address', 'ipv4', 'ipv6', 'network calculator'],
     technicalDescription:
       'This tool uses the `ip-address` library to parse and manipulate IP addresses. It performs bitwise operations to mask the host bits for the network address and invert them for the broadcast address. For IPv4, it calculates the range of usable hosts by adding 1 to the network address (First IP) and subtracting 1 from the broadcast address (Last IP). Support for IPv6 includes canonical expansion and abbreviation logic.',
+  },
+  {
+    id: 'image-base64',
+    slug: 'image-to-base64-converter',
+    title: 'Image to Base64 Converter',
+    seoTitle: 'Image to Base64 Converter - Encode Images to Data URI | Dev Tools',
+    description: 'Convert images (PNG, JPG, GIF) to Base64 encoded strings for embedding in HTML or CSS.',
+    longDescription:
+      'The **Image to Base64 Converter** transforms your image files into **Base64** strings (Data URIs). This allows you to embed images directly into your HTML, CSS, or JSON code, eliminating the need for external HTTP requests.\n\nOptimize your critical path performance. Embedding small assets like logos, icons, or background patterns as data URIs can reduce round-trip times (RTT) for your website. This tool provides ready-to-paste snippets for **HTML Image** tags and **CSS Background** properties.\n\nDrag and drop your image file. The tool instantly generates the Base64 string. You can preview the image and copy the code snippet that fits your use case.',
+    badge: 'Converters',
+    accent: 'Images',
+    keywords: ['image to base64', 'base64 converter', 'data uri', 'embed image', 'css background'],
+    technicalDescription:
+      'Conversions are performed entirely in the browser using the `FileReader` API (`readAsDataURL`). The file is read into memory as a Base64-encoded string. No data is uploaded to any server. The tool approximates the output size (Base64 is roughly 33% larger than the binary original) to help you decide if embedding is the right performance strategy.',
   },
 ];
 
