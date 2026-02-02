@@ -32,7 +32,9 @@ export type ToolId =
   | 'tailwind-palette-generator'
   | 'keycode-visualizer'
   | 'parquet-viewer'
-  | 'fake-data-generator';
+  | 'fake-data-generator'
+  | 'ip-subnet-calculator'
+  | 'image-base64';
 
 export interface ToolInfo {
   id: ToolId;
@@ -533,6 +535,34 @@ export const tools: ToolInfo[] = [
     ],
     technicalDescription:
       'Data generation is powered by `@faker-js/faker`, which provides localized data providers for names, addresses, and commerce items. The tool builds an array of objects based on the user-defined schema. Exporting involves transforming this in-memory array: `JSON.stringify` for JSON, a custom string builder for CSV (handling escaping), and a SQL INSERT statement generator that maps JS types to SQL types (e.g., Dates to ISO strings, text to quoted strings).',
+  },
+  {
+    id: 'ip-subnet-calculator',
+    slug: 'ip-subnet-calculator',
+    title: 'IP Subnet Calculator',
+    seoTitle: 'IP Subnet Calculator - CIDR, Netmask & Broadcast Address | Dev Tools',
+    description: 'Calculate network details like netmask, broadcast address, and usable IP range from a CIDR block.',
+    longDescription:
+      'The **IP Subnet Calculator** is an essential utility for network engineers and DevOps professionals. It takes an IP address and CIDR suffix (e.g., `192.168.1.0/24`) and breaks down the network configuration into actionable details.\n\nPlan your network architecture with precision. Quickly determine the **subnet mask**, **broadcast address**, and the range of **usable IP addresses** for any given network block. This tool supports both **IPv4** and **IPv6** addressing schemes.\n\nSimply enter your IP and partial mask (CIDR). The calculator instantly displays the Network Address, First and Last usable host IPs, and the total number of hosts available in that subnet.',
+    badge: 'DevOps',
+    accent: 'Network',
+    keywords: ['subnet calculator', 'cidr', 'netmask', 'broadcast address', 'ipv4', 'ipv6', 'network calculator'],
+    technicalDescription:
+      'This tool uses the `ip-address` library to parse and manipulate IP addresses. It performs bitwise operations to mask the host bits for the network address and invert them for the broadcast address. For IPv4, it calculates the range of usable hosts by adding 1 to the network address (First IP) and subtracting 1 from the broadcast address (Last IP). Support for IPv6 includes canonical expansion and abbreviation logic.',
+  },
+  {
+    id: 'image-base64',
+    slug: 'image-to-base64-converter',
+    title: 'Image to Base64 Converter',
+    seoTitle: 'Image to Base64 Converter - Encode Images to Data URI | Dev Tools',
+    description: 'Convert images (PNG, JPG, GIF) to Base64 encoded strings for embedding in HTML or CSS.',
+    longDescription:
+      'The **Image to Base64 Converter** transforms your image files into **Base64** strings (Data URIs). This allows you to embed images directly into your HTML, CSS, or JSON code, eliminating the need for external HTTP requests.\n\nOptimize your critical path performance. Embedding small assets like logos, icons, or background patterns as data URIs can reduce round-trip times (RTT) for your website. This tool provides ready-to-paste snippets for **HTML Image** tags and **CSS Background** properties.\n\nDrag and drop your image file. The tool instantly generates the Base64 string. You can preview the image and copy the code snippet that fits your use case.',
+    badge: 'Converters',
+    accent: 'Images',
+    keywords: ['image to base64', 'base64 converter', 'data uri', 'embed image', 'css background'],
+    technicalDescription:
+      'Conversions are performed entirely in the browser using the `FileReader` API (`readAsDataURL`). The file is read into memory as a Base64-encoded string. No data is uploaded to any server. The tool approximates the output size (Base64 is roughly 33% larger than the binary original) to help you decide if embedding is the right performance strategy.',
   },
 ];
 
