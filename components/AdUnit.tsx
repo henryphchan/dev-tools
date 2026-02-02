@@ -28,9 +28,10 @@ export function AdUnit() {
             <ins className="adsbygoogle"
                 key={pathname}
                 style={{ display: 'block' }}
-                data-ad-format="autorelaxed"
                 data-ad-client="ca-pub-3237862192285184"
-                data-ad-slot="8520077630"></ins>
+                data-ad-slot="9800870641"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
         </div>
 
     );
