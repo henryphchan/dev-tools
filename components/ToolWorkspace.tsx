@@ -41,6 +41,8 @@ import { UrlEncoderWorkspace } from './workspaces/UrlEncoderWorkspace';
 import { TimezoneConverterWorkspace } from './workspaces/TimezoneConverterWorkspace';
 import { CronValidatorWorkspace } from './workspaces/CronValidatorWorkspace';
 
+import { IpSubnetCalculatorWorkspace } from './workspaces/IpSubnetCalculatorWorkspace';
+
 // Map tool IDs to dedicated workspace components. Tools not listed here fall back to the
 // legacy monolithic workspace so we can migrate incrementally without breaking routes.
 const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: ToolInfo }>>> = {
@@ -77,6 +79,7 @@ const workspaceRegistry: Partial<Record<ToolInfo['id'], ComponentType<{ tool: To
   cron: CronValidatorWorkspace,
   'parquet-viewer': ParquetViewerWorkspace,
   'fake-data-generator': FakeDataGeneratorWorkspace,
+  'ip-subnet-calculator': IpSubnetCalculatorWorkspace,
 
   'webp-converter': WebpConverterWorkspace,
 };
